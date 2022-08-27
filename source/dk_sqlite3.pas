@@ -16,6 +16,9 @@ type
     FConnection: TSQLite3Connection;
     FTransaction: TSQLTransaction;
     FQuery: TSQLQuery;
+
+    function EscStr(const AString: String): String;
+
   public
     constructor Create;
     destructor  Destroy; override;
@@ -44,6 +47,12 @@ type
 implementation
 
 { TSQLite3 }
+
+function TSQLite3.EscStr(const AString: String): String;
+begin
+  Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
+  Result:= ' "' + Result + '" ';
+end;
 
 constructor TSQLite3.Create;
 begin
@@ -97,7 +106,11 @@ function TSQLite3.LastWritedInt32ID(const ATableName: String): Integer;
 begin
   Result:= 0;
   QSetQuery(FQuery);
-  QSetSQL('SELECT last_insert_rowid() AS LastID FROM ' + ATableName + ' LIMIT 1');
+  QSetSQL(
+    'SELECT last_insert_rowid() AS LastID ' +
+    'FROM' + EscStr(ATableName) +
+    'LIMIT 1'
+    );
   QOpen;
   if not QIsEmpty then
     Result:= QFieldInt('LastID');
@@ -108,7 +121,11 @@ function TSQLite3.LastWritedInt64ID(const ATableName: String): Int64;
 begin
   Result:= 0;
   QSetQuery(FQuery);
-  QSetSQL('SELECT last_insert_rowid() AS LastID FROM ' + ATableName + ' LIMIT 1');
+  QSetSQL(
+    'SELECT last_insert_rowid() AS LastID ' +
+    'FROM' + EscStr(ATableName) +
+    'LIMIT 1'
+    );
   QOpen;
   if not QIsEmpty then
     Result:= QFieldInt64('LastID');

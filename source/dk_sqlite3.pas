@@ -29,15 +29,61 @@ type
     procedure ExecuteScript(const AFileName: String);
 
 
-    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: Integer);
-    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: Int64);
-    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: TDateTime);
-    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: String);
+    procedure Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: Integer);
+    procedure Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: Int64);
+    procedure Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: TDateTime);
+    procedure Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: String;
+                     const ACaseSensitivity: Boolean = True);
 
-    function IsValueInTable(const ATableName, AFieldName: String; const AValue: Integer): Boolean;
-    function IsValueInTable(const ATableName, AFieldName: String; const AValue: Int64): Boolean;
-    function IsValueInTable(const ATableName, AFieldName: String; const AValue: TDateTime): Boolean;
-    function IsValueInTable(const ATableName, AFieldName: String; const AValue: String;
+    function IsValueInTable(const ATableName, AFieldName: String;
+                            const AValue: Integer): Boolean;
+    function IsValueInTable(const ATableName, AFieldName: String;
+                            const AValue: Int64): Boolean;
+    function IsValueInTable(const ATableName, AFieldName: String;
+                            const AValue: TDateTime): Boolean;
+    function IsValueInTable(const ATableName, AFieldName: String;
+                            const AValue: String;
+                            const ACaseSensitivity: Boolean = True): Boolean;
+
+
+    function IsValueInTableNotMatchInt32ID(const ATableName, AFieldName: String;
+                            const AValue: Integer;
+                            const AIDFieldName: String;
+                            const AIDValue: Integer = 0): Boolean;
+    function IsValueInTableNotMatchInt32ID(const ATableName, AFieldName: String;
+                            const AValue: Int64;
+                            const AIDFieldName: String;
+                            const AIDValue: Integer = 0): Boolean;
+    function IsValueInTableNotMatchInt32ID(const ATableName, AFieldName: String;
+                            const AValue: TDateTime;
+                            const AIDFieldName: String;
+                            const AIDValue: Integer = 0): Boolean;
+    function IsValueInTableNotMatchInt32ID(const ATableName, AFieldName: String;
+                            const AValue: String;
+                            const AIDFieldName: String;
+                            const AIDValue: Integer = 0;
+                            const ACaseSensitivity: Boolean = True): Boolean;
+
+    function IsValueInTableNotMatchInt64ID(const ATableName, AFieldName: String;
+                            const AValue: Integer;
+                            const AIDFieldName: String;
+                            const AIDValue: Int64 = 0): Boolean;
+    function IsValueInTableNotMatchInt64ID(const ATableName, AFieldName: String;
+                            const AValue: Int64;
+                            const AIDFieldName: String;
+                            const AIDValue: Int64 = 0): Boolean;
+    function IsValueInTableNotMatchInt64ID(const ATableName, AFieldName: String;
+                            const AValue: TDateTime;
+                            const AIDFieldName: String;
+                            const AIDValue: Int64 = 0): Boolean;
+    function IsValueInTableNotMatchInt64ID(const ATableName, AFieldName: String;
+                            const AValue: String;
+                            const AIDFieldName: String;
+                            const AIDValue: Int64 = 0;
                             const ACaseSensitivity: Boolean = True): Boolean;
 
     function LastWritedInt32ID(const ATableName: String): Integer;
@@ -121,16 +167,31 @@ begin
   end;
 end;
 
+
+
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
-                          const AIDValue: String);
+                          const AIDValue: String;
+                          const ACaseSensitivity: Boolean = True);
+var
+  WhereStr, Value: String;
 begin
   QSetQuery(FQuery);
   try
+    PrepareDelete(ATableName, AIDFieldName, S);
+    if ACaseSensitivity then
+    begin
+      WhereStr:= 'WHERE' + EscStr(AIDFieldName) + '= :IDValue';
+      Value:= AIDValue;
+    end
+    else begin
+      WhereStr:= 'WHERE UPPER(' + EscStr(AIDFieldName) + ') = :IDValue';
+      Value:= SUpper(AIDValue);
+    end;
     QSetSQL(
       'DELETE FROM' + EscStr(ATableName) +
-      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
-      );
-    QParamStr('IDValue', AIDValue);
+      WhereStr
+    );
+    QParamStr('IDValue', Value);
     QExec;
     QCommit;
   except
@@ -138,15 +199,23 @@ begin
   end;
 end;
 
+procedure PrepareDelete(const ATableName, AIDFieldName: String;
+                        out ASQL: String);
+begin
+  ASQL:=
+    'DELETE FROM' + EscStr(ATableName) +
+    'WHERE' + EscStr(AIDFieldName) + '= :IDValue';
+end;
+
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: Integer);
+var
+  S: String;
 begin
+  PrepareDelete(ATableName, AIDFieldName, S);
   QSetQuery(FQuery);
   try
-    QSetSQL(
-      'DELETE FROM' + EscStr(ATableName) +
-      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
-      );
+    QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QExec;
     QCommit;
@@ -157,13 +226,13 @@ end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: Int64);
+var
+  S: String;
 begin
+  PrepareDelete(ATableName, AIDFieldName, S);
   QSetQuery(FQuery);
   try
-    QSetSQL(
-      'DELETE FROM' + EscStr(ATableName) +
-      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
-      );
+    QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QExec;
     QCommit;
@@ -174,13 +243,13 @@ end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: TDateTime);
+var
+  S: String;
 begin
+  PrepareDelete(ATableName, AIDFieldName, S);
   QSetQuery(FQuery);
   try
-    QSetSQL(
-      'DELETE FROM' + EscStr(ATableName) +
-      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
-      );
+    QSetSQL(S);
     QParamDT('IDValue', AIDValue);
     QExec;
     QCommit;
@@ -189,18 +258,26 @@ begin
   end;
 end;
 
-function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
-  const AValue: Integer): Boolean;
+procedure PrepareIsValueInTable(const ATableName, AFieldName: String;
+                          out ASQL: String);
 var
   FieldName: String;
 begin
   FieldName:= EscStr(AFieldName);
-  QSetQuery(FQuery);
-  QSetSQL(
+  ASQL:=
     'SELECT' + FieldName +
     'FROM'   + EscStr(ATableName) +
-    'WHERE'  + FieldName + '= :Value'
-    );
+    'WHERE'  + FieldName + '= :Value';
+end;
+
+function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
+  const AValue: Integer): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTable(ATableName, AFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
   QParamInt('Value', AValue);
   QOpen;
   Result:= not QIsEmpty;
@@ -210,16 +287,26 @@ end;
 function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
   const AValue: Int64): Boolean;
 var
-  FieldName: String;
+  S: String;
 begin
-  FieldName:= EscStr(AFieldName);
+  PrepareIsValueInTable(ATableName, AFieldName, S);
   QSetQuery(FQuery);
-  QSetSQL(
-    'SELECT' + FieldName +
-    'FROM'   + EscStr(ATableName) +
-    'WHERE'  + FieldName + '= :Value'
-    );
+  QSetSQL(S);
   QParamInt64('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
+  const AValue: TDateTime): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTable(ATableName, AFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamDT('Value', AValue);
   QOpen;
   Result:= not QIsEmpty;
   QClose;
@@ -254,18 +341,164 @@ begin
   QClose;
 end;
 
-function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
-  const AValue: TDateTime): Boolean;
+procedure PrepareIsValueInTableNotMatchStr(
+  const ATableName, AFieldName, AIDFieldName, AValue: String;
+  const ACaseSensitivity: Boolean;
+  out ASQL, AOutValue: String);
+var
+  FieldName, WhereStr: String;
+begin
+  FieldName:= EscStr(AFieldName);
+
+  WhereStr:= '(' + EscStr(AIDFieldName) + '<> :IDValue) AND (';
+
+  if ACaseSensitivity then
+  begin
+    WhereStr:= WhereStr + FieldName + '= :Value)';
+    AOutValue:= AValue;
+  end
+  else begin
+    WhereStr:= WhereStr + 'UPPER('  + FieldName + ') = :Value)';
+    AOutValue:= SUpper(AValue);
+  end;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt32ID(const ATableName,
+  AFieldName: String; const AValue: String; const AIDFieldName: String;
+  const AIDValue: Integer; const ACaseSensitivity: Boolean): Boolean;
+var
+  S, Value: String;
+begin
+  PrepareIsValueInTableNotMatchStr(ATableName, AFieldName, AIDFieldName,
+                                   AValue, ACaseSensitivity, S, Value);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QParamStr('Value', Value);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt64ID(const ATableName,
+  AFieldName: String; const AValue: String; const AIDFieldName: String;
+  const AIDValue: Int64; const ACaseSensitivity: Boolean): Boolean;
+var
+  S, Value: String;
+begin
+  PrepareIsValueInTableNotMatchStr(ATableName, AFieldName, AIDFieldName,
+                                   AValue, ACaseSensitivity, S, Value);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QParamStr('Value', Value);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+procedure PrepareIsValueInTableNotMatch(const ATableName, AFieldName, AIDFieldName: String;
+  out ASQL: String);
 var
   FieldName: String;
 begin
   FieldName:= EscStr(AFieldName);
-  QSetQuery(FQuery);
-  QSetSQL(
+  ASQL:=
     'SELECT' + FieldName +
     'FROM'   + EscStr(ATableName) +
-    'WHERE'  + FieldName + '= :Value'
-    );
+    'WHERE (' + FieldName + '= :Value) AND (' + EscStr(AIDFieldName) + '<> :IDValue)';
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt64ID(const ATableName,
+  AFieldName: String; const AValue: Integer; const AIDFieldName: String;
+  const AIDValue: Int64): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTableNotMatch(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QParamInt('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt64ID(const ATableName,
+  AFieldName: String; const AValue: Int64; const AIDFieldName: String;
+  const AIDValue: Int64): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTableNotMatch(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QParamInt64('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt64ID(const ATableName,
+  AFieldName: String; const AValue: TDateTime; const AIDFieldName: String;
+  const AIDValue: Int64): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTableNotMatch(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QParamDT('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt32ID(const ATableName,
+  AFieldName: String; const AValue: Integer; const AIDFieldName: String;
+  const AIDValue: Integer): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTableNotMatch(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QParamInt('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt32ID(const ATableName,
+  AFieldName: String; const AValue: Int64; const AIDFieldName: String;
+  const AIDValue: Integer): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTableNotMatch(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QParamInt64('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTableNotMatchInt32ID(const ATableName,
+  AFieldName: String; const AValue: TDateTime; const AIDFieldName: String;
+  const AIDValue: Integer): Boolean;
+var
+  S: String;
+begin
+  PrepareIsValueInTableNotMatch(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
   QParamDT('Value', AValue);
   QOpen;
   Result:= not QIsEmpty;

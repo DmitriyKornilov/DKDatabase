@@ -5,7 +5,7 @@ unit DK_SQLite3;
 interface
 
 uses
-  Classes, SysUtils, SQLite3Conn, SQLDB, DK_SQLUtils, DK_Vector,
+  Classes, SysUtils, SQLite3Conn, SQLDB, DK_SQLUtils, DK_Vector, DK_StrUtils,
   DK_Dialogs;
 
 type
@@ -31,16 +31,22 @@ type
 
     procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: Integer);
     procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: Int64);
-    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: String);
     procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: TDateTime);
+    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: String);
+
+    function IsValueInTable(const ATableName, AFieldName: String; const AValue: Integer): Boolean;
+    function IsValueInTable(const ATableName, AFieldName: String; const AValue: Int64): Boolean;
+    function IsValueInTable(const ATableName, AFieldName: String; const AValue: TDateTime): Boolean;
+    function IsValueInTable(const ATableName, AFieldName: String; const AValue: String;
+                            const ACaseSensitivity: Boolean = True): Boolean;
 
     function LastWritedInt32ID(const ATableName: String): Integer;
     function LastWritedInt64ID(const ATableName: String): Int64;
 
     function LastWritedInt32Value(const ATableName, AFieldName: String): Integer;
     function LastWritedInt64Value(const ATableName, AFieldName: String): Int64;
-    function LastWritedStringValue(const ATableName, AFieldName: String): String;
     function LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
+    function LastWritedStringValue(const ATableName, AFieldName: String): String;
 
 
     procedure KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
@@ -181,6 +187,89 @@ begin
   except
     QRollback;
   end;
+end;
+
+function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
+  const AValue: Integer): Boolean;
+var
+  FieldName: String;
+begin
+  FieldName:= EscStr(AFieldName);
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + FieldName +
+    'FROM'   + EscStr(ATableName) +
+    'WHERE'  + FieldName + '= :Value'
+    );
+  QParamInt('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
+  const AValue: Int64): Boolean;
+var
+  FieldName: String;
+begin
+  FieldName:= EscStr(AFieldName);
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + FieldName +
+    'FROM'   + EscStr(ATableName) +
+    'WHERE'  + FieldName + '= :Value'
+    );
+  QParamInt64('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
+  const AValue: String; const ACaseSensitivity: Boolean = True): Boolean;
+var
+  FieldName, WhereStr, Value: String;
+begin
+  FieldName:= EscStr(AFieldName);
+
+  if ACaseSensitivity then
+  begin
+    WhereStr:= 'WHERE'  + FieldName + '= :Value';
+    Value:= AValue;
+  end
+  else begin
+    WhereStr:= 'WHERE UPPER('  + FieldName + ') = :Value';
+    Value:= SUpper(AValue);
+  end;
+
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + FieldName +
+    'FROM'   + EscStr(ATableName) +
+    WhereStr
+    );
+  QParamStr('Value', Value);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
+end;
+
+function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
+  const AValue: TDateTime): Boolean;
+var
+  FieldName: String;
+begin
+  FieldName:= EscStr(AFieldName);
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + FieldName +
+    'FROM'   + EscStr(ATableName) +
+    'WHERE'  + FieldName + '= :Value'
+    );
+  QParamDT('Value', AValue);
+  QOpen;
+  Result:= not QIsEmpty;
+  QClose;
 end;
 
 function TSQLite3.LastWritedInt32ID(const ATableName: String): Integer;

@@ -28,13 +28,20 @@ type
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
 
-    procedure Delete(const ATable, AIDField: String; const AIDValue: String);
+
     procedure Delete(const ATable, AIDField: String; const AIDValue: Integer);
     procedure Delete(const ATable, AIDField: String; const AIDValue: Int64);
+    procedure Delete(const ATable, AIDField: String; const AIDValue: String);
     procedure Delete(const ATable, AIDField: String; const AIDValue: TDateTime);
 
     function LastWritedInt32ID(const ATableName: String): Integer;
     function LastWritedInt64ID(const ATableName: String): Int64;
+
+    function LastWritedInt32Value(const ATableName, AFieldName: String): Integer;
+    function LastWritedInt64Value(const ATableName, AFieldName: String): Int64;
+    function LastWritedStringValue(const ATableName, AFieldName: String): String;
+    function LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
+
 
     procedure KeyPickList(const ATable, AKeyField, APickField: String;
                           out AKeyVector: TIntVector;
@@ -203,6 +210,70 @@ begin
   QOpen;
   if not QIsEmpty then
     Result:= QFieldInt64('LastID');
+  QClose;
+end;
+
+function TSQLite3.LastWritedInt32Value(const ATableName, AFieldName: String): Integer;
+begin
+  Result:= 0;
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + EscStr(AFieldName) +
+    'FROM'   + EscStr(ATableName) +
+    'ORDER BY RowID DESC '+
+    'LIMIT 1'
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldInt(AFieldName);
+  QClose;
+end;
+
+function TSQLite3.LastWritedInt64Value(const ATableName, AFieldName: String): Int64;
+begin
+  Result:= 0;
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + EscStr(AFieldName) +
+    'FROM'   + EscStr(ATableName) +
+    'ORDER BY RowID DESC '+
+    'LIMIT 1'
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldInt64(AFieldName);
+  QClose;
+end;
+
+function TSQLite3.LastWritedStringValue(const ATableName, AFieldName: String): String;
+begin
+  Result:= EmptyStr;
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + EscStr(AFieldName) +
+    'FROM'   + EscStr(ATableName) +
+    'ORDER BY RowID DESC '+
+    'LIMIT 1'
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldStr(AFieldName);
+  QClose;
+end;
+
+function TSQLite3.LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
+begin
+  Result:= 0;
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT' + EscStr(AFieldName) +
+    'FROM'   + EscStr(ATableName) +
+    'ORDER BY RowID DESC '+
+    'LIMIT 1'
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldDT(AFieldName);
   QClose;
 end;
 

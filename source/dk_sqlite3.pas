@@ -5,7 +5,8 @@ unit DK_SQLite3;
 interface
 
 uses
-  Classes, SysUtils, SQLite3Conn, SQLDB, DK_SQLUtils, DK_Vector;
+  Classes, SysUtils, SQLite3Conn, SQLDB, DK_SQLUtils, DK_Vector,
+  DK_Dialogs;
 
 type
 
@@ -34,13 +35,14 @@ type
   и записывает их в AKeyList, APickList
   Если AKeyValueNotZero=True - отбор значений AKeyField<>0}
     procedure KeyPickList(const ATable, AKeyField, APickField: String;
-                           out AKeyVector: TIntVector; out APickVector: TStrVector;
-                           const AKeyValueNotZero: Boolean = False;
-                           AOrderField: String = '');
+                          out AKeyVector: TIntVector;
+                          out APickVector: TStrVector;
+                          const AKeyValueNotZero: Boolean = False;
+                          const AOrderField: String = '');
     procedure KeyPickList(const ATable, AKeyField, APickField: String;
-                           out AKeyList, APickList: TStringList;
-                           const AKeyValueNotZero: Boolean = False;
-                           AOrderField: String = '');
+                          out AKeyList, APickList: TStringList;
+                          const AKeyValueNotZero: Boolean = False;
+                          const AOrderField: String = '');
 
   end;
 
@@ -51,7 +53,7 @@ implementation
 function TSQLite3.EscStr(const AString: String): String;
 begin
   Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
-  Result:= ' "' + Result + '" ';
+  Result:= ' [' + Result + '] ';
 end;
 
 constructor TSQLite3.Create;
@@ -132,18 +134,68 @@ begin
   QClose;
 end;
 
-procedure TSQLite3.KeyPickList(const ATable, AKeyField, APickField: String; out
-  AKeyVector: TIntVector; out APickVector: TStrVector;
-  const AKeyValueNotZero: Boolean; AOrderField: String);
+procedure TSQLite3.KeyPickList(const ATable, AKeyField, APickField: String;
+                          out AKeyVector: TIntVector;
+                          out APickVector: TStrVector;
+                          const AKeyValueNotZero: Boolean = False;
+                          const AOrderField: String = '');
+var
+  QueryStr, KeyField, PickField, OrderField: String;
 begin
+  AKeyVector:= nil;
+  APickVector:= nil;
 
+  KeyField:= EscStr(AKeyField);
+  PickField:= EscStr(APickField);
+
+  if AOrderField=EmptyStr then
+    OrderField:=  PickField
+  else
+    OrderField:= EscStr(AOrderField);
+
+  QueryStr:=
+    'SELECT' + KeyField + ',' + PickField +
+    'FROM'   + EscStr(ATable);
+  if AKeyValueNotZero then
+    QueryStr:= QueryStr +
+      'WHERE' + KeyField + '<> 0 ';
+  QueryStr:= QueryStr +
+    'ORDER BY' + OrderField;
+
+  QSetQuery(FQuery);
+  QSetSQL(QueryStr);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(AKeyVector, QFieldInt(AKeyField));
+      VAppend(APickVector, QFieldStr(APickField));
+      QNext;
+    end;
+  end;
+  QClose;
 end;
 
-procedure TSQLite3.KeyPickList(const ATable, AKeyField, APickField: String; out
-  AKeyList, APickList: TStringList; const AKeyValueNotZero: Boolean;
-  AOrderField: String);
+procedure TSQLite3.KeyPickList(const ATable, AKeyField, APickField: String;
+                          out AKeyList, APickList: TStringList;
+                          const AKeyValueNotZero: Boolean = False;
+                          const AOrderField: String = '');
+var
+  VKey: TIntVector;
+  VPick: TStrVector;
+  i: Integer;
 begin
-
+  {%H-}APickList.Clear;
+  {%H-}AKeyList.Clear;
+  KeyPickList(ATable, AKeyField, APickField,
+                 VKey, VPick, AKeyValueNotZero, AOrderField);
+  for i:= 0 to High(VKey) do
+  begin
+    AKeyList.Add(IntToStr(VKey[i]));
+    APickList.Add(VPick[i]);
+  end;
 end;
 
 end.

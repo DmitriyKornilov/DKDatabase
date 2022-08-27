@@ -29,10 +29,10 @@ type
     procedure ExecuteScript(const AFileName: String);
 
 
-    procedure Delete(const ATable, AIDField: String; const AIDValue: Integer);
-    procedure Delete(const ATable, AIDField: String; const AIDValue: Int64);
-    procedure Delete(const ATable, AIDField: String; const AIDValue: String);
-    procedure Delete(const ATable, AIDField: String; const AIDValue: TDateTime);
+    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: Integer);
+    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: Int64);
+    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: String);
+    procedure Delete(const ATableName, AIDFieldName: String; const AIDValue: TDateTime);
 
     function LastWritedInt32ID(const ATableName: String): Integer;
     function LastWritedInt64ID(const ATableName: String): Int64;
@@ -43,15 +43,15 @@ type
     function LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
 
 
-    procedure KeyPickList(const ATable, AKeyField, APickField: String;
+    procedure KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
                           out AKeyVector: TIntVector;
                           out APickVector: TStrVector;
                           const AKeyValueNotZero: Boolean = False;
-                          const AOrderField: String = '');
-    procedure KeyPickList(const ATable, AKeyField, APickField: String;
+                          const AOrderFieldName: String = '');
+    procedure KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
                           out AKeyList, APickList: TStringList;
                           const AKeyValueNotZero: Boolean = False;
-                          const AOrderField: String = '');
+                          const AOrderFieldName: String = '');
 
   end;
 
@@ -115,14 +115,14 @@ begin
   end;
 end;
 
-procedure TSQLite3.Delete(const ATable, AIDField: String;
+procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: String);
 begin
   QSetQuery(FQuery);
   try
     QSetSQL(
-      'DELETE FROM' + EscStr(ATable) +
-      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      'DELETE FROM' + EscStr(ATableName) +
+      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
       );
     QParamStr('IDValue', AIDValue);
     QExec;
@@ -132,14 +132,14 @@ begin
   end;
 end;
 
-procedure TSQLite3.Delete(const ATable, AIDField: String;
+procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: Integer);
 begin
   QSetQuery(FQuery);
   try
     QSetSQL(
-      'DELETE FROM' + EscStr(ATable) +
-      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      'DELETE FROM' + EscStr(ATableName) +
+      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
       );
     QParamInt('IDValue', AIDValue);
     QExec;
@@ -149,14 +149,14 @@ begin
   end;
 end;
 
-procedure TSQLite3.Delete(const ATable, AIDField: String;
+procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: Int64);
 begin
   QSetQuery(FQuery);
   try
     QSetSQL(
-      'DELETE FROM' + EscStr(ATable) +
-      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      'DELETE FROM' + EscStr(ATableName) +
+      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
       );
     QParamInt64('IDValue', AIDValue);
     QExec;
@@ -166,14 +166,14 @@ begin
   end;
 end;
 
-procedure TSQLite3.Delete(const ATable, AIDField: String;
+procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: TDateTime);
 begin
   QSetQuery(FQuery);
   try
     QSetSQL(
-      'DELETE FROM' + EscStr(ATable) +
-      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      'DELETE FROM' + EscStr(ATableName) +
+      'WHERE' + EscStr(AIDFieldName) + '= :IDValue'
       );
     QParamDT('IDValue', AIDValue);
     QExec;
@@ -277,28 +277,28 @@ begin
   QClose;
 end;
 
-procedure TSQLite3.KeyPickList(const ATable, AKeyField, APickField: String;
+procedure TSQLite3.KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
                           out AKeyVector: TIntVector;
                           out APickVector: TStrVector;
                           const AKeyValueNotZero: Boolean = False;
-                          const AOrderField: String = '');
+                          const AOrderFieldName: String = '');
 var
   QueryStr, KeyField, PickField, OrderField: String;
 begin
   AKeyVector:= nil;
   APickVector:= nil;
 
-  KeyField:= EscStr(AKeyField);
-  PickField:= EscStr(APickField);
+  KeyField:= EscStr(AKeyFieldName);
+  PickField:= EscStr(APickFieldName);
 
-  if AOrderField=EmptyStr then
+  if AOrderFieldName=EmptyStr then
     OrderField:=  PickField
   else
-    OrderField:= EscStr(AOrderField);
+    OrderField:= EscStr(AOrderFieldName);
 
   QueryStr:=
     'SELECT' + KeyField + ',' + PickField +
-    'FROM'   + EscStr(ATable);
+    'FROM'   + EscStr(ATableName);
   if AKeyValueNotZero then
     QueryStr:= QueryStr +
       'WHERE' + KeyField + '<> 0 ';
@@ -313,18 +313,18 @@ begin
     QFirst;
     while not QEOF do
     begin
-      VAppend(AKeyVector, QFieldInt(AKeyField));
-      VAppend(APickVector, QFieldStr(APickField));
+      VAppend(AKeyVector, QFieldInt(AKeyFieldName));
+      VAppend(APickVector, QFieldStr(APickFieldName));
       QNext;
     end;
   end;
   QClose;
 end;
 
-procedure TSQLite3.KeyPickList(const ATable, AKeyField, APickField: String;
+procedure TSQLite3.KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
                           out AKeyList, APickList: TStringList;
                           const AKeyValueNotZero: Boolean = False;
-                          const AOrderField: String = '');
+                          const AOrderFieldName: String = '');
 var
   VKey: TIntVector;
   VPick: TStrVector;
@@ -332,8 +332,8 @@ var
 begin
   {%H-}APickList.Clear;
   {%H-}AKeyList.Clear;
-  KeyPickList(ATable, AKeyField, APickField,
-                 VKey, VPick, AKeyValueNotZero, AOrderField);
+  KeyPickList(ATableName, AKeyFieldName, APickFieldName,
+                 VKey, VPick, AKeyValueNotZero, AOrderFieldName);
   for i:= 0 to High(VKey) do
   begin
     AKeyList.Add(IntToStr(VKey[i]));

@@ -18,7 +18,7 @@ type
     FTransaction: TSQLTransaction;
     FQuery: TSQLQuery;
 
-    function EscStr(const AString: String): String;
+
   public
     constructor Create;
     destructor  Destroy; override;
@@ -131,17 +131,17 @@ type
 
   end;
 
+  function EscStr(const AString: String): String;
+
 implementation
 
-{ TSQLite3 }
-
-function TSQLite3.EscStr(const AString: String): String;
+function EscStr(const AString: String): String;
 begin
   Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
   Result:= ' [' + Result + '] ';
 end;
 
-
+{ TSQLite3 }
 
 constructor TSQLite3.Create;
 begin
@@ -201,7 +201,6 @@ var
 begin
   QSetQuery(FQuery);
   try
-    PrepareDelete(ATableName, AIDFieldName, S);
     if ACaseSensitivity then
     begin
       WhereStr:= 'WHERE' + EscStr(AIDFieldName) + '= :IDValue';
@@ -223,7 +222,7 @@ begin
   end;
 end;
 
-procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String
+procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String;
                         out ASQL: String);
 begin
   ASQL:=
@@ -238,7 +237,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamInt('NewValue', ANewValue);
@@ -255,7 +255,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamInt64('NewValue', ANewValue);
@@ -272,7 +273,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamDT('NewValue', ANewValue);
@@ -289,7 +291,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamStr('NewValue', ANewValue);
@@ -306,7 +309,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamInt('NewValue', ANewValue);
@@ -323,7 +327,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamInt64('NewValue', ANewValue);
@@ -340,7 +345,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamDT('NewValue', ANewValue);
@@ -357,7 +363,8 @@ var
   S: String;
 begin
   try
-    QSetQuery(DBUtilsQuery);
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamStr('NewValue', ANewValue);

@@ -1,4 +1,4 @@
-unit UListForm;
+unit USQLite3ListForm;
 
 {$mode objfpc}{$H+}
 
@@ -6,17 +6,18 @@ interface
 
 uses
   Classes, SysUtils, sqldb, db, FileUtil, rxdbgrid, Forms, Controls, Graphics,
-  Dialogs, DbCtrls, Buttons, Grids, DBGrids, DBUtils, SheetUtils;
+  Dialogs, DbCtrls, Buttons, Grids, DBGrids, DK_SQLUtils;
 
 type
 
-  { TListForm }
+  { TSQLite3ListForm }
 
-  TListForm = class(TForm)
+  TSQLite3ListForm = class(TForm)
     ColorDialog1: TColorDialog;
     DataSource1: TDataSource;
     DBNavigator1: TDBNavigator;
     ImageList1: TImageList;
+    WriteQuery: TSQLQuery;
     RxDBGrid1: TRxDBGrid;
     ListQuery: TSQLQuery;
     CloseButton: TSpeedButton;
@@ -37,6 +38,9 @@ type
   private
     { private declarations }
     TableName, IDField, NameField, ColorField : String;
+    SelectedColor: TColor;
+    SelectedFontColor: TColor;
+
     procedure SetGridColumnWidth;
     procedure SetListColor;
     procedure ChangeDBNavButton(DBNav: TDbNavigator;
@@ -46,14 +50,15 @@ type
     procedure ChangeDBNavigatorGlyphs(DBNav: TDbNavigator);
   public
     { public declarations }
+    procedure SetNames(const ATableName, AIDFieldName,
+                             AFieldName, AColorFieldName: String);
+    procedure SetSettings(const ASelectedColor, ASelectedFontColor: TColor);
   end;
 
 var
-  ListForm: TListForm;
+  SQLite3ListForm: TSQLite3ListForm;
 
-  function ListFormOpen(const ATableName, AIDField, ANameField: String;
-                        const AOrderByName: Boolean = False;
-                        const AColorField: String = ''): Boolean;
+
 
 implementation
 
@@ -62,36 +67,7 @@ implementation
 {$R *.lfm}
 
 
-
-
-function ListFormOpen(const ATableName, AIDField, ANameField: String;
-                      const AOrderByName: Boolean = False;
-                      const AColorField: String = ''): Boolean;
-var
-  LF: TListForm;
-begin
-  Result:= False;
-  LF:= TListForm.Create(nil);
-  LF.TableName:= ATableName;
-  LF.IDField:= AIDField;
-  LF.NameField:= ANameField;
-  LF.ColorField:= AColorField;
-  LF.ColorButton.Visible:= LF.ColorField<>'';
-  LF.RxDBGrid1.Columns.Items[0].FieldName:= ANameField;
-  LF.ListQuery.SQL.Clear;
-  LF.ListQuery.SQL.Add('SELECT * FROM ' + ATableName);
-  LF.ListQuery.SQL.Add('WHERE ' + AIDField + ' > 0');
-  if AOrderByName then
-    LF.ListQuery.SQL.Add('ORDER BY ' + ANameField);
-  try
-    LF.ShowModal;
-  finally
-    FreeAndNil(LF);
-  end;
-  Result:= True;
-end;
-
-procedure TListForm.ChangeDBNavButton(DBNav: TDbNavigator;
+procedure TSQLite3ListForm.ChangeDBNavButton(DBNav: TDbNavigator;
                             const DBBtnType: TDBNavButtonType;
                             const DBBtnGlyph: TBitmap;
                             const DBBtnCursor: TCursor = crDefault);
@@ -113,7 +89,7 @@ begin
   end;
 end;
 
-procedure TListForm.ChangeDBNavigatorGlyphs(DBNav: TDbNavigator);
+procedure TSQLite3ListForm.ChangeDBNavigatorGlyphs(DBNav: TDbNavigator);
 var
   BM: TBitmap;
 begin
@@ -134,61 +110,87 @@ begin
   end;
 end;
 
-procedure TListForm.FormResize(Sender: TObject);
+procedure TSQLite3ListForm.SetNames(const ATableName, AIDFieldName, AFieldName,
+  AColorFieldName: String);
+begin
+  TableName:= ATableName;
+  IDField:= AIDFieldName;
+  NameField:= AFieldName;
+  ColorField:= AColorFieldName;
+end;
+
+procedure TSQLite3ListForm.SetSettings(const ASelectedColor,
+  ASelectedFontColor: TColor);
+begin
+  SelectedColor:= ASelectedColor;
+  SelectedFontColor:=  ASelectedFontColor;
+end;
+
+procedure TSQLite3ListForm.FormResize(Sender: TObject);
 begin
   SetGridColumnWidth;
 end;
 
-procedure TListForm.FormShow(Sender: TObject);
+procedure TSQLite3ListForm.FormShow(Sender: TObject);
 begin
-  ListQuery.Open;
   ChangeDBNavigatorGlyphs(DBNavigator1);
+  RxDBGrid1.SelectedColor:= SelectedColor;
+  RxDBGrid1.SelectedFont.Color:= SelectedFontColor;
+  ColorButton.Visible:= ColorField<>EmptyStr;
+  RxDBGrid1.Columns.Items[0].FieldName:= NameField;
+  ListQuery.Open;
 end;
 
-procedure TListForm.FormChangeBounds(Sender: TObject);
+procedure TSQLite3ListForm.FormChangeBounds(Sender: TObject);
 begin
   SetGridColumnWidth;
 end;
 
-procedure TListForm.FormCreate(Sender: TObject);
+procedure TSQLite3ListForm.FormCreate(Sender: TObject);
 begin
-  RxDBGrid1.SelectedColor:= COLOR_BACKGROUND_SELECTED;
-  RxDBGrid1.SelectedFont.Color:= clWindowText;
+  SelectedColor:= clHighlight;
+  SelectedFontColor:=  clWindowText;
 end;
 
-procedure TListForm.ColorButtonClick(Sender: TObject);
+procedure TSQLite3ListForm.ColorButtonClick(Sender: TObject);
 begin
   SetListColor;
 end;
 
-procedure TListForm.DataSource1DataChange(Sender: TObject; Field: TField);
+procedure TSQLite3ListForm.DataSource1DataChange(Sender: TObject; Field: TField);
 begin
   if ColorField='' then Exit;
   ColorButton.Enabled:= not ListQuery.IsEmpty;
 end;
 
-procedure TListForm.ListQueryAfterDelete(DataSet: TDataSet);
+procedure DataSetChangesSave(const ADataSet: TDataSet);
+begin
+  (ADataSet As TSQLQuery).ApplyUpdates;
+  (ADataSet As TSQLQuery).SQLTransaction.CommitRetaining;
+end;
+
+procedure TSQLite3ListForm.ListQueryAfterDelete(DataSet: TDataSet);
 begin
   DataSetChangesSave(DataSet);
 end;
 
-procedure TListForm.ListQueryAfterPost(DataSet: TDataSet);
+procedure TSQLite3ListForm.ListQueryAfterPost(DataSet: TDataSet);
 begin
   DataSetChangesSave(DataSet);
 end;
 
-procedure TListForm.CloseButtonClick(Sender: TObject);
+procedure TSQLite3ListForm.CloseButtonClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TListForm.ListQueryBeforePost(DataSet: TDataSet);
+procedure TSQLite3ListForm.ListQueryBeforePost(DataSet: TDataSet);
 begin
   if ColorField='' then Exit;
   ListQuery.FieldByName(ColorField).AsInteger:= 16777215;
 end;
 
-procedure TListForm.RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
+procedure TSQLite3ListForm.RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
   const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
 var
   ColorValue: Integer;
@@ -196,7 +198,7 @@ var
 begin
   if ListQuery.IsEmpty then Exit;
   Grid:= Sender AS TRxDBGrid;
-  if ColorField='' then
+  if ColorField=EmptyStr then
     Grid.DefaultDrawColumnCell(Rect, DataCol, Column, State)
   else begin
     ColorValue:= ListQuery.FieldByName(ColorField).AsInteger;
@@ -209,23 +211,42 @@ begin
   end;
 end;
 
-procedure TListForm.SetGridColumnWidth;
+procedure TSQLite3ListForm.SetGridColumnWidth;
 begin
   RxDBGrid1.Columns.Items[0].Width:= RxDBGrid1.Width-30;
 end;
 
-procedure TListForm.SetListColor;
+procedure TSQLite3ListForm.SetListColor;
 var
   NewValue, IDValue: Integer;
+
+  function EscStr(const AString: String): String;
+  begin
+    Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
+    Result:= ' [' + Result + '] ';
+  end;
+
 begin
   if not ColorDialog1.Execute then Exit;
   NewValue:= ColorToRGB(ColorDialog1.Color);
   IDValue:= ListQuery.FieldByName(IDField).AsInteger;
-  UpdateWithID(TableName, IDField, ColorField, IDValue, NewValue);
+
+  try
+    QSetQuery(WriteQuery);
+    QSetSQL(
+      'UPDATE' + EscStr(TableName) +
+      'SET'    + EscStr(ColorField)   + '= :NewValue ' +
+      'WHERE'  + EscStr(IDField) + '= :IDValue'
+      );
+    QParamInt('IDValue', IDValue);
+    QParamInt('NewValue', NewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
 
   ListQuery.Refresh;
-
-
 end;
 
 end.

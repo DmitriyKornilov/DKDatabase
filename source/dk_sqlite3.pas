@@ -26,6 +26,12 @@ type
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
 
+    procedure List(const ACaption: String;
+                   const ATableName, AIDFieldName, AFieldName: String;
+                   const AOrderByName: Boolean = False;
+                   const AIDNotZero: Boolean = False;
+                   const AColorFieldName: String = '');
+
 
     procedure Delete(const ATableName, AIDFieldName: String;
                      const AIDValue: Integer);
@@ -135,6 +141,8 @@ type
 
 implementation
 
+uses USQLite3ListForm;
+
 function EscStr(const AString: String): String;
 begin
   Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
@@ -191,7 +199,31 @@ begin
   end;
 end;
 
-
+procedure TSQLite3.List(const ACaption: String; const ATableName, AIDFieldName,
+  AFieldName: String; const AOrderByName: Boolean; const AIDNotZero: Boolean;
+  const AColorFieldName: String);
+var
+  LF: TSQLite3ListForm;
+begin
+  LF:= TSQLite3ListForm.Create(nil);
+  LF.Caption:= ACaption;
+  LF.ListQuery.DataBase:= FConnection;
+  LF.ListQuery.Transaction:= FTransaction;
+  LF.WriteQuery.DataBase:= FConnection;
+  LF.WriteQuery.Transaction:= FTransaction;
+  LF.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
+  LF.ListQuery.SQL.Clear;
+  LF.ListQuery.SQL.Add('SELECT * FROM' + EscStr(ATableName));
+  if AIDNotZero then
+    LF.ListQuery.SQL.Add('WHERE' + EscStr(AIDFieldName) + '> 0');
+  if AOrderByName then
+    LF.ListQuery.SQL.Add('ORDER BY ' + EscStr(AFieldName));
+  try
+    LF.ShowModal;
+  finally
+    FreeAndNil(LF);
+  end;
+end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: String;
@@ -537,6 +569,11 @@ begin
     WhereStr:= WhereStr + 'UPPER('  + FieldName + ') = :Value)';
     AOutValue:= SUpper(AValue);
   end;
+
+  ASQL:=
+    'SELECT' + FieldName +
+    'FROM'   + EscStr(ATableName) +
+    WhereStr;
 end;
 
 function TSQLite3.IsValueInTableNotMatchInt32ID(const ATableName,

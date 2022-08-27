@@ -19,8 +19,6 @@ type
     FQuery: TSQLQuery;
 
     function EscStr(const AString: String): String;
-
-
   public
     constructor Create;
     destructor  Destroy; override;
@@ -38,6 +36,32 @@ type
     procedure Delete(const ATableName, AIDFieldName: String;
                      const AIDValue: String;
                      const ACaseSensitivity: Boolean = True);
+
+    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Integer;
+                     const ANewValue: Integer);
+    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Integer;
+                     const ANewValue: Int64);
+    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Integer;
+                     const ANewValue: TDateTime);
+    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Integer;
+                     const ANewValue: String);
+
+    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Int64;
+                     const ANewValue: Integer);
+    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Int64;
+                     const ANewValue: Int64);
+    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Int64;
+                     const ANewValue: TDateTime);
+    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValue: Int64;
+                     const ANewValue: String);
 
     function IsValueInTable(const ATableName, AFieldName: String;
                             const AValue: Integer): Boolean;
@@ -192,6 +216,151 @@ begin
       WhereStr
     );
     QParamStr('IDValue', Value);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String
+                        out ASQL: String);
+begin
+  ASQL:=
+    'UPDATE' + EscStr(ATableName) +
+    'SET'    + EscStr(AFieldName)   + '= :NewValue ' +
+    'WHERE'  + EscStr(AIDFieldName) + '= :IDValue'
+end;
+
+procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Integer; const ANewValue: Integer);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt('IDValue', AIDValue);
+    QParamInt('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Integer; const ANewValue: Int64);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt('IDValue', AIDValue);
+    QParamInt64('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Integer; const ANewValue: TDateTime);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt('IDValue', AIDValue);
+    QParamDT('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Integer; const ANewValue: String);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt('IDValue', AIDValue);
+    QParamStr('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Int64; const ANewValue: Integer);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt64('IDValue', AIDValue);
+    QParamInt('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Int64; const ANewValue: Int64);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt64('IDValue', AIDValue);
+    QParamInt64('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Int64; const ANewValue: TDateTime);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt64('IDValue', AIDValue);
+    QParamDT('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValue: Int64; const ANewValue: String);
+var
+  S: String;
+begin
+  try
+    QSetQuery(DBUtilsQuery);
+    QSetSQL(S);
+    QParamInt64('IDValue', AIDValue);
+    QParamStr('NewValue', ANewValue);
     QExec;
     QCommit;
   except

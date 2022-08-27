@@ -20,6 +20,7 @@ type
 
     function EscStr(const AString: String): String;
 
+
   public
     constructor Create;
     destructor  Destroy; override;
@@ -27,13 +28,14 @@ type
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
 
+    procedure Delete(const ATable, AIDField: String; const AIDValue: String);
+    procedure Delete(const ATable, AIDField: String; const AIDValue: Integer);
+    procedure Delete(const ATable, AIDField: String; const AIDValue: Int64);
+    procedure Delete(const ATable, AIDField: String; const AIDValue: TDateTime);
+
     function LastWritedInt32ID(const ATableName: String): Integer;
     function LastWritedInt64ID(const ATableName: String): Int64;
 
-    {KeyPickList получает из таблицы ATable значения из полей AKeyField и APickField,
-  отсортированные по AOrderField (если AOrderField=EmptyStr, то AOrderField=APickField),
-  и записывает их в AKeyList, APickList
-  Если AKeyValueNotZero=True - отбор значений AKeyField<>0}
     procedure KeyPickList(const ATable, AKeyField, APickField: String;
                           out AKeyVector: TIntVector;
                           out APickVector: TStrVector;
@@ -55,6 +57,8 @@ begin
   Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
   Result:= ' [' + Result + '] ';
 end;
+
+
 
 constructor TSQLite3.Create;
 begin
@@ -101,6 +105,74 @@ begin
 
   finally
     FreeAndNil(SQLScript);
+  end;
+end;
+
+procedure TSQLite3.Delete(const ATable, AIDField: String;
+                          const AIDValue: String);
+begin
+  QSetQuery(FQuery);
+  try
+    QSetSQL(
+      'DELETE FROM' + EscStr(ATable) +
+      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      );
+    QParamStr('IDValue', AIDValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.Delete(const ATable, AIDField: String;
+                          const AIDValue: Integer);
+begin
+  QSetQuery(FQuery);
+  try
+    QSetSQL(
+      'DELETE FROM' + EscStr(ATable) +
+      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      );
+    QParamInt('IDValue', AIDValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.Delete(const ATable, AIDField: String;
+                          const AIDValue: Int64);
+begin
+  QSetQuery(FQuery);
+  try
+    QSetSQL(
+      'DELETE FROM' + EscStr(ATable) +
+      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      );
+    QParamInt64('IDValue', AIDValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
+end;
+
+procedure TSQLite3.Delete(const ATable, AIDField: String;
+                          const AIDValue: TDateTime);
+begin
+  QSetQuery(FQuery);
+  try
+    QSetSQL(
+      'DELETE FROM' + EscStr(ATable) +
+      'WHERE' + EscStr(AIDField) + '= :IDValue'
+      );
+    QParamDT('IDValue', AIDValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
   end;
 end;
 

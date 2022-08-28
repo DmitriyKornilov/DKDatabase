@@ -137,17 +137,12 @@ type
 
   end;
 
-  function EscStr(const AString: String): String;
+
 
 implementation
 
 uses USQLite3ListForm;
 
-function EscStr(const AString: String): String;
-begin
-  Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
-  Result:= ' [' + Result + '] ';
-end;
 
 { TSQLite3 }
 
@@ -213,11 +208,11 @@ begin
   LF.WriteQuery.Transaction:= FTransaction;
   LF.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
   LF.ListQuery.SQL.Clear;
-  LF.ListQuery.SQL.Add('SELECT * FROM' + EscStr(ATableName));
+  LF.ListQuery.SQL.Add('SELECT * FROM' + SqlEsc(ATableName));
   if AIDNotZero then
-    LF.ListQuery.SQL.Add('WHERE' + EscStr(AIDFieldName) + '> 0');
+    LF.ListQuery.SQL.Add('WHERE' + SqlEsc(AIDFieldName) + '> 0');
   if AOrderByName then
-    LF.ListQuery.SQL.Add('ORDER BY ' + EscStr(AFieldName));
+    LF.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
   try
     LF.ShowModal;
   finally
@@ -235,15 +230,15 @@ begin
   try
     if ACaseSensitivity then
     begin
-      WhereStr:= 'WHERE' + EscStr(AIDFieldName) + '= :IDValue';
+      WhereStr:= 'WHERE' + SqlEsc(AIDFieldName) + '= :IDValue';
       Value:= AIDValue;
     end
     else begin
-      WhereStr:= 'WHERE UPPER(' + EscStr(AIDFieldName) + ') = :IDValue';
+      WhereStr:= 'WHERE UPPER(' + SqlEsc(AIDFieldName) + ') = :IDValue';
       Value:= SUpper(AIDValue);
     end;
     QSetSQL(
-      'DELETE FROM' + EscStr(ATableName) +
+      'DELETE FROM' + SqlEsc(ATableName) +
       WhereStr
     );
     QParamStr('IDValue', Value);
@@ -258,9 +253,9 @@ procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String;
                         out ASQL: String);
 begin
   ASQL:=
-    'UPDATE' + EscStr(ATableName) +
-    'SET'    + EscStr(AFieldName)   + '= :NewValue ' +
-    'WHERE'  + EscStr(AIDFieldName) + '= :IDValue'
+    'UPDATE' + SqlEsc(ATableName) +
+    'SET'    + SqlEsc(AFieldName)   + '= :NewValue ' +
+    'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue'
 end;
 
 procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
@@ -411,8 +406,8 @@ procedure PrepareDelete(const ATableName, AIDFieldName: String;
                         out ASQL: String);
 begin
   ASQL:=
-    'DELETE FROM' + EscStr(ATableName) +
-    'WHERE' + EscStr(AIDFieldName) + '= :IDValue';
+    'DELETE FROM' + SqlEsc(ATableName) +
+    'WHERE' + SqlEsc(AIDFieldName) + '= :IDValue';
 end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
@@ -471,10 +466,10 @@ procedure PrepareIsValueInTable(const ATableName, AFieldName: String;
 var
   FieldName: String;
 begin
-  FieldName:= EscStr(AFieldName);
+  FieldName:= SqlEsc(AFieldName);
   ASQL:=
     'SELECT' + FieldName +
-    'FROM'   + EscStr(ATableName) +
+    'FROM'   + SqlEsc(ATableName) +
     'WHERE'  + FieldName + '= :Value';
 end;
 
@@ -525,7 +520,7 @@ function TSQLite3.IsValueInTable(const ATableName, AFieldName: String;
 var
   FieldName, WhereStr, Value: String;
 begin
-  FieldName:= EscStr(AFieldName);
+  FieldName:= SqlEsc(AFieldName);
 
   if ACaseSensitivity then
   begin
@@ -540,7 +535,7 @@ begin
   QSetQuery(FQuery);
   QSetSQL(
     'SELECT' + FieldName +
-    'FROM'   + EscStr(ATableName) +
+    'FROM'   + SqlEsc(ATableName) +
     WhereStr
     );
   QParamStr('Value', Value);
@@ -556,9 +551,9 @@ procedure PrepareIsValueInTableNotMatchStr(
 var
   FieldName, WhereStr: String;
 begin
-  FieldName:= EscStr(AFieldName);
+  FieldName:= SqlEsc(AFieldName);
 
-  WhereStr:= '(' + EscStr(AIDFieldName) + '<> :IDValue) AND (';
+  WhereStr:= '(' + SqlEsc(AIDFieldName) + '<> :IDValue) AND (';
 
   if ACaseSensitivity then
   begin
@@ -572,7 +567,7 @@ begin
 
   ASQL:=
     'SELECT' + FieldName +
-    'FROM'   + EscStr(ATableName) +
+    'FROM'   + SqlEsc(ATableName) +
     WhereStr;
 end;
 
@@ -615,11 +610,11 @@ procedure PrepareIsValueInTableNotMatch(const ATableName, AFieldName, AIDFieldNa
 var
   FieldName: String;
 begin
-  FieldName:= EscStr(AFieldName);
+  FieldName:= SqlEsc(AFieldName);
   ASQL:=
     'SELECT' + FieldName +
-    'FROM'   + EscStr(ATableName) +
-    'WHERE (' + FieldName + '= :Value) AND (' + EscStr(AIDFieldName) + '<> :IDValue)';
+    'FROM'   + SqlEsc(ATableName) +
+    'WHERE (' + FieldName + '= :Value) AND (' + SqlEsc(AIDFieldName) + '<> :IDValue)';
 end;
 
 function TSQLite3.IsValueInTableNotMatchInt64ID(const ATableName,
@@ -724,7 +719,7 @@ begin
   QSetQuery(FQuery);
   QSetSQL(
     'SELECT last_insert_rowid() AS LastID ' +
-    'FROM' + EscStr(ATableName) +
+    'FROM' + SqlEsc(ATableName) +
     'LIMIT 1'
     );
   QOpen;
@@ -739,7 +734,7 @@ begin
   QSetQuery(FQuery);
   QSetSQL(
     'SELECT last_insert_rowid() AS LastID ' +
-    'FROM' + EscStr(ATableName) +
+    'FROM' + SqlEsc(ATableName) +
     'LIMIT 1'
     );
   QOpen;
@@ -753,8 +748,8 @@ begin
   Result:= 0;
   QSetQuery(FQuery);
   QSetSQL(
-    'SELECT' + EscStr(AFieldName) +
-    'FROM'   + EscStr(ATableName) +
+    'SELECT' + SqlEsc(AFieldName) +
+    'FROM'   + SqlEsc(ATableName) +
     'ORDER BY RowID DESC '+
     'LIMIT 1'
     );
@@ -769,8 +764,8 @@ begin
   Result:= 0;
   QSetQuery(FQuery);
   QSetSQL(
-    'SELECT' + EscStr(AFieldName) +
-    'FROM'   + EscStr(ATableName) +
+    'SELECT' + SqlEsc(AFieldName) +
+    'FROM'   + SqlEsc(ATableName) +
     'ORDER BY RowID DESC '+
     'LIMIT 1'
     );
@@ -785,8 +780,8 @@ begin
   Result:= EmptyStr;
   QSetQuery(FQuery);
   QSetSQL(
-    'SELECT' + EscStr(AFieldName) +
-    'FROM'   + EscStr(ATableName) +
+    'SELECT' + SqlEsc(AFieldName) +
+    'FROM'   + SqlEsc(ATableName) +
     'ORDER BY RowID DESC '+
     'LIMIT 1'
     );
@@ -801,8 +796,8 @@ begin
   Result:= 0;
   QSetQuery(FQuery);
   QSetSQL(
-    'SELECT' + EscStr(AFieldName) +
-    'FROM'   + EscStr(ATableName) +
+    'SELECT' + SqlEsc(AFieldName) +
+    'FROM'   + SqlEsc(ATableName) +
     'ORDER BY RowID DESC '+
     'LIMIT 1'
     );
@@ -823,17 +818,17 @@ begin
   AKeyVector:= nil;
   APickVector:= nil;
 
-  KeyField:= EscStr(AKeyFieldName);
-  PickField:= EscStr(APickFieldName);
+  KeyField:= SqlEsc(AKeyFieldName);
+  PickField:= SqlEsc(APickFieldName);
 
   if AOrderFieldName=EmptyStr then
     OrderField:=  PickField
   else
-    OrderField:= EscStr(AOrderFieldName);
+    OrderField:= SqlEsc(AOrderFieldName);
 
   QueryStr:=
     'SELECT' + KeyField + ',' + PickField +
-    'FROM'   + EscStr(ATableName);
+    'FROM'   + SqlEsc(ATableName);
   if AKeyValueNotZero then
     QueryStr:= QueryStr +
       'WHERE' + KeyField + '<> 0 ';

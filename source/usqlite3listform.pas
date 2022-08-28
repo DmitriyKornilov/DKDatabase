@@ -219,13 +219,6 @@ end;
 procedure TSQLite3ListForm.SetListColor;
 var
   NewValue, IDValue: Integer;
-
-  function EscStr(const AString: String): String;
-  begin
-    Result:= StringReplace(AString, ' ', '', [rfReplaceAll]);
-    Result:= ' [' + Result + '] ';
-  end;
-
 begin
   if not ColorDialog1.Execute then Exit;
   NewValue:= ColorToRGB(ColorDialog1.Color);
@@ -234,9 +227,9 @@ begin
   try
     QSetQuery(WriteQuery);
     QSetSQL(
-      'UPDATE' + EscStr(TableName) +
-      'SET'    + EscStr(ColorField)   + '= :NewValue ' +
-      'WHERE'  + EscStr(IDField) + '= :IDValue'
+      'UPDATE' + SqlEsc(TableName) +
+      'SET'    + SqlEsc(ColorField)   + '= :NewValue ' +
+      'WHERE'  + SqlEsc(IDField) + '= :IDValue'
       );
     QParamInt('IDValue', IDValue);
     QParamInt('NewValue', NewValue);

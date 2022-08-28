@@ -5,19 +5,21 @@ unit DK_SQLite3;
 interface
 
 uses
-  Classes, SysUtils, SQLite3Conn, SQLDB, DK_SQLUtils, DK_Vector, DK_StrUtils,
-  DK_Dialogs;
+  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB,
+  DK_SQLUtils, DK_Vector, DK_StrUtils, DK_Dialogs;
 
 type
 
   { TSQLite3 }
 
   TSQLite3 = class
-  private
+  protected
     FConnection: TSQLite3Connection;
     FTransaction: TSQLTransaction;
     FQuery: TSQLQuery;
 
+
+    FEditListSelectedColor, FEditListSelectedFontColor: TColor;
 
   public
     constructor Create;
@@ -26,11 +28,12 @@ type
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
 
-    procedure List(const ACaption: String;
+    procedure SetEditListSettings(const ASelectedColor, ASelectedFontColor: TColor);
+    function EditList(const ACaption: String;
                    const ATableName, AIDFieldName, AFieldName: String;
                    const AOrderByName: Boolean = False;
                    const AIDNotZero: Boolean = False;
-                   const AColorFieldName: String = '');
+                   const AColorFieldName: String = ''): Boolean;
 
 
     procedure Delete(const ATableName, AIDFieldName: String;
@@ -152,11 +155,16 @@ begin
   FTransaction:= TSQLTransaction.Create(nil);
   FQuery:= TSQLQuery.Create(nil);
 
+
   FConnection.CharSet:= 'UTF8';
   FConnection.Transaction:= FTransaction;
   FConnection.OpenFlags:= FConnection.OpenFlags + [sofCreate, sofReadWrite];
   FQuery.SQLConnection:= FConnection;
   FQuery.Transaction:= FTransaction;
+
+
+  FEditListSelectedColor:= clHighlight;
+  FEditListSelectedFontColor:= clWindowText;
 end;
 
 destructor TSQLite3.Destroy;
@@ -194,30 +202,41 @@ begin
   end;
 end;
 
-procedure TSQLite3.List(const ACaption: String; const ATableName, AIDFieldName,
+procedure TSQLite3.SetEditListSettings(const ASelectedColor,
+  ASelectedFontColor: TColor);
+begin
+  FEditListSelectedColor:= ASelectedColor;
+  FEditListSelectedFontColor:= ASelectedFontColor;
+end;
+
+function TSQLite3.EditList(const ACaption: String; const ATableName, AIDFieldName,
   AFieldName: String; const AOrderByName: Boolean; const AIDNotZero: Boolean;
-  const AColorFieldName: String);
+  const AColorFieldName: String): Boolean;
 var
   LF: TSQLite3ListForm;
 begin
+  Result:= False;
   LF:= TSQLite3ListForm.Create(nil);
-  LF.Caption:= ACaption;
-  LF.ListQuery.DataBase:= FConnection;
-  LF.ListQuery.Transaction:= FTransaction;
-  LF.WriteQuery.DataBase:= FConnection;
-  LF.WriteQuery.Transaction:= FTransaction;
-  LF.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
-  LF.ListQuery.SQL.Clear;
-  LF.ListQuery.SQL.Add('SELECT * FROM' + SqlEsc(ATableName));
-  if AIDNotZero then
-    LF.ListQuery.SQL.Add('WHERE' + SqlEsc(AIDFieldName) + '> 0');
-  if AOrderByName then
-    LF.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
   try
+    LF.Caption:= ACaption;
+    LF.ListQuery.DataBase:= FConnection;
+    LF.ListQuery.Transaction:= FTransaction;
+    LF.WriteQuery.DataBase:= FConnection;
+    LF.WriteQuery.Transaction:= FTransaction;
+    LF.SetSettings(FEditListSelectedColor, FEditListSelectedFontColor);
+    LF.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
+    LF.ListQuery.SQL.Clear;
+    LF.ListQuery.SQL.Add('SELECT * FROM' + SqlEsc(ATableName));
+    if AIDNotZero then
+      LF.ListQuery.SQL.Add('WHERE' + SqlEsc(AIDFieldName) + '> 0');
+    if AOrderByName then
+      LF.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
     LF.ShowModal;
   finally
     FreeAndNil(LF);
   end;
+
+  Result:= False;
 end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;

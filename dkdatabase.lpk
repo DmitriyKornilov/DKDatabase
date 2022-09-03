@@ -26,8 +26,22 @@
         <Filename Value="source\usqlite3listform.lfm"/>
         <Type Value="LFM"/>
       </Item>
+      <Item>
+        <Filename Value="source\usqlite3keypickform.lfm"/>
+        <Type Value="LFM"/>
+      </Item>
+      <Item>
+        <Filename Value="source\usqlite3keypickform.pas"/>
+        <UnitName Value="USQLite3KeyPickForm"/>
+      </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="DKVTUtils"/>
+      </Item>
+      <Item>
+        <PackageName Value="virtualtreeview_package"/>
+      </Item>
       <Item>
         <PackageName Value="rxnew"/>
       </Item>

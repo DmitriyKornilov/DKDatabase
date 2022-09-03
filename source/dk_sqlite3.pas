@@ -5,7 +5,7 @@ unit DK_SQLite3;
 interface
 
 uses
-  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB,
+  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls,
   DK_SQLUtils, DK_Vector, DK_StrUtils, DK_Dialogs;
 
 type
@@ -34,6 +34,13 @@ type
                    const AOrderByName: Boolean = False;
                    const AIDNotZero: Boolean = False;
                    const AColorFieldName: String = ''): Boolean;
+
+    function EditKeyPickList(var AKeyValues: TIntVector;
+                   var APickValues: TStrVector;
+                   const ACaption: String;
+                   const ATableName, AKeyFieldName, APickFieldName: String;
+                   const AOrderByName: Boolean = False;
+                   const AKeyNotZero: Boolean = False): Boolean;
 
 
     procedure Delete(const ATableName, AIDFieldName: String;
@@ -144,7 +151,7 @@ type
 
 implementation
 
-uses USQLite3ListForm;
+uses USQLite3ListForm, USQLite3KeyPickForm;
 
 
 { TSQLite3 }
@@ -213,31 +220,68 @@ function TSQLite3.EditList(const ACaption: String; const ATableName, AIDFieldNam
   AFieldName: String; const AOrderByName: Boolean; const AIDNotZero: Boolean;
   const AColorFieldName: String): Boolean;
 var
-  LF: TSQLite3ListForm;
+  Frm: TSQLite3ListForm;
 begin
   Result:= False;
-  LF:= TSQLite3ListForm.Create(nil);
+  Frm:= TSQLite3ListForm.Create(nil);
   try
-    LF.Caption:= ACaption;
-    LF.ListQuery.DataBase:= FConnection;
-    LF.ListQuery.Transaction:= FTransaction;
-    LF.WriteQuery.DataBase:= FConnection;
-    LF.WriteQuery.Transaction:= FTransaction;
-    LF.SetSettings(FEditListSelectedColor, FEditListSelectedFontColor);
-    LF.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
-    LF.ListQuery.SQL.Clear;
-    LF.ListQuery.SQL.Add('SELECT * FROM' + SqlEsc(ATableName));
+    Frm.Caption:= ACaption;
+    Frm.ListQuery.DataBase:= FConnection;
+    Frm.ListQuery.Transaction:= FTransaction;
+    Frm.WriteQuery.DataBase:= FConnection;
+    Frm.WriteQuery.Transaction:= FTransaction;
+    Frm.SetSettings(FEditListSelectedColor, FEditListSelectedFontColor);
+    Frm.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
+    Frm.ListQuery.SQL.Clear;
+    Frm.ListQuery.SQL.Add('SELECT * FROM' + SqlEsc(ATableName));
     if AIDNotZero then
-      LF.ListQuery.SQL.Add('WHERE' + SqlEsc(AIDFieldName) + '> 0');
+      Frm.ListQuery.SQL.Add('WHERE' + SqlEsc(AIDFieldName) + '> 0');
     if AOrderByName then
-      LF.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
-    LF.ShowModal;
+      Frm.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
+    Frm.ShowModal;
     Result:= True;
   finally
-    FreeAndNil(LF);
+    FreeAndNil(Frm);
   end;
+end;
 
+function TSQLite3.EditKeyPickList(var AKeyValues: TIntVector;
+  var APickValues: TStrVector; const ACaption: String; const ATableName,
+  AKeyFieldName, APickFieldName: String; const AOrderByName: Boolean;
+  const AKeyNotZero: Boolean): Boolean;
+var
+  Frm: TSQLite3KeyPickForm;
+  VKey: TIntVector;
+  VPick: TStrVector;
+  S: String;
+begin
+  Result:= False;
+  //AKeyValues:= nil;
+  //APickValues:= nil;
+  Frm:= TSQLite3KeyPickForm.Create(nil);
 
+  try
+    Frm.Caption:= ACaption;
+    Frm.ListQuery.DataBase:= FConnection;
+    Frm.ListQuery.Transaction:= FTransaction;
+    S:= AKeyFieldName;
+    if AOrderByName then
+      S:= APickFieldName;
+    KeyPickList(ATableName, AKeyFieldName, APickFieldName,
+                VKey, VPick, AKeyNotZero, S);
+    Frm.KeyValues:= VKey;
+    Frm.PickValues:= VPick;
+
+    Frm.OutKeyValues:= AKeyValues;
+    Frm.OutPickValues:= APickValues;
+
+    Result:= Frm.ShowModal=mrOK;
+
+    AKeyValues:= Frm.OutKeyValues;
+    APickValues:= Frm.OutPickValues;
+  finally
+    FreeAndNil(Frm);
+  end;
 end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;

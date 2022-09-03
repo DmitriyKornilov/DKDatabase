@@ -232,11 +232,12 @@ begin
     if AOrderByName then
       LF.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
     LF.ShowModal;
+    Result:= True;
   finally
     FreeAndNil(LF);
   end;
 
-  Result:= False;
+
 end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;

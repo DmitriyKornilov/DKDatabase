@@ -36,9 +36,8 @@ type
                    const AColorFieldName: String = ''): Boolean;
 
     function EditKeyPickList(var AKeyValues: TIntVector;
-                   var APickValues: TStrVector;
-                   const ACaption: String;
-                   const ATableName, AKeyFieldName, APickFieldName: String;
+                   var APickValues: TStrVector;  out AIsAllChecked: Boolean;
+                   const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
                    const AOrderByName: Boolean = False;
                    const AKeyNotZero: Boolean = False): Boolean;
 
@@ -246,8 +245,9 @@ begin
 end;
 
 function TSQLite3.EditKeyPickList(var AKeyValues: TIntVector;
-  var APickValues: TStrVector; const ACaption: String; const ATableName,
-  AKeyFieldName, APickFieldName: String; const AOrderByName: Boolean;
+  var APickValues: TStrVector; out AIsAllChecked: Boolean;
+  const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
+  const AOrderByName: Boolean;
   const AKeyNotZero: Boolean): Boolean;
 var
   Frm: TSQLite3KeyPickForm;
@@ -279,6 +279,7 @@ begin
 
     AKeyValues:= Frm.OutKeyValues;
     APickValues:= Frm.OutPickValues;
+    AIsAllChecked:= Frm.IsAllChecked;
   finally
     FreeAndNil(Frm);
   end;

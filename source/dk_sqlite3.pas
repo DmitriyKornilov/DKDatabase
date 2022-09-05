@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls,
-  DK_SQLUtils, DK_Vector, DK_StrUtils, DK_Dialogs;
+  DK_SQLUtils, DK_Vector, DK_StrUtils;
 
 type
 

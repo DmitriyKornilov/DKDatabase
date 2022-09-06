@@ -275,11 +275,14 @@ begin
     Frm.OutKeyValues:= AKeyValues;
     Frm.OutPickValues:= APickValues;
 
-    Result:= Frm.ShowModal=mrOK;
+    if Frm.ShowModal=mrOK then
+    begin
+      Result:= True;
+      AKeyValues:= Frm.OutKeyValues;
+      APickValues:= Frm.OutPickValues;
+      AIsAllChecked:= Frm.IsAllChecked;
+    end;
 
-    AKeyValues:= Frm.OutKeyValues;
-    APickValues:= Frm.OutPickValues;
-    AIsAllChecked:= Frm.IsAllChecked;
   finally
     FreeAndNil(Frm);
   end;

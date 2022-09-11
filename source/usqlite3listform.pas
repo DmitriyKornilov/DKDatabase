@@ -16,11 +16,10 @@ type
     ColorDialog1: TColorDialog;
     DataSource1: TDataSource;
     DBNavigator1: TDBNavigator;
-    ImageList1: TImageList;
+    //ImageList1: TImageList;
     WriteQuery: TSQLQuery;
     RxDBGrid1: TRxDBGrid;
     ListQuery: TSQLQuery;
-    CloseButton: TSpeedButton;
     ColorButton: TSpeedButton;
     procedure ColorButtonClick(Sender: TObject);
     procedure DataSource1DataChange(Sender: TObject; {%H-}Field: TField);
@@ -30,7 +29,6 @@ type
     procedure FormShow(Sender: TObject);
     procedure ListQueryAfterDelete(DataSet: TDataSet);
     procedure ListQueryAfterPost(DataSet: TDataSet);
-    procedure CloseButtonClick(Sender: TObject);
     procedure ListQueryBeforePost(DataSet: TDataSet);
     procedure RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
       const Rect: TRect; DataCol: Integer; Column: TColumn;
@@ -40,6 +38,8 @@ type
     TableName, IDField, NameField, ColorField : String;
     SelectedColor: TColor;
     SelectedFontColor: TColor;
+
+
 
     procedure SetGridColumnWidth;
     procedure SetListColor;
@@ -53,11 +53,12 @@ type
     procedure SetNames(const ATableName, AIDFieldName,
                              AFieldName, AColorFieldName: String);
     procedure SetSettings(const ASelectedColor, ASelectedFontColor: TColor);
+
   end;
 
 var
   SQLite3ListForm: TSQLite3ListForm;
-
+  ImageList: TImageList;
 
 
 implementation
@@ -93,17 +94,19 @@ procedure TSQLite3ListForm.ChangeDBNavigatorGlyphs(DBNav: TDbNavigator);
 var
   BM: TBitmap;
 begin
+  if not Assigned(ImageList) then Exit;
+  if ImageList.Count<5 then Exit;
   BM:= TBitmap.Create;
   try
-    ImageList1.GetBitmap(0, BM);
+    ImageList.GetBitmap(0, BM);
     ChangeDBNavButton(DBNav, nbInsert, BM, crHandPoint);
-    ImageList1.GetBitmap(1, BM);
+    ImageList.GetBitmap(1, BM);
     ChangeDBNavButton(DBNav, nbDelete, BM, crHandPoint);
-    ImageList1.GetBitmap(2, BM);
+    ImageList.GetBitmap(2, BM);
     ChangeDBNavButton(DBNav, nbEdit, BM, crHandPoint);
-    ImageList1.GetBitmap(3, BM);
+    ImageList.GetBitmap(3, BM);
     ChangeDBNavButton(DBNav, nbPost, BM, crHandPoint);
-    ImageList1.GetBitmap(4, BM);
+    ImageList.GetBitmap(4, BM);
     ChangeDBNavButton(DBNav, nbCancel, BM, crHandPoint);
   finally
     FreeAndNil(BM);
@@ -177,11 +180,6 @@ end;
 procedure TSQLite3ListForm.ListQueryAfterPost(DataSet: TDataSet);
 begin
   DataSetChangesSave(DataSet);
-end;
-
-procedure TSQLite3ListForm.CloseButtonClick(Sender: TObject);
-begin
-  Close;
 end;
 
 procedure TSQLite3ListForm.ListQueryBeforePost(DataSet: TDataSet);

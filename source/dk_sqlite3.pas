@@ -41,6 +41,23 @@ type
                    const AOrderByName: Boolean = False;
                    const AKeyNotZero: Boolean = False): Boolean;
 
+    function ValueInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                               const AIDValue: Integer): Integer;
+    function ValueInt64Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                               const AIDValue: Integer): Int64;
+    function ValueDTInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                            const AIDValue: Integer): TDateTime;
+    function ValueStrInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                             const AIDValue: Integer): String;
+    function ValueInt32Int64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                               const AIDValue: Int64): Integer;
+    function ValueInt64Int64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                               const AIDValue: Int64): Int64;
+    function ValueDTInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                            const AIDValue: Int64): TDateTime;
+    function ValueStrInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                             const AIDValue: Int64): String;
+
 
     procedure Delete(const ATableName, AIDFieldName: String;
                      const AIDValue: Integer);
@@ -191,6 +208,7 @@ procedure TSQLite3.ExecuteScript(const AFileName: String);
 var
   SQLScript: TSQLScript;
 begin
+  if not FileExists(AFileName) then Exit;
   SQLScript:= TSQLScript.Create(nil);
   try
     SQLScript.DataBase:= FConnection;
@@ -286,6 +304,168 @@ begin
   finally
     FreeAndNil(Frm);
   end;
+end;
+
+procedure PrepareValue(const ATableName, AValueFieldName, AIDFieldName: String;
+                       out ASQL: String);
+begin
+  ASQL:= 'SELECT' + SqlEsc(AValueFieldName) +
+         'FROM'   + SqlEsc(ATableName) +
+         'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue';
+end;
+
+
+
+function TSQLite3.ValueInt32Int32ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Integer): Integer;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldInt(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueInt64Int32ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Integer): Int64;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldInt64(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueDTInt32ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Integer): TDateTime;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldDT(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueStrInt32ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Integer): String;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldStr(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueInt32Int64ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Int64): Integer;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldInt(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueInt64Int64ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Int64): Int64;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldInt64(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueDTInt64ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Int64): TDateTime;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldDT(AValueFieldName);
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValueStrInt64ID(const ATableName, AValueFieldName,
+  AIDFieldName: String; const AIDValue: Int64): String;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldStr(AValueFieldName);
+  end;
+  QClose;
 end;
 
 procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;

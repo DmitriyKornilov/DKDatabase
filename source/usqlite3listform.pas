@@ -6,21 +6,23 @@ interface
 
 uses
   Classes, SysUtils, sqldb, db, FileUtil, rxdbgrid, Forms, Controls, Graphics,
-  Dialogs, DbCtrls, Buttons, Grids, DBGrids, DK_SQLUtils;
+  Dialogs, DbCtrls, Buttons, Grids, DBGrids, ExtCtrls, DK_SQLUtils;
 
 type
 
   { TSQLite3ListForm }
 
   TSQLite3ListForm = class(TForm)
+    ColorButton: TSpeedButton;
     ColorDialog1: TColorDialog;
     DataSource1: TDataSource;
     DBNavigator1: TDBNavigator;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    RxDBGrid1: TRxDBGrid;
     //ImageList1: TImageList;
     WriteQuery: TSQLQuery;
-    RxDBGrid1: TRxDBGrid;
     ListQuery: TSQLQuery;
-    ColorButton: TSpeedButton;
     procedure ColorButtonClick(Sender: TObject);
     procedure DataSource1DataChange(Sender: TObject; {%H-}Field: TField);
     procedure FormChangeBounds(Sender: TObject);
@@ -193,20 +195,23 @@ procedure TSQLite3ListForm.RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
 var
   ColorValue: Integer;
   Grid: TRxDBGrid;
+  y: Integer;
 begin
   if ListQuery.IsEmpty then Exit;
   Grid:= Sender AS TRxDBGrid;
-  if ColorField=EmptyStr then
-    Grid.DefaultDrawColumnCell(Rect, DataCol, Column, State)
-  else begin
+  Grid.Canvas.Font.Assign(Grid.Font);
+  if ColorField<>EmptyStr then
+  begin
     ColorValue:= ListQuery.FieldByName(ColorField).AsInteger;
     if ColorValue= 0 then
       ColorValue:= 16777215;
-    Grid.Canvas.Font.Assign(Grid.Font);
     Grid.Canvas.Brush.Color:= ColorValue;
-    Grid.Canvas.FillRect(Rect.Left, Rect.Top, Rect.Right-1, Rect.Bottom-1);
-    Grid.Canvas.TextOut(Rect.Left + 2, Rect.Top + 2, Column.Field.AsString);
   end;
+  Grid.Canvas.Pen.Color:= clWindowText;
+  y:= Rect.Top-1;
+  if y<0 then y:= 0;
+  Grid.Canvas.Rectangle(Rect.Left, y, Rect.Right, Rect.Bottom);
+  Grid.Canvas.TextOut(Rect.Left + 3, Rect.Top + 2, Column.Field.AsString);
 end;
 
 procedure TSQLite3ListForm.SetGridColumnWidth;

@@ -378,7 +378,7 @@ function TSQLite3.ValueStrInt32ID(const ATableName, AValueFieldName,
 var
   S: String;
 begin
-  Result:= 0;
+  Result:= EmptyStr;
   PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
   QSetQuery(FQuery);
   QSetSQL(S);
@@ -454,7 +454,7 @@ function TSQLite3.ValueStrInt64ID(const ATableName, AValueFieldName,
 var
   S: String;
 begin
-  Result:= 0;
+  Result:= EmptyStr;
   PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
   QSetQuery(FQuery);
   QSetSQL(S);

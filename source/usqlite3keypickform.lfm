@@ -12,13 +12,14 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
   Position = poScreenCenter
   LCLVersion = '2.2.2.0'
   object VT1: TVirtualStringTree
-    Left = 6
-    Height = 416
-    Top = 40
-    Width = 514
+    Left = 3
+    Height = 415
+    Top = 43
+    Width = 520
     Align = alClient
-    BorderSpacing.Left = 6
-    BorderSpacing.Right = 6
+    BorderSpacing.Left = 3
+    BorderSpacing.Top = 3
+    BorderSpacing.Right = 3
     DefaultText = 'Node'
     Header.AutoSizeIndex = 0
     Header.Columns = <>
@@ -26,18 +27,18 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
     TabOrder = 0
   end
   object ButtonPanel: TPanel
-    Left = 8
+    Left = 3
     Height = 58
-    Top = 456
-    Width = 510
+    Top = 458
+    Width = 520
     Align = alBottom
     AutoSize = True
-    BorderSpacing.Left = 8
-    BorderSpacing.Right = 8
-    BorderSpacing.Bottom = 8
+    BorderSpacing.Left = 3
+    BorderSpacing.Right = 3
+    BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 58
-    ClientWidth = 510
+    ClientWidth = 520
     TabOrder = 1
     object CancelButton: TSpeedButton
       AnchorSideTop.Control = DividerBevel1
@@ -45,7 +46,7 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
       AnchorSideRight.Control = ButtonPanel
       AnchorSideRight.Side = asrBottom
       Cursor = crHandPoint
-      Left = 385
+      Left = 395
       Height = 38
       Top = 20
       Width = 125
@@ -196,7 +197,7 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
       AnchorSideTop.Side = asrCenter
       AnchorSideRight.Control = CancelButton
       Cursor = crHandPoint
-      Left = 260
+      Left = 270
       Height = 38
       Top = 20
       Width = 125
@@ -347,7 +348,7 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
       Left = 0
       Height = 20
       Top = 0
-      Width = 510
+      Width = 520
       Align = alTop
       Font.Style = [fsBold]
       ParentFont = False
@@ -368,14 +369,15 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
     TabOrder = 2
     object ListCheckButton: TSpeedButton
       Cursor = crHandPoint
-      Left = 5
-      Height = 40
+      Left = 3
+      Height = 37
       Hint = 'Отметить весь список'
-      Top = 0
+      Top = 3
       Width = 40
       Align = alLeft
       AutoSize = True
-      BorderSpacing.Left = 5
+      BorderSpacing.Left = 3
+      BorderSpacing.Top = 3
       Constraints.MinWidth = 40
       Glyph.Data = {
         36100000424D3610000000000000360000002800000020000000200000000100
@@ -518,13 +520,14 @@ object SQLite3KeyPickForm: TSQLite3KeyPickForm
     end
     object ListUncheckButton: TSpeedButton
       Cursor = crHandPoint
-      Left = 45
-      Height = 40
+      Left = 43
+      Height = 37
       Hint = 'Снять все отметки'
-      Top = 0
+      Top = 3
       Width = 40
       Align = alLeft
       AutoSize = True
+      BorderSpacing.Top = 3
       Constraints.MinWidth = 40
       Glyph.Data = {
         36100000424D3610000000000000360000002800000020000000200000000100

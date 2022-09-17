@@ -5,8 +5,8 @@ unit DK_SQLite3;
 interface
 
 uses
-  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls,
-  DK_SQLUtils, DK_Vector, DK_StrUtils;
+  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls, StdCtrls,
+  DK_SQLUtils, DK_Vector, DK_StrUtils, VirtualTrees;
 
 type
 
@@ -39,7 +39,8 @@ type
                    var APickValues: TStrVector;  out AIsAllChecked: Boolean;
                    const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
                    const AOrderByName: Boolean = False;
-                   const AKeyNotZero: Boolean = False): Boolean;
+                   const AKeyNotZero: Boolean = False;
+                   const AShowHeader: Boolean = True): Boolean;
 
     function ValueInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Integer): Integer;
@@ -161,6 +162,17 @@ type
                           const AKeyValueNotZero: Boolean = False;
                           const AOrderFieldName: String = '');
 
+
+    procedure LoadIDsAndNames(AComboBox: TComboBox; out ANameIDs: TIntVector;
+            const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
+            const AKeyValueNotZero: Boolean; const AZeroKeyPick: String = '');
+
+    function LoadIDsAndNamesSelected(ALabel: TLabel; const ANeedEdit: Boolean;
+       var AKeyValues: TIntVector; var APickValues: TStrVector;
+       const ACaption, ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
+       const AKeyValueNotZero: Boolean; const AAllKeyPick: String = '';
+       const AShowHeader: Boolean = True): Boolean;
+
   end;
 
 
@@ -265,8 +277,9 @@ end;
 function TSQLite3.EditKeyPickList(var AKeyValues: TIntVector;
   var APickValues: TStrVector; out AIsAllChecked: Boolean;
   const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
-  const AOrderByName: Boolean;
-  const AKeyNotZero: Boolean): Boolean;
+  const AOrderByName: Boolean = False;
+  const AKeyNotZero: Boolean = False;
+  const AShowHeader: Boolean = True): Boolean;
 var
   Frm: TSQLite3KeyPickForm;
   VKey: TIntVector;
@@ -289,6 +302,8 @@ begin
                 VKey, VPick, AKeyNotZero, S);
     Frm.KeyValues:= VKey;
     Frm.PickValues:= VPick;
+    if not AShowHeader then
+      Frm.VT1.Header.Options:= Frm.VT1.Header.Options - [hoVisible];
 
     Frm.OutKeyValues:= AKeyValues;
     Frm.OutPickValues:= APickValues;
@@ -1118,6 +1133,67 @@ begin
     APickList.Add(VPick[i]);
   end;
 end;
+
+procedure TSQLite3.LoadIDsAndNames(AComboBox: TComboBox; out ANameIDs: TIntVector;
+   const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
+   const AKeyValueNotZero: Boolean; const AZeroKeyPick: String = '');
+
+var
+  MN: TStrVector;
+  Ind: Integer;
+begin
+  AComboBox.Items.Clear;
+  KeyPickList(ATableName, AKeyFieldName, APickFieldName,
+              ANameIDs, MN, AKeyValueNotZero, AOrderFieldName);
+  if VIsNil(ANameIDs) then Exit;
+
+  if not AKeyValueNotZero then
+  begin
+    Ind:= VIndexOf(ANameIDs, 0);
+    if Ind>=0 then
+      MN[Ind]:= AZeroKeyPick;
+  end;
+
+  VToStrings(MN, AComboBox.Items);
+  AComboBox.ItemIndex:= 0;
+end;
+
+function TSQLite3.LoadIDsAndNamesSelected(ALabel: TLabel;
+  const ANeedEdit: Boolean; var AKeyValues: TIntVector;
+  var APickValues: TStrVector; const ACaption, ATableName, AKeyFieldName,
+  APickFieldName, AOrderFieldName: String; const AKeyValueNotZero: Boolean;
+  const AAllKeyPick: String = '';
+  const AShowHeader: Boolean = True): Boolean;
+var
+  IsAllChecked: Boolean;
+  S: String;
+begin
+  S:= EmptyStr;
+  if ANeedEdit then
+  begin
+    Result:= EditKeyPickList(AKeyValues, APickValues, IsAllChecked,
+                    ACaption, ATableName, AKeyFieldName, APickFieldName,
+                    AOrderFieldName=APickFieldName, AKeyValueNotZero,
+                    AShowHeader);
+    if IsAllChecked then
+      S:= AAllKeyPick;
+  end
+  else begin
+    KeyPickList(ATableName, AKeyFieldName, APickFieldName,
+                AKeyValues, APickValues, AKeyValueNotZero, AOrderFieldName);
+    S:= AAllKeyPick;
+    Result:= True;
+  end;
+
+  if not Result then Exit;
+
+  if S=EmptyStr then
+    S:= VVectorToStr(APickValues, ', ');
+  ALabel.Caption:= S;
+  ALabel.ShowHint:= True;
+  ALabel.Hint:= ALabel.Caption;
+end;
+
 
 end.
 

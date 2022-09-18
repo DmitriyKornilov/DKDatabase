@@ -197,22 +197,27 @@ var
   Grid: TRxDBGrid;
   y: Integer;
 begin
-  if ListQuery.IsEmpty then Exit;
+  //if ListQuery.IsEmpty then Exit;
+
   Grid:= Sender AS TRxDBGrid;
   Grid.Canvas.Font.Assign(Grid.Font);
   if ColorField<>EmptyStr then
   begin
-    ColorValue:= ListQuery.FieldByName(ColorField).AsInteger;
+    ColorValue:= 0;
+    if not ListQuery.IsEmpty then
+      ColorValue:= ListQuery.FieldByName(ColorField).AsInteger;
     if ColorValue= 0 then
-      ColorValue:= 16777215;
+      ColorValue:= {16777215} clWindow;
     Grid.Canvas.Brush.Color:= ColorValue;
   end;
   Grid.Canvas.Pen.Color:= clWindowText;
   y:= Rect.Top-1;
   if y<0 then y:= 0;
   Grid.Canvas.Rectangle(Rect.Left, y, Rect.Right, Rect.Bottom);
-  Grid.Canvas.TextOut(Rect.Left + 3, Rect.Top + 2, Column.Field.AsString);
+  if not ListQuery.IsEmpty then
+    Grid.Canvas.TextOut(Rect.Left + 3, Rect.Top + 2, Column.Field.AsString);
 end;
+
 
 procedure TSQLite3ListForm.SetGridColumnWidth;
 begin

@@ -816,7 +816,7 @@ var
 begin
   FieldName:= SqlEsc(AFieldName);
 
-  WhereStr:= '(' + SqlEsc(AIDFieldName) + '<> :IDValue) AND (';
+  WhereStr:= 'WHERE (' + SqlEsc(AIDFieldName) + '<> :IDValue) AND (';
 
   if ACaseSensitivity then
   begin

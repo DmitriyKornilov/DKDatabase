@@ -1,12 +1,11 @@
 object SQLite3ListForm: TSQLite3ListForm
-  Left = 512
-  Height = 625
-  Top = 224
-  Width = 625
+  Left = 410
+  Height = 500
+  Top = 179
+  Width = 500
   BorderIcons = [biSystemMenu]
-  ClientHeight = 625
-  ClientWidth = 625
-  DesignTimePPI = 120
+  ClientHeight = 500
+  ClientWidth = 500
   OnChangeBounds = FormChangeBounds
   OnCreate = FormCreate
   OnResize = FormResize
@@ -14,41 +13,41 @@ object SQLite3ListForm: TSQLite3ListForm
   Position = poDesktopCenter
   LCLVersion = '2.2.2.0'
   object Panel1: TPanel
-    Left = 3
-    Height = 619
-    Top = 3
-    Width = 619
+    Left = 2
+    Height = 496
+    Top = 2
+    Width = 496
     Align = alClient
-    BorderSpacing.Around = 3
+    BorderSpacing.Around = 2
     BevelOuter = bvNone
     BorderStyle = bsSingle
     Caption = 'Panel1'
-    ClientHeight = 615
-    ClientWidth = 615
+    ClientHeight = 492
+    ClientWidth = 492
     Color = clWindow
     ParentColor = False
     TabOrder = 0
     object Panel2: TPanel
       Left = 0
-      Height = 40
+      Height = 32
       Top = 0
-      Width = 615
+      Width = 492
       Align = alTop
       AutoSize = True
-      BorderSpacing.Bottom = 3
+      BorderSpacing.Bottom = 2
       BevelOuter = bvNone
-      ClientHeight = 40
-      ClientWidth = 615
-      Constraints.MinHeight = 40
+      ClientHeight = 32
+      ClientWidth = 492
+      Constraints.MinHeight = 32
       TabOrder = 0
       object DBNavigator1: TDBNavigator
         AnchorSideLeft.Control = Panel2
         AnchorSideTop.Control = Panel2
         AnchorSideRight.Side = asrBottom
         Left = 0
-        Height = 40
+        Height = 32
         Top = 0
-        Width = 250
+        Width = 200
         BevelOuter = bvNone
         ChildSizing.EnlargeHorizontal = crsScaleChilds
         ChildSizing.EnlargeVertical = crsScaleChilds
@@ -56,8 +55,8 @@ object SQLite3ListForm: TSQLite3ListForm
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 100
-        ClientHeight = 40
-        ClientWidth = 250
+        ClientHeight = 32
+        ClientWidth = 200
         DataSource = DataSource1
         Hints.Strings = (
           'Первая'
@@ -85,11 +84,11 @@ object SQLite3ListForm: TSQLite3ListForm
         AnchorSideBottom.Control = DBNavigator1
         AnchorSideBottom.Side = asrBottom
         Cursor = crHandPoint
-        Left = 250
-        Height = 40
+        Left = 200
+        Height = 32
         Hint = 'Выбор цвета'
         Top = 0
-        Width = 48
+        Width = 38
         Anchors = [akTop, akLeft, akBottom]
         Enabled = False
         Glyph.Data = {
@@ -177,22 +176,22 @@ object SQLite3ListForm: TSQLite3ListForm
     end
     object RxDBGrid1: TRxDBGrid
       Left = 1
-      Height = 572
-      Top = 43
-      Width = 614
+      Height = 458
+      Top = 34
+      Width = 491
       ColumnDefValues.BlobText = '(данные)'
       TitleButtons = False
       AutoSort = True
       Columns = <      
         item
           Font.CharSet = 4
-          MinSize = 12
-          MaxSize = 250
+          MinSize = 10
+          MaxSize = 200
           Title.Alignment = taCenter
           Title.Font.Style = [fsBold]
           Title.Orientation = toHorizontal
           Title.Caption = ''
-          Width = 600
+          Width = 480
           EditButtons = <>
           Filter.DropDownRows = 0
           Filter.EmptyValue = '(Нет)'
@@ -302,14 +301,14 @@ object SQLite3ListForm: TSQLite3ListForm
     )
     Params = <>
     Macros = <>
-    Left = 100
-    Top = 100
+    Left = 80
+    Top = 80
   end
   object DataSource1: TDataSource
     DataSet = ListQuery
     OnDataChange = DataSource1DataChange
-    Left = 100
-    Top = 170
+    Left = 80
+    Top = 136
   end
   object ColorDialog1: TColorDialog
     Title = 'Выбрать'
@@ -336,8 +335,8 @@ object SQLite3ListForm: TSQLite3ListForm
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 100
-    Top = 250
+    Left = 80
+    Top = 200
   end
   object WriteQuery: TSQLQuery
     PacketRecords = -1
@@ -360,7 +359,7 @@ object SQLite3ListForm: TSQLite3ListForm
     )
     Params = <>
     Macros = <>
-    Left = 184
-    Top = 100
+    Left = 147
+    Top = 80
   end
 end

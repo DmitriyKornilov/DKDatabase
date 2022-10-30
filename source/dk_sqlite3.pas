@@ -192,6 +192,7 @@ begin
 
 
   FConnection.CharSet:= 'UTF8';
+  FConnection.Params.Add('foreign_keys=ON');
   FConnection.Transaction:= FTransaction;
   FConnection.OpenFlags:= FConnection.OpenFlags + [sofCreate, sofReadWrite];
   FQuery.SQLConnection:= FConnection;

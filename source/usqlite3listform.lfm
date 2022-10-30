@@ -11,7 +11,7 @@ object SQLite3ListForm: TSQLite3ListForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poDesktopCenter
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.2.4.0'
   object Panel1: TPanel
     Left = 2
     Height = 496
@@ -185,8 +185,6 @@ object SQLite3ListForm: TSQLite3ListForm
       Columns = <      
         item
           Font.CharSet = 4
-          MinSize = 10
-          MaxSize = 200
           Title.Alignment = taCenter
           Title.Font.Style = [fsBold]
           Title.Orientation = toHorizontal

@@ -20,7 +20,6 @@ type
     Panel1: TPanel;
     Panel2: TPanel;
     RxDBGrid1: TRxDBGrid;
-    //ImageList1: TImageList;
     WriteQuery: TSQLQuery;
     ListQuery: TSQLQuery;
     procedure ColorButtonClick(Sender: TObject);
@@ -31,17 +30,15 @@ type
     procedure FormShow(Sender: TObject);
     procedure ListQueryAfterDelete(DataSet: TDataSet);
     procedure ListQueryAfterPost(DataSet: TDataSet);
-    procedure ListQueryBeforePost(DataSet: TDataSet);
+    procedure ListQueryBeforePost({%H-}DataSet: TDataSet);
     procedure RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
-      const Rect: TRect; DataCol: Integer; Column: TColumn;
-      State: TGridDrawState);
+      const Rect: TRect; {%H-}DataCol: Integer; Column: TColumn;
+      {%H-}State: TGridDrawState);
   private
     { private declarations }
     TableName, IDField, NameField, ColorField : String;
     SelectedColor: TColor;
     SelectedFontColor: TColor;
-
-
 
     procedure SetGridColumnWidth;
     procedure SetListColor;
@@ -65,10 +62,7 @@ var
 
 implementation
 
-
-
 {$R *.lfm}
-
 
 procedure TSQLite3ListForm.ChangeDBNavButton(DBNav: TDbNavigator;
                             const DBBtnType: TDBNavButtonType;
@@ -139,9 +133,9 @@ end;
 procedure TSQLite3ListForm.FormShow(Sender: TObject);
 begin
   ChangeDBNavigatorGlyphs(DBNavigator1);
+  ColorButton.Visible:= ColorField<>EmptyStr;
   RxDBGrid1.SelectedColor:= SelectedColor;
   RxDBGrid1.SelectedFont.Color:= SelectedFontColor;
-  ColorButton.Visible:= ColorField<>EmptyStr;
   RxDBGrid1.Columns.Items[0].FieldName:= NameField;
   ListQuery.Open;
 end;
@@ -197,8 +191,6 @@ var
   Grid: TRxDBGrid;
   y: Integer;
 begin
-  //if ListQuery.IsEmpty then Exit;
-
   Grid:= Sender AS TRxDBGrid;
   Grid.Canvas.Font.Assign(Grid.Font);
   if ColorField<>EmptyStr then
@@ -207,7 +199,7 @@ begin
     if not ListQuery.IsEmpty then
       ColorValue:= ListQuery.FieldByName(ColorField).AsInteger;
     if ColorValue= 0 then
-      ColorValue:= {16777215} clWindow;
+      ColorValue:= clWindow;
     Grid.Canvas.Brush.Color:= ColorValue;
   end;
   Grid.Canvas.Pen.Color:= clWindowText;
@@ -217,7 +209,6 @@ begin
   if not ListQuery.IsEmpty then
     Grid.Canvas.TextOut(Rect.Left + 3, Rect.Top + 2, Column.Field.AsString);
 end;
-
 
 procedure TSQLite3ListForm.SetGridColumnWidth;
 begin

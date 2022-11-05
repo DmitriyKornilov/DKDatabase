@@ -27,7 +27,7 @@ type
 
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
-
+    procedure SetEditListImages(const AImageList: TImageList);
     procedure SetEditListSettings(const ASelectedColor, ASelectedFontColor: TColor);
     function EditList(const ACaption: String;
                    const ATableName, AIDFieldName, AFieldName: String;
@@ -237,6 +237,11 @@ begin
   finally
     FreeAndNil(SQLScript);
   end;
+end;
+
+procedure TSQLite3.SetEditListImages(const AImageList: TImageList);
+begin
+  USQLite3ListForm.ImageList:= AImageList;
 end;
 
 procedure TSQLite3.SetEditListSettings(const ASelectedColor,

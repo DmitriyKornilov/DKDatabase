@@ -102,15 +102,12 @@ begin
   if VST.IsAllUnchecked then
     VST.CheckAll(True);
 
-  if not VST.IsAllChecked then
+  for i:= 0 to High(KeyValues) do
   begin
-    for i:= 0 to High(KeyValues) do
+    if VST.Checked[i] then
     begin
-      if VST.Checked[i] then
-      begin
-        VAppend(OutKeyValues, KeyValues[i]);
-        VAppend(OutPickValues, PickValues[i]);
-      end;
+      VAppend(OutKeyValues, KeyValues[i]);
+      VAppend(OutPickValues, PickValues[i]);
     end;
   end;
 

@@ -42,6 +42,8 @@ type
                    const AKeyNotZero: Boolean = False;
                    const AShowHeader: Boolean = True): Boolean;
 
+    function ValueStrStrID(const ATableName, AValueFieldName,
+                                 AIDFieldName, AIDValue: String): String;
     function ValueInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Integer): Integer;
     function ValueInt64Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
@@ -59,7 +61,6 @@ type
     function ValueStrInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
                              const AIDValue: Int64): String;
 
-
     procedure Delete(const ATableName, AIDFieldName: String;
                      const AIDValue: Integer);
     procedure Delete(const ATableName, AIDFieldName: String;
@@ -70,6 +71,8 @@ type
                      const AIDValue: String;
                      const ACaseSensitivity: Boolean = True);
 
+    procedure UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
+                     const ANewValue: String);
     procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: Integer);
@@ -327,6 +330,8 @@ begin
   end;
 end;
 
+
+
 procedure PrepareValue(const ATableName, AValueFieldName, AIDFieldName: String;
                        out ASQL: String);
 begin
@@ -335,7 +340,24 @@ begin
          'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue';
 end;
 
-
+function TSQLite3.ValueStrStrID(const ATableName, AValueFieldName,
+  AIDFieldName, AIDValue: String): String;
+var
+  S: String;
+begin
+  Result:= EmptyStr;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamStr('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldStr(AValueFieldName);
+  end;
+  QClose;
+end;
 
 function TSQLite3.ValueInt32Int32ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Integer): Integer;
@@ -518,6 +540,8 @@ begin
   end;
 end;
 
+
+
 procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String;
                         out ASQL: String);
 begin
@@ -525,6 +549,24 @@ begin
     'UPDATE' + SqlEsc(ATableName) +
     'SET'    + SqlEsc(AFieldName)   + '= :NewValue ' +
     'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue'
+end;
+
+procedure TSQLite3.UpdateStrID(const ATableName, AFieldName, AIDFieldName,
+  AIDValue: String; const ANewValue: String);
+var
+  S: String;
+begin
+  try
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
+    QSetSQL(S);
+    QParamStr('IDValue', AIDValue);
+    QParamStr('NewValue', ANewValue);
+    QExec;
+    QCommit;
+  except
+    QRollback;
+  end;
 end;
 
 procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,

@@ -35,7 +35,7 @@ type
                    const AIDNotZero: Boolean = False;
                    const AColorFieldName: String = ''): Boolean;
 
-    function EditKeyPickList(var AKeyValues: TIntVector;
+    function EditCheckList(var AKeyValues: TIntVector;
                    var APickValues: TStrVector;  out AIsAllChecked: Boolean;
                    const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
                    const AOrderByName: Boolean = False;
@@ -176,13 +176,16 @@ type
        const AKeyValueNotZero: Boolean; const AAllKeyPick: String = '';
        const AShowHeader: Boolean = True): Boolean;
 
+    property Connection: TSQLite3Connection read FConnection;
+    property Transaction: TSQLTransaction read FTransaction;
+
   end;
 
 
 
 implementation
 
-uses USQLite3ListForm, USQLite3KeyPickForm;
+uses USQLite3ListForm, USQLite3CheckListForm;
 
 
 { TSQLite3 }
@@ -283,14 +286,14 @@ begin
   end;
 end;
 
-function TSQLite3.EditKeyPickList(var AKeyValues: TIntVector;
+function TSQLite3.EditCheckList(var AKeyValues: TIntVector;
   var APickValues: TStrVector; out AIsAllChecked: Boolean;
   const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
   const AOrderByName: Boolean = False;
   const AKeyNotZero: Boolean = False;
   const AShowHeader: Boolean = True): Boolean;
 var
-  Frm: TSQLite3KeyPickForm;
+  Frm: TSQLite3CheckListForm;
   VKey: TIntVector;
   VPick: TStrVector;
   S: String;
@@ -298,7 +301,7 @@ begin
   Result:= False;
   //AKeyValues:= nil;
   //APickValues:= nil;
-  Frm:= TSQLite3KeyPickForm.Create(nil);
+  Frm:= TSQLite3CheckListForm.Create(nil);
 
   try
     Frm.Caption:= ACaption;
@@ -1219,7 +1222,7 @@ begin
   S:= EmptyStr;
   if ANeedEdit then
   begin
-    Result:= EditKeyPickList(AKeyValues, APickValues, IsAllChecked,
+    Result:= EditCheckList(AKeyValues, APickValues, IsAllChecked,
                     ACaption, ATableName, AKeyFieldName, APickFieldName,
                     AOrderFieldName=APickFieldName, AKeyValueNotZero,
                     AShowHeader);

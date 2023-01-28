@@ -31,8 +31,8 @@
         <Type Value="LFM"/>
       </Item>
       <Item>
-        <Filename Value="source\usqlite3keypickform.pas"/>
-        <UnitName Value="USQLite3KeyPickForm"/>
+        <Filename Value="source\usqlite3checklistform.pas"/>
+        <UnitName Value="usqlite3checklistform"/>
       </Item>
     </Files>
     <RequiredPkgs>

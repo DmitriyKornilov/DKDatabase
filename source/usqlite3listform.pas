@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, sqldb, db, FileUtil, rxdbgrid, Forms, Controls, Graphics,
-  Dialogs, DbCtrls, Buttons, Grids, DBGrids, ExtCtrls, DK_SQLUtils;
+  Dialogs, DbCtrls, Buttons, Grids, DBGrids, ExtCtrls, DK_SQLUtils, DK_DBUtils;
 
 type
 
@@ -42,11 +42,7 @@ type
 
     procedure SetGridColumnWidth;
     procedure SetListColor;
-    procedure ChangeDBNavButton(DBNav: TDbNavigator;
-                            const DBBtnType: TDBNavButtonType;
-                            const DBBtnGlyph: TBitmap;
-                            const DBBtnCursor: TCursor = crDefault);
-    procedure ChangeDBNavigatorGlyphs(DBNav: TDbNavigator);
+
   public
     { public declarations }
     procedure SetNames(const ATableName, AIDFieldName,
@@ -63,51 +59,6 @@ var
 implementation
 
 {$R *.lfm}
-
-procedure TSQLite3ListForm.ChangeDBNavButton(DBNav: TDbNavigator;
-                            const DBBtnType: TDBNavButtonType;
-                            const DBBtnGlyph: TBitmap;
-                            const DBBtnCursor: TCursor = crDefault);
-var
-  i: Integer;
-  NB: TDBNavButton;
-begin
-  for i := 0 to DBNav.ControlCount - 1 do
-  begin
-    if DBNav.Controls[i].ClassName = 'TDBNavButton' then
-    begin
-      NB:= (DBNav.Controls[i] As TDBNavButton);
-      if NB.Index= DBBtnType then
-      begin
-        NB.Glyph := DBBtnGlyph;
-        NB.Cursor:= DBBtnCursor;
-      end;
-    end;
-  end;
-end;
-
-procedure TSQLite3ListForm.ChangeDBNavigatorGlyphs(DBNav: TDbNavigator);
-var
-  BM: TBitmap;
-begin
-  if not Assigned(ImageList) then Exit;
-  if ImageList.Count<5 then Exit;
-  BM:= TBitmap.Create;
-  try
-    ImageList.GetBitmap(0, BM);
-    ChangeDBNavButton(DBNav, nbInsert, BM, crHandPoint);
-    ImageList.GetBitmap(1, BM);
-    ChangeDBNavButton(DBNav, nbDelete, BM, crHandPoint);
-    ImageList.GetBitmap(2, BM);
-    ChangeDBNavButton(DBNav, nbEdit, BM, crHandPoint);
-    ImageList.GetBitmap(3, BM);
-    ChangeDBNavButton(DBNav, nbPost, BM, crHandPoint);
-    ImageList.GetBitmap(4, BM);
-    ChangeDBNavButton(DBNav, nbCancel, BM, crHandPoint);
-  finally
-    FreeAndNil(BM);
-  end;
-end;
 
 procedure TSQLite3ListForm.SetNames(const ATableName, AIDFieldName, AFieldName,
   AColorFieldName: String);
@@ -132,7 +83,7 @@ end;
 
 procedure TSQLite3ListForm.FormShow(Sender: TObject);
 begin
-  ChangeDBNavigatorGlyphs(DBNavigator1);
+  ChangeDBNavigatorGlyphs(DBNavigator1, ImageList);
   ColorButton.Visible:= ColorField<>EmptyStr;
   RxDBGrid1.SelectedColor:= SelectedColor;
   RxDBGrid1.SelectedFont.Color:= SelectedFontColor;
@@ -160,12 +111,6 @@ procedure TSQLite3ListForm.DataSource1DataChange(Sender: TObject; Field: TField)
 begin
   if ColorField='' then Exit;
   ColorButton.Enabled:= not ListQuery.IsEmpty;
-end;
-
-procedure DataSetChangesSave(const ADataSet: TDataSet);
-begin
-  (ADataSet As TSQLQuery).ApplyUpdates;
-  (ADataSet As TSQLQuery).SQLTransaction.CommitRetaining;
 end;
 
 procedure TSQLite3ListForm.ListQueryAfterDelete(DataSet: TDataSet);

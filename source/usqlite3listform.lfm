@@ -1,7 +1,7 @@
 object SQLite3ListForm: TSQLite3ListForm
-  Left = 410
+  Left = 747
   Height = 500
-  Top = 179
+  Top = 180
   Width = 500
   BorderIcons = [biSystemMenu]
   ClientHeight = 500

@@ -27,12 +27,12 @@
         <Type Value="LFM"/>
       </Item>
       <Item>
-        <Filename Value="source\usqlite3keypickform.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="source\usqlite3checklistform.pas"/>
+        <UnitName Value="USQLite3CheckListForm"/>
       </Item>
       <Item>
-        <Filename Value="source\usqlite3checklistform.pas"/>
-        <UnitName Value="usqlite3checklistform"/>
+        <Filename Value="source\dk_dbutils.pas"/>
+        <UnitName Value="dk_dbutils"/>
       </Item>
     </Files>
     <RequiredPkgs>

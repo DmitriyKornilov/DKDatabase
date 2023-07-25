@@ -170,6 +170,11 @@ type
             const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
             const AKeyValueNotZero: Boolean; const AZeroKeyPick: String = '');
 
+    procedure ValueFromCatalog(const AThisTableName, ACatalogTableName,
+                               AThisTableIDFieldName, ASearchIDFieldName, ACatalogValueFieldName: String;
+                               const AThisTableID: Integer;
+                               out ACatalogID: Integer; out ACatalogValue: String);
+
     function LoadIDsAndNamesSelected(ALabel: TLabel; const ANeedEdit: Boolean;
        var AKeyValues: TIntVector; var APickValues: TStrVector;
        const ACaption, ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
@@ -1207,6 +1212,37 @@ begin
 
   VToStrings(MN, AComboBox.Items);
   AComboBox.ItemIndex:= 0;
+end;
+
+procedure TSQLite3.ValueFromCatalog(const AThisTableName, ACatalogTableName,
+                               AThisTableIDFieldName, ASearchIDFieldName, ACatalogValueFieldName: String;
+                               const AThisTableID: Integer;
+                               out ACatalogID: Integer;  out ACatalogValue: String);
+var
+  SearchIDFieldName, SearchValueFieldName: String;
+begin
+  SearchIDFieldName:= SqlEsc(ASearchIDFieldName);
+  SearchValueFieldName:= SqlEsc(ACatalogValueFieldName);
+  ACatalogValue:= EmptyStr;
+  ACatalogID:= 0;
+  QSetQuery(FQuery);
+  QSetSQL(
+    'SELECT ' +
+      't1.'+ SearchIDFieldName + ', t2.' + SearchValueFieldName + ' ' +
+    'FROM ' + SqlEsc(AThisTableName) + ' t1 ' +
+    'INNER JOIN ' + SqlEsc(ACatalogTableName) + ' t2 ON (t1.' + SearchIDFieldName + '=t2.' + SearchIDFieldName + ') ' +
+    'WHERE ' +
+        't1.' + SqlEsc(AThisTableIDFieldName) + ' = :RecID'
+  );
+  QParamInt('RecID', AThisTableID);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    ACatalogID:= QFieldInt(ASearchIDFieldName);
+    ACatalogValue:= QFieldStr(ACatalogValueFieldName);
+  end;
+  QClose;
 end;
 
 function TSQLite3.LoadIDsAndNamesSelected(ALabel: TLabel;

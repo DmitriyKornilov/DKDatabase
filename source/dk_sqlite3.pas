@@ -18,7 +18,7 @@ type
     FTransaction: TSQLTransaction;
     FQuery: TSQLQuery;
 
-
+    FImageList: TImageList;
     FEditListSelectedColor, FEditListSelectedFontColor: TColor;
 
   public
@@ -27,20 +27,26 @@ type
 
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
-    procedure SetEditListImages(const AImageList: TImageList);
-    procedure SetEditListSettings(const ASelectedColor, ASelectedFontColor: TColor);
-    function EditList(const ACaption: String;
+    procedure SetNavigatorGlyphs(const AImageList: TImageList);
+    procedure SetColors(const ASelectedColor, ASelectedFontColor: TColor);
+
+    function EditList(const AFormCaption: String;
                    const ATableName, AIDFieldName, AFieldName: String;
                    const AOrderByName: Boolean = False;
                    const AIDNotZero: Boolean = False;
                    const AColorFieldName: String = ''): Boolean;
-
     function EditCheckList(var AKeyValues: TIntVector;
                    var APickValues: TStrVector;  out AIsAllChecked: Boolean;
                    const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
                    const AOrderByName: Boolean = False;
                    const AKeyNotZero: Boolean = False;
                    const AShowHeader: Boolean = True): Boolean;
+    function EditTable(const AFormCaption: String;
+                       const ATableName, AIDFieldName: String;
+                       const AFieldNames, AColumnNames: TStrVector;
+                       const AColumnWidths: TIntVector;
+                       const AIDNotZero: Boolean = False;
+                       const AOrderFieldNames: TStrVector = nil): Boolean;
 
     function ValueStrStrID(const ATableName, AValueFieldName,
                                  AIDFieldName, AIDValue: String): String;
@@ -190,7 +196,7 @@ type
 
 implementation
 
-uses USQLite3ListForm, USQLite3CheckListForm;
+uses USQLite3ListForm, USQLite3CheckListForm, USQLite3TableForm;
 
 
 { TSQLite3 }
@@ -250,40 +256,37 @@ begin
   end;
 end;
 
-procedure TSQLite3.SetEditListImages(const AImageList: TImageList);
+procedure TSQLite3.SetNavigatorGlyphs(const AImageList: TImageList);
 begin
-  USQLite3ListForm.ImageList:= AImageList;
+  FImageList:= AImageList;
 end;
 
-procedure TSQLite3.SetEditListSettings(const ASelectedColor,
+procedure TSQLite3.SetColors(const ASelectedColor,
   ASelectedFontColor: TColor);
 begin
   FEditListSelectedColor:= ASelectedColor;
   FEditListSelectedFontColor:= ASelectedFontColor;
 end;
 
-function TSQLite3.EditList(const ACaption: String; const ATableName, AIDFieldName,
-  AFieldName: String; const AOrderByName: Boolean; const AIDNotZero: Boolean;
-  const AColorFieldName: String): Boolean;
+function TSQLite3.EditList(const AFormCaption: String;
+                           const ATableName, AIDFieldName, AFieldName: String;
+                           const AOrderByName: Boolean;
+                           const AIDNotZero: Boolean;
+                           const AColorFieldName: String): Boolean;
 var
   Frm: TSQLite3ListForm;
 begin
   Result:= False;
   Frm:= TSQLite3ListForm.Create(nil);
   try
-    Frm.Caption:= ACaption;
-    Frm.ListQuery.DataBase:= FConnection;
-    Frm.ListQuery.Transaction:= FTransaction;
+    Frm.Caption:= AFormCaption;
+    Frm.ReadQuery.DataBase:= FConnection;
+    Frm.ReadQuery.Transaction:= FTransaction;
     Frm.WriteQuery.DataBase:= FConnection;
     Frm.WriteQuery.Transaction:= FTransaction;
-    Frm.SetSettings(FEditListSelectedColor, FEditListSelectedFontColor);
-    Frm.SetNames(ATableName, AIDFieldName, AFieldName, AColorFieldName);
-    Frm.ListQuery.SQL.Clear;
-    Frm.ListQuery.SQL.Add('SELECT * FROM' + SqlEsc(ATableName));
-    if AIDNotZero then
-      Frm.ListQuery.SQL.Add('WHERE' + SqlEsc(AIDFieldName) + '> 0');
-    if AOrderByName then
-      Frm.ListQuery.SQL.Add('ORDER BY ' + SqlEsc(AFieldName));
+    Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
+    Frm.SetNavigatorGlyphs(FImageList);
+    Frm.SetTable(ATableName, AIDFieldName, AFieldName, AColorFieldName, AIDNotZero, AOrderByName);
     Frm.ShowModal;
     Result:= True;
   finally
@@ -333,6 +336,34 @@ begin
       AIsAllChecked:= Frm.IsAllChecked;
     end;
 
+  finally
+    FreeAndNil(Frm);
+  end;
+end;
+
+function TSQLite3.EditTable(const AFormCaption: String;
+                       const ATableName, AIDFieldName: String;
+                       const AFieldNames, AColumnNames: TStrVector;
+                       const AColumnWidths: TIntVector;
+                       const AIDNotZero: Boolean = False;
+                       const AOrderFieldNames: TStrVector = nil): Boolean;
+var
+  Frm: TSQLite3TableForm;
+begin
+  Result:= False;
+  Frm:= TSQLite3TableForm.Create(nil);
+  try
+    Frm.Caption:= AFormCaption;
+    Frm.ReadQuery.DataBase:= FConnection;
+    Frm.ReadQuery.Transaction:= FTransaction;
+    Frm.WriteQuery.DataBase:= FConnection;
+    Frm.WriteQuery.Transaction:= FTransaction;
+    Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
+    Frm.SetNavigatorGlyphs(FImageList);
+    Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,
+                 AIDNotZero, AOrderFieldNames);
+    Frm.ShowModal;
+    Result:= True;
   finally
     FreeAndNil(Frm);
   end;

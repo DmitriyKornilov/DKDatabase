@@ -9,7 +9,7 @@ interface
 
 uses
   DK_SQLite3, USQLite3ListForm, USQLite3CheckListForm, DK_DBUtils, 
-  LazarusPackageIntf;
+  USQLite3TableForm, LazarusPackageIntf;
 
 implementation
 

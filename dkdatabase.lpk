@@ -34,6 +34,10 @@
         <Filename Value="source\dk_dbutils.pas"/>
         <UnitName Value="dk_dbutils"/>
       </Item>
+      <Item>
+        <Filename Value="source\usqlite3tableform.pas"/>
+        <UnitName Value="usqlite3tableform"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

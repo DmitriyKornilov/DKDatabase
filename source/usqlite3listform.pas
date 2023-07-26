@@ -21,59 +21,75 @@ type
     Panel2: TPanel;
     RxDBGrid1: TRxDBGrid;
     WriteQuery: TSQLQuery;
-    ListQuery: TSQLQuery;
+    ReadQuery: TSQLQuery;
     procedure ColorButtonClick(Sender: TObject);
     procedure DataSource1DataChange(Sender: TObject; {%H-}Field: TField);
     procedure FormChangeBounds(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure ListQueryAfterDelete(DataSet: TDataSet);
-    procedure ListQueryAfterPost(DataSet: TDataSet);
-    procedure ListQueryBeforePost({%H-}DataSet: TDataSet);
+    procedure ReadQueryAfterDelete(DataSet: TDataSet);
+    procedure ReadQueryAfterPost(DataSet: TDataSet);
+    procedure ReadQueryBeforePost({%H-}DataSet: TDataSet);
     procedure RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
       const Rect: TRect; {%H-}DataCol: Integer; Column: TColumn;
       {%H-}State: TGridDrawState);
   private
     { private declarations }
-    TableName, IDField, NameField, ColorField : String;
-    SelectedColor: TColor;
-    SelectedFontColor: TColor;
+    TableName, IDFieldName, ValueFieldName, ColorField : String;
 
     procedure SetGridColumnWidth;
     procedure SetListColor;
 
   public
     { public declarations }
-    procedure SetNames(const ATableName, AIDFieldName,
-                             AFieldName, AColorFieldName: String);
-    procedure SetSettings(const ASelectedColor, ASelectedFontColor: TColor);
+    procedure SetTable(const ATableName, AIDFieldName,
+                             AValueFieldName, AColorFieldName: String;
+                       const AIDNotZero, AOrderByName: Boolean);
+    procedure SetColors(const ASelectedColor, ASelectedFontColor: TColor);
+    procedure SetNavigatorGlyphs(const AImageList: TImageList);
+
 
   end;
 
 var
   SQLite3ListForm: TSQLite3ListForm;
-  ImageList: TImageList;
-
 
 implementation
 
 {$R *.lfm}
 
-procedure TSQLite3ListForm.SetNames(const ATableName, AIDFieldName, AFieldName,
-  AColorFieldName: String);
+procedure TSQLite3ListForm.SetTable(const ATableName, AIDFieldName,
+                                          AValueFieldName, AColorFieldName: String;
+                                    const AIDNotZero, AOrderByName: Boolean);
+var
+  S: String;
 begin
   TableName:= ATableName;
-  IDField:= AIDFieldName;
-  NameField:= AFieldName;
+  IDFieldName:= AIDFieldName;
+  ValueFieldName:= AValueFieldName;
   ColorField:= AColorFieldName;
+
+  RxDBGrid1.Columns.Items[0].FieldName:= ValueFieldName;
+
+  S:= 'SELECT * FROM' + SqlEsc(TableName);
+  if AIDNotZero then
+    S:= S + ' WHERE' + SqlEsc(IDFieldName) + '> 0';
+  if AOrderByName then
+    S:= S + ' ORDER BY ' + SqlEsc(ValueFieldName);
+  QSetQuery(ReadQuery);
+  QSetSQL(S);
 end;
 
-procedure TSQLite3ListForm.SetSettings(const ASelectedColor,
-  ASelectedFontColor: TColor);
+procedure TSQLite3ListForm.SetColors(const ASelectedColor, ASelectedFontColor: TColor);
 begin
-  SelectedColor:= ASelectedColor;
-  SelectedFontColor:=  ASelectedFontColor;
+  RxDBGrid1.SelectedColor:= ASelectedColor;
+  RxDBGrid1.SelectedFont.Color:= ASelectedFontColor;
+end;
+
+procedure TSQLite3ListForm.SetNavigatorGlyphs(const AImageList: TImageList);
+begin
+  if Assigned(AImageList) then
+    ChangeDBNavigatorGlyphs(DBNavigator1, AImageList);
 end;
 
 procedure TSQLite3ListForm.FormResize(Sender: TObject);
@@ -83,23 +99,14 @@ end;
 
 procedure TSQLite3ListForm.FormShow(Sender: TObject);
 begin
-  ChangeDBNavigatorGlyphs(DBNavigator1, ImageList);
   ColorButton.Visible:= ColorField<>EmptyStr;
-  RxDBGrid1.SelectedColor:= SelectedColor;
-  RxDBGrid1.SelectedFont.Color:= SelectedFontColor;
-  RxDBGrid1.Columns.Items[0].FieldName:= NameField;
-  ListQuery.Open;
+  if ReadQuery.SQL.Text<>'' then
+    ReadQuery.Open;
 end;
 
 procedure TSQLite3ListForm.FormChangeBounds(Sender: TObject);
 begin
   SetGridColumnWidth;
-end;
-
-procedure TSQLite3ListForm.FormCreate(Sender: TObject);
-begin
-  SelectedColor:= clHighlight;
-  SelectedFontColor:=  clWindowText;
 end;
 
 procedure TSQLite3ListForm.ColorButtonClick(Sender: TObject);
@@ -110,23 +117,23 @@ end;
 procedure TSQLite3ListForm.DataSource1DataChange(Sender: TObject; Field: TField);
 begin
   if ColorField='' then Exit;
-  ColorButton.Enabled:= not ListQuery.IsEmpty;
+  ColorButton.Enabled:= not ReadQuery.IsEmpty;
 end;
 
-procedure TSQLite3ListForm.ListQueryAfterDelete(DataSet: TDataSet);
+procedure TSQLite3ListForm.ReadQueryAfterDelete(DataSet: TDataSet);
 begin
   DataSetChangesSave(DataSet);
 end;
 
-procedure TSQLite3ListForm.ListQueryAfterPost(DataSet: TDataSet);
+procedure TSQLite3ListForm.ReadQueryAfterPost(DataSet: TDataSet);
 begin
   DataSetChangesSave(DataSet);
 end;
 
-procedure TSQLite3ListForm.ListQueryBeforePost(DataSet: TDataSet);
+procedure TSQLite3ListForm.ReadQueryBeforePost(DataSet: TDataSet);
 begin
   if ColorField='' then Exit;
-  ListQuery.FieldByName(ColorField).AsInteger:= 16777215;
+  ReadQuery.FieldByName(ColorField).AsInteger:= 16777215;
 end;
 
 procedure TSQLite3ListForm.RxDBGrid1Columns0DrawColumnCell(Sender: TObject;
@@ -141,8 +148,8 @@ begin
   if ColorField<>EmptyStr then
   begin
     ColorValue:= 0;
-    if not ListQuery.IsEmpty then
-      ColorValue:= ListQuery.FieldByName(ColorField).AsInteger;
+    if not ReadQuery.IsEmpty then
+      ColorValue:= ReadQuery.FieldByName(ColorField).AsInteger;
     if ColorValue= 0 then
       ColorValue:= clWindow;
     Grid.Canvas.Brush.Color:= ColorValue;
@@ -151,7 +158,7 @@ begin
   y:= Rect.Top-1;
   if y<0 then y:= 0;
   Grid.Canvas.Rectangle(Rect.Left, y, Rect.Right, Rect.Bottom);
-  if not ListQuery.IsEmpty then
+  if not ReadQuery.IsEmpty then
     Grid.Canvas.TextOut(Rect.Left + 3, Rect.Top + 2, Column.Field.AsString);
 end;
 
@@ -166,14 +173,14 @@ var
 begin
   if not ColorDialog1.Execute then Exit;
   NewValue:= ColorToRGB(ColorDialog1.Color);
-  IDValue:= ListQuery.FieldByName(IDField).AsInteger;
+  IDValue:= ReadQuery.FieldByName(IDFieldName).AsInteger;
 
   try
     QSetQuery(WriteQuery);
     QSetSQL(
       'UPDATE' + SqlEsc(TableName) +
       'SET'    + SqlEsc(ColorField)   + '= :NewValue ' +
-      'WHERE'  + SqlEsc(IDField) + '= :IDValue'
+      'WHERE'  + SqlEsc(IDFieldName) + '= :IDValue'
       );
     QParamInt('IDValue', IDValue);
     QParamInt('NewValue', NewValue);
@@ -183,8 +190,10 @@ begin
     QRollback;
   end;
 
-  ListQuery.Refresh;
+  ReadQuery.Refresh;
 end;
+
+
 
 end.
 

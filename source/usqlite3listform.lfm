@@ -6,8 +6,9 @@ object SQLite3ListForm: TSQLite3ListForm
   BorderIcons = [biSystemMenu]
   ClientHeight = 500
   ClientWidth = 500
+  Constraints.MinHeight = 400
+  Constraints.MinWidth = 500
   OnChangeBounds = FormChangeBounds
-  OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
   Position = poDesktopCenter
@@ -278,22 +279,12 @@ object SQLite3ListForm: TSQLite3ListForm
       TitleStyle = tsNative
     end
   end
-  object ListQuery: TSQLQuery
+  object ReadQuery: TSQLQuery
     PacketRecords = -1
-    FieldDefs = <    
-      item
-        Name = 'POSTID'
-        DataType = ftAutoInc
-        Precision = -1
-      end    
-      item
-        Name = 'POSTNAME'
-        DataType = ftMemo
-        Precision = -1
-      end>
-    AfterDelete = ListQueryAfterDelete
-    AfterPost = ListQueryAfterPost
-    BeforePost = ListQueryBeforePost
+    FieldDefs = <>
+    AfterDelete = ReadQueryAfterDelete
+    AfterPost = ReadQueryAfterPost
+    BeforePost = ReadQueryBeforePost
     SQL.Strings = (
       ''
     )
@@ -303,7 +294,7 @@ object SQLite3ListForm: TSQLite3ListForm
     Top = 80
   end
   object DataSource1: TDataSource
-    DataSet = ListQuery
+    DataSet = ReadQuery
     OnDataChange = DataSource1DataChange
     Left = 80
     Top = 136
@@ -338,20 +329,10 @@ object SQLite3ListForm: TSQLite3ListForm
   end
   object WriteQuery: TSQLQuery
     PacketRecords = -1
-    FieldDefs = <    
-      item
-        Name = 'POSTID'
-        DataType = ftAutoInc
-        Precision = -1
-      end    
-      item
-        Name = 'POSTNAME'
-        DataType = ftMemo
-        Precision = -1
-      end>
-    AfterDelete = ListQueryAfterDelete
-    AfterPost = ListQueryAfterPost
-    BeforePost = ListQueryBeforePost
+    FieldDefs = <>
+    AfterDelete = ReadQueryAfterDelete
+    AfterPost = ReadQueryAfterPost
+    BeforePost = ReadQueryBeforePost
     SQL.Strings = (
       ''
     )

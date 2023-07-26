@@ -1,0 +1,189 @@
+object SQLite3TableForm: TSQLite3TableForm
+  Left = 590
+  Height = 594
+  Top = 216
+  Width = 599
+  ClientHeight = 594
+  ClientWidth = 599
+  Color = clWindow
+  Constraints.MinHeight = 400
+  Constraints.MinWidth = 500
+  OnShow = FormShow
+  Position = poDesktopCenter
+  LCLVersion = '2.2.4.0'
+  object Panel1: TPanel
+    Left = 2
+    Height = 590
+    Top = 2
+    Width = 595
+    Align = alClient
+    BorderSpacing.Around = 2
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    Caption = 'Panel1'
+    ClientHeight = 586
+    ClientWidth = 591
+    TabOrder = 0
+    object Panel2: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 591
+      Align = alTop
+      AutoSize = True
+      BorderSpacing.Bottom = 2
+      BevelOuter = bvNone
+      ClientHeight = 32
+      ClientWidth = 591
+      Constraints.MinHeight = 32
+      TabOrder = 0
+      object DBNavigator1: TDBNavigator
+        AnchorSideLeft.Control = Panel2
+        AnchorSideTop.Control = Panel2
+        AnchorSideRight.Side = asrBottom
+        Left = 0
+        Height = 32
+        Top = 0
+        Width = 200
+        BevelOuter = bvNone
+        ChildSizing.EnlargeHorizontal = crsScaleChilds
+        ChildSizing.EnlargeVertical = crsScaleChilds
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 100
+        ClientHeight = 32
+        ClientWidth = 200
+        DataSource = DataSource1
+        Hints.Strings = (
+          'Первая'
+          'Предыдущая'
+          'Следующая'
+          'Последняя'
+          'Добавить'
+          'Удалить'
+          'Изменить'
+          'Сохранить'
+          'Отменить'
+          'Обновить'
+        )
+        Options = []
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel]
+      end
+    end
+    object RxDBGrid1: TRxDBGrid
+      Left = 0
+      Height = 552
+      Top = 34
+      Width = 591
+      ColumnDefValues.BlobText = '(данные)'
+      TitleButtons = False
+      AutoSort = True
+      KeyStrokes = <      
+        item
+          Command = rxgcShowFindDlg
+          ShortCut = 16454
+          Enabled = True
+        end      
+        item
+          Command = rxgcShowColumnsDlg
+          ShortCut = 16471
+          Enabled = True
+        end      
+        item
+          Command = rxgcShowFilterDlg
+          ShortCut = 16468
+          Enabled = True
+        end      
+        item
+          Command = rxgcShowSortDlg
+          ShortCut = 16467
+          Enabled = True
+        end      
+        item
+          Command = rxgcShowQuickFilter
+          ShortCut = 16465
+          Enabled = True
+        end      
+        item
+          Command = rxgcHideQuickFilter
+          ShortCut = 16456
+          Enabled = True
+        end      
+        item
+          Command = rxgcSelectAll
+          ShortCut = 16449
+          Enabled = True
+        end      
+        item
+          Command = rxgcDeSelectAll
+          ShortCut = 16429
+          Enabled = True
+        end      
+        item
+          Command = rxgcInvertSelection
+          ShortCut = 16426
+          Enabled = True
+        end      
+        item
+          Command = rxgcOptimizeColumnsWidth
+          ShortCut = 16427
+          Enabled = True
+        end      
+        item
+          Command = rxgcCopyCellValue
+          ShortCut = 16451
+          Enabled = True
+        end>
+      FooterOptions.DrawFullLine = False
+      SearchOptions.QuickSearchOptions = [loCaseInsensitive, loPartialKey]
+      SearchOptions.FromStart = False
+      OptionsRx = [rdgAllowColumnsForm, rdgAllowDialogFind, rdgAllowQuickFilter]
+      Align = alClient
+      Color = clWindow
+      DrawFullLine = False
+      FocusColor = clRed
+      SelectedColor = clHighlight
+      DataSource = DataSource1
+      FixedCols = 0
+      Flat = True
+      Options = [dgEditing, dgTitles, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgDisplayMemoText]
+      Scrollbars = ssAutoBoth
+      TabOrder = 1
+      OnDrawColumnCell = RxDBGrid1DrawColumnCell
+    end
+  end
+  object ReadQuery: TSQLQuery
+    PacketRecords = -1
+    FieldDefs = <>
+    AfterDelete = ReadQueryAfterDelete
+    AfterPost = ReadQueryAfterPost
+    SQL.Strings = (
+      ''
+    )
+    Params = <>
+    Macros = <>
+    Left = 136
+    Top = 136
+  end
+  object WriteQuery: TSQLQuery
+    PacketRecords = -1
+    FieldDefs = <>
+    SQL.Strings = (
+      ''
+    )
+    Params = <>
+    Macros = <>
+    Left = 203
+    Top = 136
+  end
+  object DataSource1: TDataSource
+    DataSet = ReadQuery
+    Left = 136
+    Top = 192
+  end
+end

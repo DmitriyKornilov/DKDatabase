@@ -19,6 +19,10 @@
         <UnitName Value="DK_SQLite3"/>
       </Item>
       <Item>
+        <Filename Value="source\dk_dbutils.pas"/>
+        <UnitName Value="DK_DBUtils"/>
+      </Item>
+      <Item>
         <Filename Value="source\usqlite3listform.pas"/>
         <UnitName Value="USQLite3ListForm"/>
       </Item>
@@ -31,12 +35,16 @@
         <UnitName Value="USQLite3CheckListForm"/>
       </Item>
       <Item>
-        <Filename Value="source\dk_dbutils.pas"/>
-        <UnitName Value="dk_dbutils"/>
+        <Filename Value="source\usqlite3checklistform.lfm"/>
+        <Type Value="LFM"/>
       </Item>
       <Item>
         <Filename Value="source\usqlite3tableform.pas"/>
-        <UnitName Value="usqlite3tableform"/>
+        <UnitName Value="USQLite3TableForm"/>
+      </Item>
+      <Item>
+        <Filename Value="source\usqlite3tableform.lfm"/>
+        <Type Value="LFM"/>
       </Item>
     </Files>
     <RequiredPkgs>

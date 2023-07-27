@@ -24,7 +24,7 @@ type
     procedure ReadQueryAfterDelete(DataSet: TDataSet);
     procedure ReadQueryAfterPost(DataSet: TDataSet);
     procedure RxDBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
-      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+      {%H-}DataCol: Integer; Column: TColumn; {%H-}State: TGridDrawState);
   private
     TableName, IDFieldName: String;
     FieldNames, ColumnNames: TStrVector;

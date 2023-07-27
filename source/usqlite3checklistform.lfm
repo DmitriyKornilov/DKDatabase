@@ -10,11 +10,11 @@ object SQLite3CheckListForm: TSQLite3CheckListForm
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.2.6.0'
   object VT1: TVirtualStringTree
     Left = 2
-    Height = 416
-    Top = 42
+    Height = 414
+    Top = 44
     Width = 522
     Align = alClient
     BorderSpacing.Left = 2
@@ -355,29 +355,32 @@ object SQLite3CheckListForm: TSQLite3CheckListForm
     end
   end
   object Panel1: TPanel
-    Left = 0
+    Left = 2
     Height = 40
-    Top = 0
-    Width = 526
+    Top = 2
+    Width = 522
     Align = alTop
     AutoSize = True
+    BorderSpacing.Left = 2
+    BorderSpacing.Top = 2
+    BorderSpacing.Right = 2
     BevelOuter = bvNone
-    ClientHeight = 40
-    ClientWidth = 526
+    BorderStyle = bsSingle
+    ClientHeight = 36
+    ClientWidth = 518
     Constraints.MaxHeight = 40
     Constraints.MinHeight = 40
     TabOrder = 2
     object ListCheckButton: TSpeedButton
       Cursor = crHandPoint
-      Left = 2
-      Height = 38
+      Left = 0
+      Height = 36
       Hint = 'Отметить весь список'
-      Top = 2
+      Top = 0
       Width = 40
       Align = alLeft
       AutoSize = True
-      BorderSpacing.Left = 2
-      BorderSpacing.Top = 2
+      Constraints.MinHeight = 36
       Constraints.MinWidth = 40
       Glyph.Data = {
         36100000424D3610000000000000360000002800000020000000200000000100
@@ -520,14 +523,14 @@ object SQLite3CheckListForm: TSQLite3CheckListForm
     end
     object ListUncheckButton: TSpeedButton
       Cursor = crHandPoint
-      Left = 42
-      Height = 38
+      Left = 40
+      Height = 36
       Hint = 'Снять все отметки'
-      Top = 2
+      Top = 0
       Width = 40
       Align = alLeft
       AutoSize = True
-      BorderSpacing.Top = 2
+      Constraints.MinHeight = 36
       Constraints.MinWidth = 40
       Glyph.Data = {
         36100000424D3610000000000000360000002800000020000000200000000100

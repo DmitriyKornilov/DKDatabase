@@ -8,7 +8,7 @@ unit DKDatabase;
 interface
 
 uses
-  DK_SQLite3, USQLite3ListForm, USQLite3CheckListForm, DK_DBUtils, 
+  DK_SQLite3, DK_DBUtils, USQLite3ListForm, USQLite3CheckListForm, 
   USQLite3TableForm, LazarusPackageIntf;
 
 implementation

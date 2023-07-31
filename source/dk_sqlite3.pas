@@ -10,6 +10,13 @@ uses
 
 type
 
+  { TSQLite3Connection }
+
+  TSQLite3Connection = class(SQLite3Conn.TSQLite3Connection)
+  protected
+    procedure DoInternalConnect; override;
+  end;
+
   { TSQLite3 }
 
   TSQLite3 = class
@@ -198,6 +205,14 @@ implementation
 
 uses USQLite3ListForm, USQLite3CheckListForm, USQLite3TableForm;
 
+{ TSQLite3Connection }
+
+procedure TSQLite3Connection.DoInternalConnect;
+begin
+  inherited DoInternalConnect;
+  ExecSQL('PRAGMA journal_mode=WAL');
+end;
+
 
 { TSQLite3 }
 
@@ -245,6 +260,7 @@ begin
     SQLScript.Transaction:= FTransaction;
     SQLScript.Script.LoadFromFile(AFileName);
     try
+      FTransaction.StartTransaction;
       SQLScript.Execute;
       FTransaction.Commit;
     except

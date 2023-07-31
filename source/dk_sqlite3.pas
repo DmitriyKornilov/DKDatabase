@@ -32,6 +32,7 @@ type
     constructor Create;
     destructor  Destroy; override;
 
+    procedure Reconnect;
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
     procedure SetNavigatorGlyphs(const AImageList: TImageList);
@@ -243,6 +244,12 @@ begin
   inherited Destroy;
 end;
 
+procedure TSQLite3.Reconnect;
+begin
+  FConnection.Close(True);
+  FConnection.Open;
+end;
+
 procedure TSQLite3.Connect(const AFileName: String);
 begin
   FConnection.DatabaseName:= AFileName;
@@ -260,7 +267,6 @@ begin
     SQLScript.Transaction:= FTransaction;
     SQLScript.Script.LoadFromFile(AFileName);
     try
-      FTransaction.StartTransaction;
       SQLScript.Execute;
       FTransaction.Commit;
     except

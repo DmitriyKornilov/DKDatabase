@@ -10,7 +10,7 @@ object SQLite3TableForm: TSQLite3TableForm
   Constraints.MinWidth = 625
   DesignTimePPI = 120
   OnShow = FormShow
-  Position = poDesktopCenter
+  Position = poScreenCenter
   LCLVersion = '2.2.6.0'
   object Panel1: TPanel
     Left = 2

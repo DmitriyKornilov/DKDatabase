@@ -12,7 +12,7 @@ object SQLite3ListForm: TSQLite3ListForm
   OnChangeBounds = FormChangeBounds
   OnResize = FormResize
   OnShow = FormShow
-  Position = poDesktopCenter
+  Position = poScreenCenter
   LCLVersion = '2.2.6.0'
   object Panel1: TPanel
     Left = 2

@@ -337,10 +337,9 @@ begin
   Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
-    Frm.ReadQuery.DataBase:= FConnection;
-    Frm.ReadQuery.Transaction:= FTransaction;
-    Frm.WriteQuery.DataBase:= FConnection;
-    Frm.WriteQuery.Transaction:= FTransaction;
+    Frm.Query.DataBase:= FConnection;
+    Frm.Query.Transaction:= FTransaction;
+
     //Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
     //Frm.SetNavigatorGlyphs(FImageList);
     Frm.SetTable(ATableName, AIDFieldName, [AFieldName], nil, [ctString], [200], AIDNotZero, False, OrderFieldNames);
@@ -430,10 +429,10 @@ begin
   Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
-    Frm.ReadQuery.DataBase:= FConnection;
-    Frm.ReadQuery.Transaction:= FTransaction;
-    Frm.WriteQuery.DataBase:= FConnection;
-    Frm.WriteQuery.Transaction:= FTransaction;
+    Frm.Query.DataBase:= FConnection;
+    Frm.Query.Transaction:= FTransaction;
+    //Frm.WriteQuery.DataBase:= FConnection;
+    //Frm.WriteQuery.Transaction:= FTransaction;
     //Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
     //Frm.SetNavigatorGlyphs(FImageList);
     //Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,

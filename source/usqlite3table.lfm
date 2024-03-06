@@ -201,6 +201,7 @@ object SQLite3Table: TSQLite3Table
         0000000000000000000000000000000000000000000000000000000000000000
         0000000000000000000000000000000000000000000000000000
       }
+      OnClick = DelButtonClick
       ShowHint = True
       ParentShowHint = False
     end
@@ -380,6 +381,7 @@ object SQLite3Table: TSQLite3Table
         BC98C2BBBC98C2BBBC98C2BBBC98C2BBBC98C2BBBC98C2BBBC98C2BBBC98C2BB
         BC98835716987A4A01987A4A01987949008F7949001000000000
       }
+      OnClick = SaveButtonClick
       ShowHint = True
       ParentShowHint = False
     end
@@ -559,17 +561,9 @@ object SQLite3Table: TSQLite3Table
         00BB137C00E6127C00FB127C00FB127C00E6137C00BB137C0079127900220000
         0000000000000000000000000000000000000000000000000000
       }
+      OnClick = UpdateButtonClick
       ShowHint = True
       ParentShowHint = False
-    end
-    object RxTimeEdit1: TRxTimeEdit
-      Left = 8
-      Height = 23
-      Top = 8
-      Width = 80
-      ShowSecond = True
-      MaxLength = 8
-      TabOrder = 0
     end
   end
   object VT1: TVirtualStringTree
@@ -585,7 +579,7 @@ object SQLite3Table: TSQLite3Table
     Header.MainColumn = -1
     TabOrder = 1
   end
-  object ReadQuery: TSQLQuery
+  object Query: TSQLQuery
     PacketRecords = -1
     FieldDefs = <>
     SQL.Strings = (
@@ -594,17 +588,6 @@ object SQLite3Table: TSQLite3Table
     Params = <>
     Macros = <>
     Left = 107
-    Top = 107
-  end
-  object WriteQuery: TSQLQuery
-    PacketRecords = -1
-    FieldDefs = <>
-    SQL.Strings = (
-      ''
-    )
-    Params = <>
-    Macros = <>
-    Left = 174
     Top = 107
   end
 end

@@ -46,6 +46,14 @@
         <Filename Value="source\usqlite3tableform.lfm"/>
         <Type Value="LFM"/>
       </Item>
+      <Item>
+        <Filename Value="source\usqlite3table.lfm"/>
+        <Type Value="LFM"/>
+      </Item>
+      <Item>
+        <Filename Value="source\usqlite3table.pas"/>
+        <UnitName Value="USQLite3Table"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

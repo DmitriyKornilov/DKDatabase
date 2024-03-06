@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls, StdCtrls,
-  DK_SQLUtils, DK_Vector, DK_StrUtils, VirtualTrees;
+  DK_SQLUtils, DK_Vector, DK_StrUtils, DK_VSTTables, VirtualTrees;
 
 type
 
@@ -218,7 +218,7 @@ type
 
 implementation
 
-uses USQLite3ListForm, USQLite3CheckListForm, USQLite3TableForm;
+uses USQLite3ListForm, USQLite3CheckListForm, {USQLite3TableForm,} USQLite3Table;
 
 { TSQLite3Connection }
 
@@ -310,19 +310,40 @@ function TSQLite3.EditList(const AFormCaption: String;
                            const AIDNotZero: Boolean;
                            const AColorFieldName: String): Boolean;
 var
-  Frm: TSQLite3ListForm;
+  //Frm: TSQLite3ListForm;
+  Frm: TSQLite3Table;
+  OrderFieldNames: TStrVector;
 begin
+  //Result:= False;
+  //Frm:= TSQLite3ListForm.Create(nil);
+  //try
+  //  Frm.Caption:= AFormCaption;
+  //  Frm.ReadQuery.DataBase:= FConnection;
+  //  Frm.ReadQuery.Transaction:= FTransaction;
+  //  Frm.WriteQuery.DataBase:= FConnection;
+  //  Frm.WriteQuery.Transaction:= FTransaction;
+  //  Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
+  //  Frm.SetNavigatorGlyphs(FImageList);
+  //  Frm.SetTable(ATableName, AIDFieldName, AFieldName, AColorFieldName, AIDNotZero, AOrderByName);
+  //  Frm.ShowModal;
+  //  Result:= True;
+  //finally
+  //  FreeAndNil(Frm);
+  //end;
+
   Result:= False;
-  Frm:= TSQLite3ListForm.Create(nil);
+  OrderFieldNames:= nil;
+  if AOrderByName then VAppend(OrderFieldNames, AFieldName);
+  Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
     Frm.ReadQuery.DataBase:= FConnection;
     Frm.ReadQuery.Transaction:= FTransaction;
     Frm.WriteQuery.DataBase:= FConnection;
     Frm.WriteQuery.Transaction:= FTransaction;
-    Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
-    Frm.SetNavigatorGlyphs(FImageList);
-    Frm.SetTable(ATableName, AIDFieldName, AFieldName, AColorFieldName, AIDNotZero, AOrderByName);
+    //Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
+    //Frm.SetNavigatorGlyphs(FImageList);
+    Frm.SetTable(ATableName, AIDFieldName, [AFieldName], nil, [ctString], [200], AIDNotZero, False, OrderFieldNames);
     Frm.ShowModal;
     Result:= True;
   finally
@@ -384,20 +405,39 @@ function TSQLite3.EditTable(const AFormCaption: String;
                        const AIDNotZero: Boolean = False;
                        const AOrderFieldNames: TStrVector = nil): Boolean;
 var
-  Frm: TSQLite3TableForm;
+  //Frm: TSQLite3TableForm;
+  Frm: TSQLite3Table;
 begin
+  //Result:= False;
+  //Frm:= TSQLite3TableForm.Create(nil);
+  //try
+  //  Frm.Caption:= AFormCaption;
+  //  Frm.ReadQuery.DataBase:= FConnection;
+  //  Frm.ReadQuery.Transaction:= FTransaction;
+  //  Frm.WriteQuery.DataBase:= FConnection;
+  //  Frm.WriteQuery.Transaction:= FTransaction;
+  //  Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
+  //  Frm.SetNavigatorGlyphs(FImageList);
+  //  Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,
+  //               AIDNotZero, AOrderFieldNames);
+  //  Frm.ShowModal;
+  //  Result:= True;
+  //finally
+  //  FreeAndNil(Frm);
+  //end;
+
   Result:= False;
-  Frm:= TSQLite3TableForm.Create(nil);
+  Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
     Frm.ReadQuery.DataBase:= FConnection;
     Frm.ReadQuery.Transaction:= FTransaction;
     Frm.WriteQuery.DataBase:= FConnection;
     Frm.WriteQuery.Transaction:= FTransaction;
-    Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
-    Frm.SetNavigatorGlyphs(FImageList);
-    Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,
-                 AIDNotZero, AOrderFieldNames);
+    //Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
+    //Frm.SetNavigatorGlyphs(FImageList);
+    //Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,
+    //             AIDNotZero, AOrderFieldNames);
     Frm.ShowModal;
     Result:= True;
   finally

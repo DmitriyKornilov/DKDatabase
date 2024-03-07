@@ -41,6 +41,8 @@ type
 
     IDValues: TInt64Vector;
 
+    IsInserting: Boolean;
+
     procedure TableUpdate;
 
     procedure SelectCell;
@@ -70,6 +72,8 @@ implementation
 procedure TSQLite3Table.FormCreate(Sender: TObject);
 begin
   VSTEdit:= TVSTEdit.Create(VT1);
+  //VSTEdit.SetHeaderHeight(23);
+  //VSTEdit.SetRowHeight(23);
   VSTEdit.OnSelect:= @SelectCell;
   VSTEdit.OnEdititingDone:= @DoneEditing;
 
@@ -77,11 +81,19 @@ begin
   EditButton.Enabled:= False;
   SaveButton.Enabled:= False;
   CancelButton.Enabled:= False;
+
+  IsInserting:= False;
 end;
 
 procedure TSQLite3Table.CancelButtonClick(Sender: TObject);
 begin
-  VSTEdit.UnSelect(False);
+  if IsInserting then
+  begin
+
+    IsInserting:= False;
+  end
+  else
+    VSTEdit.UnSelect(False);
 end;
 
 procedure TSQLite3Table.DelButtonClick(Sender: TObject);
@@ -107,7 +119,13 @@ end;
 
 procedure TSQLite3Table.SaveButtonClick(Sender: TObject);
 begin
-  VSTEdit.UnSelect(True);
+  if IsInserting then
+  begin
+
+    IsInserting:= False;
+  end
+  else
+    VSTEdit.UnSelect(True);
 end;
 
 procedure TSQLite3Table.UpdateButtonClick(Sender: TObject);
@@ -184,10 +202,12 @@ end;
 
 procedure TSQLite3Table.SelectCell;
 begin
-  DelButton.Enabled:= VSTEdit.IsSelected;
+  AddButton.Enabled:= not VSTEdit.IsEditing;
+  DelButton.Enabled:= VSTEdit.IsSelected and (not VSTEdit.IsEditing);
   EditButton.Enabled:= VSTEdit.IsSelected and (not VSTEdit.IsEditing);
   SaveButton.Enabled:= VSTEdit.IsEditing;
   CancelButton.Enabled:= VSTEdit.IsEditing;
+  UpdateButton.Enabled:= not VSTEdit.IsEditing;
 end;
 
 procedure TSQLite3Table.DoneEditing(const ARowIndex, AColIndex: Integer;

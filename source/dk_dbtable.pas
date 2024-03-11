@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Buttons, VirtualTrees, ExtCtrls, SQLDB, Controls, Graphics,
 
   DK_VSTTables, DK_Vector, DK_Matrix, DK_SQLUtils, DK_StrUtils, DK_Dialogs,
-  DK_DBUtils, DK_CtrlUtils,
+  DK_DBUtils, DK_CtrlUtils, DK_PPI,
 
   UDBImages;
 
@@ -89,7 +89,7 @@ constructor TDBTable.Create(const APanel: TPanel; const AQuery: TSQLQuery);
     AButton.Images:= FDBImages.ToolIcons;
     AButton.ImageIndex:= AIconIndex;
     AButton.AutoSize:= False;
-    AButton.Width:= ToolButtonWidth;
+    ControlWidth(AButton, TOOL_BUTTON_WIDTH_DEFAULT);
     AButton.Hint:= AHint;
     AButton.ShowHint:= True;
   end;
@@ -103,7 +103,7 @@ begin
   FToolPanel.Parent:= APanel;
   FToolPanel.Align:= alTop;
   FToolPanel.AutoSize:= False;
-  FToolPanel.Height:= ToolPanelHeight;
+  ControlHeight(FToolPanel, TOOL_PANEL_HEIGHT_DEFAULT);
   FToolPanel.BevelInner:= bvNone;
   FToolPanel.BevelOuter:= bvNone;
   FToolPanel.BorderStyle:= bsSingle;

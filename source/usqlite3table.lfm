@@ -1,23 +1,24 @@
 object SQLite3Table: TSQLite3Table
   Left = 671
-  Height = 500
-  Top = 224
-  Width = 320
+  Height = 626
+  Top = 220
+  Width = 400
   Caption = 'SQLite3Table'
-  ClientHeight = 500
-  ClientWidth = 320
-  Constraints.MinHeight = 160
-  Constraints.MinWidth = 320
+  ClientHeight = 626
+  ClientWidth = 400
+  Constraints.MinHeight = 200
+  Constraints.MinWidth = 400
+  DesignTimePPI = 120
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.2.4.0'
+  LCLVersion = '3.2.0.0'
   object MainPanel: TPanel
     Left = 0
-    Height = 500
+    Height = 626
     Top = 0
-    Width = 320
+    Width = 400
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -30,7 +31,7 @@ object SQLite3Table: TSQLite3Table
     )
     Params = <>
     Macros = <>
-    Left = 24
-    Top = 16
+    Left = 30
+    Top = 20
   end
 end

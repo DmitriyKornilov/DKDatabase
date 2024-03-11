@@ -1,0 +1,9 @@
+icon	autor		url
+==================================================================================================
+add	Freepik		https://www.flaticon.com/free-icon/plus-symbol-button_32563
+delete	Freepik		https://www.flaticon.com/free-icon/calculation-operations-minus-sign_42977
+edit	Freepik		https://www.flaticon.com/free-icon/pencil_4192867
+save	popo2021	https://www.flaticon.com/free-icon/floppy-disk_5344228
+cancel	Pixel perfect	https://www.flaticon.com/free-icon/undo_724893
+update	Roundicons	https://www.flaticon.com/free-icon/refresh_189687
+

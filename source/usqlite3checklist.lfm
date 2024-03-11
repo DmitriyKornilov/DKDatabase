@@ -1,4 +1,4 @@
-object SQLite3CheckListForm: TSQLite3CheckListForm
+object SQLite3CheckList: TSQLite3CheckList
   Left = 586
   Height = 522
   Top = 210
@@ -10,7 +10,7 @@ object SQLite3CheckListForm: TSQLite3CheckListForm
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.2.6.0'
+  LCLVersion = '3.2.0.0'
   object VT1: TVirtualStringTree
     Left = 2
     Height = 414

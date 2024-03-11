@@ -1,0 +1,62 @@
+object SQLite3DoubleTable: TSQLite3DoubleTable
+  Left = 544
+  Height = 500
+  Top = 221
+  Width = 650
+  Caption = 'SQLite3DoubleTable'
+  ClientHeight = 500
+  ClientWidth = 650
+  Constraints.MinHeight = 160
+  Constraints.MinWidth = 650
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  LCLVersion = '2.2.4.0'
+  object LeftPanel: TPanel
+    Left = 0
+    Height = 500
+    Top = 0
+    Width = 240
+    Align = alLeft
+    BevelOuter = bvNone
+    TabOrder = 0
+  end
+  object Splitter1: TSplitter
+    Left = 240
+    Height = 500
+    Top = 0
+    Width = 5
+    ResizeStyle = rsLine
+  end
+  object RightPanel: TPanel
+    Left = 245
+    Height = 500
+    Top = 0
+    Width = 405
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 2
+  end
+  object LeftQuery: TSQLQuery
+    PacketRecords = -1
+    FieldDefs = <>
+    SQL.Strings = (
+      ''
+    )
+    Params = <>
+    Macros = <>
+    Left = 134
+    Top = 134
+  end
+  object RightQuery: TSQLQuery
+    PacketRecords = -1
+    FieldDefs = <>
+    SQL.Strings = (
+      ''
+    )
+    Params = <>
+    Macros = <>
+    Left = 304
+    Top = 136
+  end
+end

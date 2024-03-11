@@ -8,7 +8,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="source"/>
+        <IncludeFiles Value="source;source\icons"/>
         <OtherUnitFiles Value="source"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
@@ -23,28 +23,8 @@
         <UnitName Value="DK_DBUtils"/>
       </Item>
       <Item>
-        <Filename Value="source\usqlite3listform.pas"/>
-        <UnitName Value="USQLite3ListForm"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3listform.lfm"/>
-        <Type Value="LFM"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3checklistform.pas"/>
-        <UnitName Value="USQLite3CheckListForm"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3checklistform.lfm"/>
-        <Type Value="LFM"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3tableform.pas"/>
-        <UnitName Value="USQLite3TableForm"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3tableform.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="source\usqlite3checklist.pas"/>
+        <UnitName Value="USQLite3CheckList"/>
       </Item>
       <Item>
         <Filename Value="source\usqlite3table.lfm"/>
@@ -54,8 +34,27 @@
         <Filename Value="source\usqlite3table.pas"/>
         <UnitName Value="USQLite3Table"/>
       </Item>
+      <Item>
+        <Filename Value="source\usqlite3doubletable.pas"/>
+        <UnitName Value="USQLite3DoubleTable"/>
+      </Item>
+      <Item>
+        <Filename Value="source\dk_dbtable.pas"/>
+        <UnitName Value="DK_DBTable"/>
+      </Item>
+      <Item>
+        <Filename Value="source\udbimages.pas"/>
+        <UnitName Value="UDBImages"/>
+      </Item>
+      <Item>
+        <Filename Value="source\icons_info.txt"/>
+        <Type Value="Text"/>
+      </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="SQLDBLaz"/>
+      </Item>
       <Item>
         <PackageName Value="DKVTUtils"/>
       </Item>

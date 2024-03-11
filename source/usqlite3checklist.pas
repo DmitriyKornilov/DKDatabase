@@ -1,4 +1,4 @@
-unit USQLite3CheckListForm;
+unit USQLite3CheckList;
 
 {$mode ObjFPC}{$H+}
 
@@ -10,9 +10,9 @@ uses
 
 type
 
-  { TSQLite3CheckListForm }
+  { TSQLite3CheckList }
 
-  TSQLite3CheckListForm = class(TForm)
+  TSQLite3CheckList = class(TForm)
     ButtonPanel: TPanel;
     CancelButton: TSpeedButton;
     DividerBevel1: TDividerBevel;
@@ -41,42 +41,42 @@ type
   end;
 
 var
-  SQLite3CheckListForm: TSQLite3CheckListForm;
+  SQLite3CheckList: TSQLite3CheckList;
 
 implementation
 
 {$R *.lfm}
 
-{ TSQLite3CheckListForm }
+{ TSQLite3CheckList }
 
-procedure TSQLite3CheckListForm.FormCreate(Sender: TObject);
+procedure TSQLite3CheckList.FormCreate(Sender: TObject);
 begin
   VST:= TVSTCheckTable.Create(VT1);
   VST.SelectedBGColor:= VT1.Color;
   VST.HeaderFont.Style:= [fsBold];
 end;
 
-procedure TSQLite3CheckListForm.CancelButtonClick(Sender: TObject);
+procedure TSQLite3CheckList.CancelButtonClick(Sender: TObject);
 begin
   ModalResult:= mrCancel;
 end;
 
-procedure TSQLite3CheckListForm.ListCheckButtonClick(Sender: TObject);
+procedure TSQLite3CheckList.ListCheckButtonClick(Sender: TObject);
 begin
   VST.CheckAll(True);
 end;
 
-procedure TSQLite3CheckListForm.ListUncheckButtonClick(Sender: TObject);
+procedure TSQLite3CheckList.ListUncheckButtonClick(Sender: TObject);
 begin
   VST.CheckAll(False);
 end;
 
-procedure TSQLite3CheckListForm.FormDestroy(Sender: TObject);
+procedure TSQLite3CheckList.FormDestroy(Sender: TObject);
 begin
   if Assigned(VST) then FreeAndNil(VST);
 end;
 
-procedure TSQLite3CheckListForm.FormShow(Sender: TObject);
+procedure TSQLite3CheckList.FormShow(Sender: TObject);
 var
   i, n: Integer;
 begin
@@ -92,7 +92,7 @@ begin
   ListUncheckButton.Enabled:= ListCheckButton.Enabled;
 end;
 
-procedure TSQLite3CheckListForm.SaveButtonClick(Sender: TObject);
+procedure TSQLite3CheckList.SaveButtonClick(Sender: TObject);
 var
   i: Integer;
 begin

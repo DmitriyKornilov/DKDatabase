@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls, StdCtrls,
-  DK_SQLUtils, DK_Vector, DK_StrUtils, DK_VSTTables, VirtualTrees;
+  DK_SQLUtils, DK_Vector, DK_Matrix, DK_StrUtils, DK_DBUtils, DK_VSTTables, VirtualTrees;
 
 type
 
@@ -42,7 +42,8 @@ type
                    const ATableName, AIDFieldName, AFieldName: String;
                    const AOrderByName: Boolean = False;
                    const AIDNotZero: Boolean = False;
-                   const AColorFieldName: String = ''): Boolean;
+                   const AColumnWidth: Integer = 400;
+                   const AFont: TFont = nil): Boolean;
     function EditCheckList(var AKeyValues: TIntVector;
                    var APickValues: TStrVector;  out AIsAllChecked: Boolean;
                    const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
@@ -52,9 +53,16 @@ type
     function EditTable(const AFormCaption: String;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
+                       const AColumnTypes: TVSTColumnTypes;
+                       const AColumnNeedValues: TBoolVector;
                        const AColumnWidths: TIntVector;
+                       const AColumnAlignments: array of TAlignment;
                        const AIDNotZero: Boolean = False;
-                       const AOrderFieldNames: TStrVector = nil): Boolean;
+                       const AOrderFieldNames: TStrVector = nil;
+                       const AAutoSizeColumnNumber: Integer = 1;
+                       const AKeys: TIntMatrix = nil;
+                       const APicks: TStrMatrix = nil;
+                       const AFont: TFont = nil): Boolean;
 
     function ValueStrStrID(const ATableName, AValueFieldName,
                                  AIDFieldName, AIDValue: String): String;
@@ -218,7 +226,7 @@ type
 
 implementation
 
-uses USQLite3ListForm, USQLite3CheckListForm, {USQLite3TableForm,} USQLite3Table;
+uses USQLite3CheckList, USQLite3Table;
 
 { TSQLite3Connection }
 
@@ -308,29 +316,12 @@ function TSQLite3.EditList(const AFormCaption: String;
                            const ATableName, AIDFieldName, AFieldName: String;
                            const AOrderByName: Boolean;
                            const AIDNotZero: Boolean;
-                           const AColorFieldName: String): Boolean;
+                           const AColumnWidth: Integer = 400;
+                           const AFont: TFont = nil): Boolean;
 var
-  //Frm: TSQLite3ListForm;
   Frm: TSQLite3Table;
   OrderFieldNames: TStrVector;
 begin
-  //Result:= False;
-  //Frm:= TSQLite3ListForm.Create(nil);
-  //try
-  //  Frm.Caption:= AFormCaption;
-  //  Frm.ReadQuery.DataBase:= FConnection;
-  //  Frm.ReadQuery.Transaction:= FTransaction;
-  //  Frm.WriteQuery.DataBase:= FConnection;
-  //  Frm.WriteQuery.Transaction:= FTransaction;
-  //  Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
-  //  Frm.SetNavigatorGlyphs(FImageList);
-  //  Frm.SetTable(ATableName, AIDFieldName, AFieldName, AColorFieldName, AIDNotZero, AOrderByName);
-  //  Frm.ShowModal;
-  //  Result:= True;
-  //finally
-  //  FreeAndNil(Frm);
-  //end;
-
   Result:= False;
   OrderFieldNames:= nil;
   if AOrderByName then VAppend(OrderFieldNames, AFieldName);
@@ -339,10 +330,14 @@ begin
     Frm.Caption:= AFormCaption;
     Frm.Query.DataBase:= FConnection;
     Frm.Query.Transaction:= FTransaction;
-
-    //Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
-    //Frm.SetNavigatorGlyphs(FImageList);
-    Frm.SetTable(ATableName, AIDFieldName, [AFieldName], nil, [ctString], [200], AIDNotZero, False, OrderFieldNames);
+    Frm.SetTable(AFont, ATableName, AIDFieldName,
+                 [AFieldName],
+                 nil,
+                 [ctString],
+                 [True],
+                 [AColumnWidth],
+                 [taLeftJustify],
+                 AIDNotZero, False, OrderFieldNames);
     Frm.ShowModal;
     Result:= True;
   finally
@@ -357,7 +352,7 @@ function TSQLite3.EditCheckList(var AKeyValues: TIntVector;
   const AKeyNotZero: Boolean = False;
   const AShowHeader: Boolean = True): Boolean;
 var
-  Frm: TSQLite3CheckListForm;
+  Frm: TSQLite3CheckList;
   VKey: TIntVector;
   VPick: TStrVector;
   S: String;
@@ -365,7 +360,7 @@ begin
   Result:= False;
   //AKeyValues:= nil;
   //APickValues:= nil;
-  Frm:= TSQLite3CheckListForm.Create(nil);
+  Frm:= TSQLite3CheckList.Create(nil);
 
   try
     Frm.Caption:= ACaption;
@@ -400,43 +395,29 @@ end;
 function TSQLite3.EditTable(const AFormCaption: String;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
+                       const AColumnTypes: TVSTColumnTypes;
+                       const AColumnNeedValues: TBoolVector;
                        const AColumnWidths: TIntVector;
+                       const AColumnAlignments: array of TAlignment;
                        const AIDNotZero: Boolean = False;
-                       const AOrderFieldNames: TStrVector = nil): Boolean;
+                       const AOrderFieldNames: TStrVector = nil;
+                       const AAutoSizeColumnNumber: Integer = 1;
+                       const AKeys: TIntMatrix = nil;
+                       const APicks: TStrMatrix = nil;
+                       const AFont: TFont = nil): Boolean;
 var
-  //Frm: TSQLite3TableForm;
   Frm: TSQLite3Table;
 begin
-  //Result:= False;
-  //Frm:= TSQLite3TableForm.Create(nil);
-  //try
-  //  Frm.Caption:= AFormCaption;
-  //  Frm.ReadQuery.DataBase:= FConnection;
-  //  Frm.ReadQuery.Transaction:= FTransaction;
-  //  Frm.WriteQuery.DataBase:= FConnection;
-  //  Frm.WriteQuery.Transaction:= FTransaction;
-  //  Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
-  //  Frm.SetNavigatorGlyphs(FImageList);
-  //  Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,
-  //               AIDNotZero, AOrderFieldNames);
-  //  Frm.ShowModal;
-  //  Result:= True;
-  //finally
-  //  FreeAndNil(Frm);
-  //end;
-
   Result:= False;
+
   Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
     Frm.Query.DataBase:= FConnection;
     Frm.Query.Transaction:= FTransaction;
-    //Frm.WriteQuery.DataBase:= FConnection;
-    //Frm.WriteQuery.Transaction:= FTransaction;
-    //Frm.SetColors(FEditListSelectedColor, FEditListSelectedFontColor);
-    //Frm.SetNavigatorGlyphs(FImageList);
-    //Frm.SetTable(ATableName, AIDFieldName, AFieldNames, AColumnNames, AColumnWidths,
-    //             AIDNotZero, AOrderFieldNames);
+    Frm.SetTable(AFont, ATableName, AIDFieldName, AFieldNames,
+                 AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
+                 AIDNotZero, True, AOrderFieldNames, AAutoSizeColumnNumber, AKeys, APicks);
     Frm.ShowModal;
     Result:= True;
   finally
@@ -1210,60 +1191,22 @@ end;
 
 function TSQLite3.LastWritedInt32ID(const ATableName: String): Integer;
 begin
-  Result:= 0;
-  QSetQuery(FQuery);
-  QSetSQL(
-    'SELECT last_insert_rowid() AS LastID ' +
-    'FROM' + SqlEsc(ATableName) +
-    'LIMIT 1'
-    );
-  QOpen;
-  if not QIsEmpty then
-    Result:= QFieldInt('LastID');
-  QClose;
+  Result:= DK_DBUtils.LastWritedInt32ID(FQuery, ATableName);
 end;
 
 function TSQLite3.LastWritedInt64ID(const ATableName: String): Int64;
 begin
-  Result:= 0;
-  QSetQuery(FQuery);
-  QSetSQL(
-    'SELECT last_insert_rowid() AS LastID ' +
-    'FROM' + SqlEsc(ATableName) +
-    'LIMIT 1'
-    );
-  QOpen;
-  if not QIsEmpty then
-    Result:= QFieldInt64('LastID');
-  QClose;
+  Result:= DK_DBUtils.LastWritedInt64ID(FQuery, ATableName);
 end;
 
 function TSQLite3.MaxInt32ID(const ATableName: String): Integer;
 begin
-  Result:= 0;
-  QSetQuery(FQuery);
-  QSetSQL(
-    'SELECT MAX(RowID) AS MaxID ' +
-    'FROM' + SqlEsc(ATableName)
-    );
-  QOpen;
-  if not QIsEmpty then
-    Result:= QFieldInt('MaxID');
-  QClose;
+  Result:= DK_DBUtils.MaxInt32ID(FQuery, ATableName);
 end;
 
 function TSQLite3.MaxInt64ID(const ATableName: String): Int64;
 begin
-  Result:= 0;
-  QSetQuery(FQuery);
-  QSetSQL(
-    'SELECT MAX(RowID) AS MaxID ' +
-    'FROM' + SqlEsc(ATableName)
-    );
-  QOpen;
-  if not QIsEmpty then
-    Result:= QFieldInt64('MaxID');
-  QClose;
+  Result:= DK_DBUtils.MaxInt64ID(FQuery, ATableName);
 end;
 
 function TSQLite3.LastWritedInt32Value(const ATableName, AFieldName: String): Integer;

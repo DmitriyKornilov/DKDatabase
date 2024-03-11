@@ -5,11 +5,17 @@ unit DK_DBUtils;
 interface
 
 uses
-  Classes, SysUtils, Controls, DbCtrls, Graphics, DB, SQLDB;
+  Classes, SysUtils, Controls, DbCtrls, Graphics, DB, SQLDB, DK_SQLUtils;
 
 procedure DataSetChangesSave(const ADataSet: TDataSet);
 
 procedure ChangeDbNavigatorGlyphs(ADbNavigator: TDbNavigator; AImageList: TImageList);
+
+function LastWritedInt32ID(const AQuery: TSQLQuery; const ATableName: String): Integer;
+function LastWritedInt64ID(const AQuery: TSQLQuery; const ATableName: String): Int64;
+
+function MaxInt32ID(const AQuery: TSQLQuery; const ATableName: String): Integer;
+function MaxInt64ID(const AQuery: TSQLQuery; const ATableName: String): Int64;
 
 implementation
 
@@ -62,6 +68,64 @@ begin
   finally
     FreeAndNil(BM);
   end;
+end;
+
+function LastWritedInt32ID(const AQuery: TSQLQuery; const ATableName: String): Integer;
+begin
+  Result:= 0;
+  QSetQuery(AQuery);
+  QSetSQL(
+    'SELECT last_insert_rowid() AS LastID ' +
+    'FROM' + SqlEsc(ATableName) +
+    'LIMIT 1'
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldInt('LastID');
+  QClose;
+end;
+
+function LastWritedInt64ID(const AQuery: TSQLQuery; const ATableName: String): Int64;
+begin
+  Result:= 0;
+  QSetQuery(AQuery);
+  QSetSQL(
+    'SELECT last_insert_rowid() AS LastID ' +
+    'FROM' + SqlEsc(ATableName) +
+    'LIMIT 1'
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldInt64('LastID');
+  QClose;
+end;
+
+function MaxInt32ID(const AQuery: TSQLQuery; const ATableName: String): Integer;
+begin
+  Result:= 0;
+  QSetQuery(AQuery);
+  QSetSQL(
+    'SELECT MAX(RowID) AS MaxID ' +
+    'FROM' + SqlEsc(ATableName)
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldInt('MaxID');
+  QClose;
+end;
+
+function MaxInt64ID(const AQuery: TSQLQuery; const ATableName: String): Int64;
+begin
+  Result:= 0;
+  QSetQuery(AQuery);
+  QSetSQL(
+    'SELECT MAX(RowID) AS MaxID ' +
+    'FROM' + SqlEsc(ATableName)
+    );
+  QOpen;
+  if not QIsEmpty then
+    Result:= QFieldInt64('MaxID');
+  QClose;
 end;
 
 end.

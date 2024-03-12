@@ -28,6 +28,7 @@ type
     RightDBTable: TDBTable;
     LeftTotalWidth: Integer;
     RightTotalWidth: Integer;
+    procedure LeftTableSelect;
   public
     procedure SetLeftTable(const AFont: TFont;
                        const ATableName, AIDFieldName: String;
@@ -52,7 +53,9 @@ type
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const AMasterIDFieldName: String = '');
+
   end;
 
 var
@@ -67,6 +70,8 @@ implementation
 procedure TSQLite3DoubleTable.FormCreate(Sender: TObject);
 begin
   LeftDBTable:= TDBTable.Create(LeftPanel, LeftQuery);
+  LeftDBTable.OnSelect:= @LeftTableSelect;
+
   RightDBTable:= TDBTable.Create(RightPanel, RightQuery);
 end;
 
@@ -86,6 +91,11 @@ begin
   if TotalWidth>Screen.Width then
     TotalWidth:= Screen.Width - 20;
   Width:= TotalWidth;
+end;
+
+procedure TSQLite3DoubleTable.LeftTableSelect;
+begin
+  RightDBTable.Update(LeftDBTable.IDValue);
 end;
 
 procedure TSQLite3DoubleTable.SetLeftTable(const AFont: TFont;
@@ -119,13 +129,14 @@ procedure TSQLite3DoubleTable.SetRightTable(const AFont: TFont;
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const AMasterIDFieldName: String = '');
 begin
   RightTotalWidth:= VSum(AColumnWidths) + 10;
   RightDBTable.Settings(AFont, ATableName, AIDFieldName, AFieldNames,
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
-      AKeys, APicks);
+      AKeys, APicks, AMasterIDFieldName);
 end;
 
 end.

@@ -2,10 +2,10 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
   Left = 544
   Height = 625
   Top = 221
-  Width = 812
+  Width = 820
   Caption = 'SQLite3DoubleTable'
   ClientHeight = 625
-  ClientWidth = 812
+  ClientWidth = 820
   Constraints.MinHeight = 200
   Constraints.MinWidth = 820
   DesignTimePPI = 120
@@ -33,7 +33,7 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
     Left = 306
     Height = 625
     Top = 0
-    Width = 506
+    Width = 514
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2

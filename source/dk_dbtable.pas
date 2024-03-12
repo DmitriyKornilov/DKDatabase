@@ -13,6 +13,7 @@ uses
   UDBImages;
 
 type
+  TDBTableSelectEvent = procedure of object;
 
   { TDBTable }
 
@@ -43,6 +44,11 @@ type
     FEditingRowIndex: Integer;
     FIsInserting: Boolean;
 
+    FMasterIDFieldName: String;
+    FMasterIDFieldValue: String;
+
+    FOnSelect: TDBTableSelectEvent;
+
     procedure ActionInsert(Sender: TObject);
     procedure ActionDelete(Sender: TObject);
     procedure ActionEdit(Sender: TObject);
@@ -55,6 +61,7 @@ type
 
     procedure CellSelect;
     procedure EditingBegin;
+    function GetIDValue: String;
 
   public
     constructor Create(const APanel: TPanel; const AQuery: TSQLQuery);
@@ -70,7 +77,11 @@ type
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const AMasterIDFieldName: String = '');
+    procedure Update(const AMasterIDFieldValue: String = '');
+    property OnSelect: TDBTableSelectEvent read FOnSelect write FOnSelect;
+    property IDValue: String read GetIDValue;
   end;
 
 implementation
@@ -302,12 +313,16 @@ procedure TDBTable.DataLoad;
 var
   i: Integer;
 begin
-  FDataValues:= nil;
+FDataValues:= nil;
   FIDValues:= nil;
   MDim(FDataValues, Length(FFieldNames));
 
+  if (not SEmpty(FMasterIDFieldName)) and SEmpty(FMasterIDFieldValue) then Exit;
+
   QSetQuery(FQuery);
   QSetSQL(FReadSQL);
+  if not SEmpty(FMasterIDFieldName) then
+    QParamInt64('MasterIDValue', StrToInt64(FMasterIDFieldValue));
   QOpen;
   if not QIsEmpty then
   begin
@@ -357,12 +372,20 @@ begin
   FButtonSave.Enabled:= FEdit.IsOneRowEditing;
   FButtonCancel.Enabled:= FEdit.IsOneRowEditing;
   FButtonUpdate.Enabled:= not FEdit.IsOneRowEditing;
+  if Assigned(FOnSelect) then FOnSelect;
 end;
 
 procedure TDBTable.EditingBegin;
 begin
   FEditingRowIndex:= FEdit.SelectedRowIndex;
   FEdit.IsOneRowEditing:= True;
+end;
+
+function TDBTable.GetIDValue: String;
+begin
+  Result:= EmptyStr;
+  if (not FEdit.IsSelected) or VIsNil(FIDValues) then Exit;
+  Result:= IntToStr(FIDValues[FEdit.SelectedRowIndex]);
 end;
 
 procedure TDBTable.Settings(const AFont: TFont;
@@ -376,7 +399,8 @@ procedure TDBTable.Settings(const AFont: TFont;
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const AMasterIDFieldName: String = '');
 
   //procedure SetFormWidth;
   //var
@@ -404,10 +428,28 @@ procedure TDBTable.Settings(const AFont: TFont;
   end;
 
   procedure SetReadSQL;
+  var
+    S: String;
   begin
+    if not SEmpty(AMasterIDFieldName) then
+      FReadSQL:= SqlFieldsEnum(VAdd(AFieldNames, [AIDFieldName, AMasterIDFieldName]))
+    else
+      FReadSQL:= SqlFieldsEnum(VAdd(AFieldNames, [AIDFieldName]));
+
     FReadSQL:= 'SELECT ' +  SqlFieldsEnum(VAdd(AFieldNames, [AIDFieldName]))  + ' FROM' + SqlEsc(ATableName);
+    S:= EmptyStr;
     if AIDNotZero then
-      FReadSQL:= FReadSQL + 'WHERE' + SqlEsc(AIDFieldName) + ' > 0 ';
+      S:= ' (' + SqlEsc(AIDFieldName) + ' > 0) ';
+    if not SEmpty(AMasterIDFieldName) then
+    begin
+      if not SEmpty(S) then
+        S:= S + 'AND';
+      S:= ' (' + SqlEsc(AMasterIDFieldName) + ' = :MasterIDValue) ';
+    end;
+    if not SEmpty(S) then
+      FReadSQL:= FReadSQL + 'WHERE' + S;
+    //if AIDNotZero then
+    //  FReadSQL:= FReadSQL + 'WHERE (' + SqlEsc(AIDFieldName) + ' > 0) ';
     if not VIsNil(AOrderFieldNames) then
       FReadSQL:= FReadSQL + 'ORDER BY' + SqlFieldsEnum(AOrderFieldNames);
   end;
@@ -447,6 +489,7 @@ begin
   FColumnWidths:= AColumnWidths;
   FKeys:= AKeys;
   FPicks:= APicks;
+  FMasterIDFieldName:= AMasterIDFieldName;
 
   //SetFormWidth;
   SetColumnNames;
@@ -454,6 +497,15 @@ begin
   SetColumns;
   ActionUpdate(nil);
 end;
+
+procedure TDBTable.Update(const AMasterIDFieldValue: String);
+begin
+  if SSame(FMasterIDFieldValue, AMasterIDFieldValue) and (not MIsNil(FDataValues)) then Exit;
+  FMasterIDFieldValue:= AMasterIDFieldValue;
+  ActionUpdate(nil);
+end;
+
+
 
 end.
 

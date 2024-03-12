@@ -63,6 +63,33 @@ type
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
                        const AFont: TFont = nil): Boolean;
+    function EditDoubleTable(const AFormCaption: String;
+                       const ALeftTableName, ALeftIDFieldName: String;
+                       const ALeftFieldNames, ALeftColumnNames: TStrVector;
+                       const ALeftColumnTypes: TVSTColumnTypes;
+                       const ALeftColumnNeedValues: TBoolVector;
+                       const ALeftColumnWidths: TIntVector;
+                       const ALeftColumnAlignments: array of TAlignment;
+                       const ALeftIDNotZero: Boolean;
+                       const ALeftOrderFieldNames: TStrVector;
+                       const ALeftAutoSizeColumnNumber: Integer;
+                       const ALeftKeys: TIntMatrix;
+                       const ALeftPicks: TStrMatrix;
+
+                       const ARightTableName, ARightIDFieldName: String;
+                       const ARightFieldNames, ARightColumnNames: TStrVector;
+                       const ARightColumnTypes: TVSTColumnTypes;
+                       const ARightColumnNeedValues: TBoolVector;
+                       const ARightColumnWidths: TIntVector;
+                       const ARightColumnAlignments: array of TAlignment;
+                       const ARightIDNotZero: Boolean;
+                       const ARightOrderFieldNames: TStrVector;
+                       const ARightAutoSizeColumnNumber: Integer;
+                       const ARightKeys: TIntMatrix;
+                       const ARightPicks: TStrMatrix;
+                       const AMasterIDFieldName: String;
+
+                       const AFont: TFont = nil): Boolean;
 
     function ValueStrStrID(const ATableName, AValueFieldName,
                                  AIDFieldName, AIDValue: String): String;
@@ -226,7 +253,7 @@ type
 
 implementation
 
-uses USQLite3CheckList, USQLite3Table;
+uses USQLite3CheckList, USQLite3Table, USQLite3DoubleTable;
 
 { TSQLite3Connection }
 
@@ -417,12 +444,67 @@ begin
     Frm.Query.Transaction:= FTransaction;
     Frm.SetTable(AFont, ATableName, AIDFieldName, AFieldNames,
                  AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
-                 AIDNotZero, True, AOrderFieldNames, AAutoSizeColumnNumber, AKeys, APicks);
+                 AIDNotZero, not VIsNil(AColumnNames), AOrderFieldNames, AAutoSizeColumnNumber, AKeys, APicks);
     Frm.ShowModal;
     Result:= True;
   finally
     FreeAndNil(Frm);
   end;
+end;
+
+function TSQLite3.EditDoubleTable(const AFormCaption: String;
+                       const ALeftTableName, ALeftIDFieldName: String;
+                       const ALeftFieldNames, ALeftColumnNames: TStrVector;
+                       const ALeftColumnTypes: TVSTColumnTypes;
+                       const ALeftColumnNeedValues: TBoolVector;
+                       const ALeftColumnWidths: TIntVector;
+                       const ALeftColumnAlignments: array of TAlignment;
+                       const ALeftIDNotZero: Boolean;
+                       const ALeftOrderFieldNames: TStrVector;
+                       const ALeftAutoSizeColumnNumber: Integer;
+                       const ALeftKeys: TIntMatrix;
+                       const ALeftPicks: TStrMatrix;
+
+                       const ARightTableName, ARightIDFieldName: String;
+                       const ARightFieldNames, ARightColumnNames: TStrVector;
+                       const ARightColumnTypes: TVSTColumnTypes;
+                       const ARightColumnNeedValues: TBoolVector;
+                       const ARightColumnWidths: TIntVector;
+                       const ARightColumnAlignments: array of TAlignment;
+                       const ARightIDNotZero: Boolean;
+                       const ARightOrderFieldNames: TStrVector;
+                       const ARightAutoSizeColumnNumber: Integer;
+                       const ARightKeys: TIntMatrix;
+                       const ARightPicks: TStrMatrix;
+                       const AMasterIDFieldName: String;
+
+                       const AFont: TFont = nil): Boolean;
+var
+  Frm: TSQLite3DoubleTable;
+begin
+  Result:= False;
+
+  Frm:= TSQLite3DoubleTable.Create(nil);
+  try
+    Frm.Caption:= AFormCaption;
+    Frm.LeftQuery.DataBase:= FConnection;
+    Frm.LeftQuery.Transaction:= FTransaction;
+    Frm.RightQuery.DataBase:= FConnection;
+    Frm.RightQuery.Transaction:= FTransaction;
+    Frm.SetLeftTable(AFont, ALeftTableName, ALeftIDFieldName, ALeftFieldNames,
+                 ALeftColumnNames, ALeftColumnTypes, ALeftColumnNeedValues, ALeftColumnWidths, ALeftColumnAlignments,
+                 ALeftIDNotZero, not VIsNil(ALeftColumnNames), ALeftOrderFieldNames,
+                 ALeftAutoSizeColumnNumber, ALeftKeys, ALeftPicks);
+    Frm.SetRightTable(AFont, ARightTableName, ARightIDFieldName, ARightFieldNames,
+                 ARightColumnNames, ARightColumnTypes, ARightColumnNeedValues, ARightColumnWidths, ARightColumnAlignments,
+                 ARightIDNotZero, not VIsNil(ARightColumnNames), ARightOrderFieldNames,
+                 ARightAutoSizeColumnNumber, ARightKeys, ARightPicks, AMasterIDFieldName);
+    Frm.ShowModal;
+    Result:= True;
+  finally
+    FreeAndNil(Frm);
+  end;
+
 end;
 
 procedure PrepareValue(const ATableName, AValueFieldName, AIDFieldName: String;

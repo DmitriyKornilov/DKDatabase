@@ -491,14 +491,15 @@ begin
     Frm.LeftQuery.Transaction:= FTransaction;
     Frm.RightQuery.DataBase:= FConnection;
     Frm.RightQuery.Transaction:= FTransaction;
-    Frm.SetLeftTable(AFont, ALeftTableName, ALeftIDFieldName, ALeftFieldNames,
-                 ALeftColumnNames, ALeftColumnTypes, ALeftColumnNeedValues, ALeftColumnWidths, ALeftColumnAlignments,
-                 ALeftIDNotZero, not VIsNil(ALeftColumnNames), ALeftOrderFieldNames,
-                 ALeftAutoSizeColumnNumber, ALeftKeys, ALeftPicks);
     Frm.SetRightTable(AFont, ARightTableName, ARightIDFieldName, ARightFieldNames,
                  ARightColumnNames, ARightColumnTypes, ARightColumnNeedValues, ARightColumnWidths, ARightColumnAlignments,
                  ARightIDNotZero, not VIsNil(ARightColumnNames), ARightOrderFieldNames,
                  ARightAutoSizeColumnNumber, ARightKeys, ARightPicks, AMasterIDFieldName);
+    Frm.SetLeftTable(AFont, ALeftTableName, ALeftIDFieldName, ALeftFieldNames,
+                 ALeftColumnNames, ALeftColumnTypes, ALeftColumnNeedValues, ALeftColumnWidths, ALeftColumnAlignments,
+                 ALeftIDNotZero, not VIsNil(ALeftColumnNames), ALeftOrderFieldNames,
+                 ALeftAutoSizeColumnNumber, ALeftKeys, ALeftPicks);
+
     Frm.ShowModal;
     Result:= True;
   finally

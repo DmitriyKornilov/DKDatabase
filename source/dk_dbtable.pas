@@ -142,6 +142,7 @@ begin
   FButtonUpdate.OnClick:= @ActionUpdate;
 
   FEdit:= TVSTEdit.Create(FTree);
+  FEdit.CanUnselect:= False;
   FEdit.IsBeginEditOnKeyPress:= False;
   FEdit.OnSelect:= @CellSelect;
   FEdit.OnEdititingBegin:= @EditingBegin;
@@ -157,6 +158,9 @@ end;
 
 destructor TDBTable.Destroy;
 begin
+  if FEdit.IsEditing then
+    ActionCancel(nil);
+
   FreeAndNil(FToolPanel);
   FreeAndNil(FTree);
   FreeAndNil(FDBImages);
@@ -362,6 +366,9 @@ begin
       FEdit.SetColumnString(FColumnNames[i], FDataValues[i]);
   end;
   FEdit.Draw;
+
+  if (not MIsNil(FDataValues)) and (not VIsNil(FDataValues[0])) then
+    FEdit.Select(0,1);
 end;
 
 procedure TDBTable.CellSelect;

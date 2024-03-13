@@ -77,8 +77,8 @@ end;
 
 procedure TSQLite3DoubleTable.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(LeftDBTable);
   FreeAndNil(RightDBTable);
+  FreeAndNil(LeftDBTable);
 end;
 
 procedure TSQLite3DoubleTable.FormShow(Sender: TObject);

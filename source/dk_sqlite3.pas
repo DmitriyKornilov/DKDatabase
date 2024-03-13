@@ -24,7 +24,6 @@ type
     FConnection: TSQLite3Connection;
     FTransaction: TSQLTransaction;
     FQuery: TSQLQuery;
-    FEditListSelectedColor, FEditListSelectedFontColor: TColor;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -32,7 +31,6 @@ type
     procedure Reconnect;
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
-    procedure SetColors(const ASelectedColor, ASelectedFontColor: TColor);
 
     function EditList(const AFormCaption: String;
                    const ATableName, AIDFieldName, AFieldName: String;
@@ -273,9 +271,6 @@ begin
   FConnection.OpenFlags:= FConnection.OpenFlags + [sofCreate, sofReadWrite];
   FQuery.SQLConnection:= FConnection;
   FQuery.Transaction:= FTransaction;
-
-  FEditListSelectedColor:= clHighlight;
-  FEditListSelectedFontColor:= clWindowText;
 end;
 
 destructor TSQLite3.Destroy;
@@ -318,13 +313,6 @@ begin
   finally
     FreeAndNil(SQLScript);
   end;
-end;
-
-procedure TSQLite3.SetColors(const ASelectedColor,
-  ASelectedFontColor: TColor);
-begin
-  FEditListSelectedColor:= ASelectedColor;
-  FEditListSelectedFontColor:= ASelectedFontColor;
 end;
 
 function TSQLite3.EditList(const AFormCaption: String;

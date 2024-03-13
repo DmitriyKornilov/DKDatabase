@@ -5,8 +5,8 @@ unit DK_SQLite3;
 interface
 
 uses
-  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls, StdCtrls,
-  DK_SQLUtils, DK_Vector, DK_Matrix, DK_StrUtils, DK_DBUtils, DK_VSTTables, VirtualTrees;
+  Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls, StdCtrls, VirtualTrees,
+  DK_SQLUtils, DK_Vector, DK_Matrix, DK_StrUtils, DK_DBUtils, DK_VSTTables;
 
 type
 
@@ -24,10 +24,7 @@ type
     FConnection: TSQLite3Connection;
     FTransaction: TSQLTransaction;
     FQuery: TSQLQuery;
-
-    FImageList: TImageList;
     FEditListSelectedColor, FEditListSelectedFontColor: TColor;
-
   public
     constructor Create;
     destructor  Destroy; override;
@@ -35,7 +32,6 @@ type
     procedure Reconnect;
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String);
-    procedure SetNavigatorGlyphs(const AImageList: TImageList);
     procedure SetColors(const ASelectedColor, ASelectedFontColor: TColor);
 
     function EditList(const AFormCaption: String;
@@ -263,7 +259,6 @@ begin
   ExecSQL('PRAGMA journal_mode=WAL');
 end;
 
-
 { TSQLite3 }
 
 constructor TSQLite3.Create;
@@ -272,7 +267,6 @@ begin
   FTransaction:= TSQLTransaction.Create(nil);
   FQuery:= TSQLQuery.Create(nil);
 
-
   FConnection.CharSet:= 'UTF8';
   FConnection.Params.Add('foreign_keys=ON');
   FConnection.Transaction:= FTransaction;
@@ -280,16 +274,15 @@ begin
   FQuery.SQLConnection:= FConnection;
   FQuery.Transaction:= FTransaction;
 
-
   FEditListSelectedColor:= clHighlight;
   FEditListSelectedFontColor:= clWindowText;
 end;
 
 destructor TSQLite3.Destroy;
 begin
-  if Assigned(FQuery) then FreeAndNil(FQuery);
-  if Assigned(FTransaction) then FreeAndNil(FTransaction);
-  if Assigned(FConnection) then FreeAndNil(FConnection);
+  FreeAndNil(FQuery);
+  FreeAndNil(FTransaction);
+  FreeAndNil(FConnection);
   inherited Destroy;
 end;
 
@@ -325,11 +318,6 @@ begin
   finally
     FreeAndNil(SQLScript);
   end;
-end;
-
-procedure TSQLite3.SetNavigatorGlyphs(const AImageList: TImageList);
-begin
-  FImageList:= AImageList;
 end;
 
 procedure TSQLite3.SetColors(const ASelectedColor,
@@ -385,8 +373,6 @@ var
   S: String;
 begin
   Result:= False;
-  //AKeyValues:= nil;
-  //APickValues:= nil;
   Frm:= TSQLite3CheckList.Create(nil);
 
   try
@@ -505,7 +491,6 @@ begin
   finally
     FreeAndNil(Frm);
   end;
-
 end;
 
 procedure PrepareValue(const ATableName, AValueFieldName, AIDFieldName: String;
@@ -780,8 +765,6 @@ begin
     QRollback;
   end;
 end;
-
-
 
 procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String;
                         out ASQL: String);
@@ -1510,7 +1493,6 @@ begin
   ALabel.ShowHint:= True;
   ALabel.Hint:= ALabel.Caption;
 end;
-
 
 end.
 

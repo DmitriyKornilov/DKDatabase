@@ -1,10 +1,10 @@
 object SQLite3DoubleTable: TSQLite3DoubleTable
   Left = 544
-  Height = 625
+  Height = 626
   Top = 221
   Width = 820
   Caption = 'SQLite3DoubleTable'
-  ClientHeight = 625
+  ClientHeight = 626
   ClientWidth = 820
   Constraints.MinHeight = 200
   Constraints.MinWidth = 820
@@ -12,10 +12,11 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  Position = poScreenCenter
   LCLVersion = '3.2.0.0'
   object LeftPanel: TPanel
     Left = 0
-    Height = 625
+    Height = 626
     Top = 0
     Width = 300
     Align = alLeft
@@ -24,14 +25,14 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
   end
   object Splitter1: TSplitter
     Left = 300
-    Height = 625
+    Height = 626
     Top = 0
     Width = 6
     ResizeStyle = rsLine
   end
   object RightPanel: TPanel
     Left = 306
-    Height = 625
+    Height = 626
     Top = 0
     Width = 514
     Align = alClient

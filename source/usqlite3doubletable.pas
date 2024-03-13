@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, SQLDB, Forms, Graphics, ExtCtrls,
 
 
-  DK_VSTTables, DK_Vector, DK_Matrix, DK_DBTable;
+  DK_VSTTables, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils;
 
 type
 
@@ -88,9 +88,11 @@ begin
   TotalWidth:= LeftTotalWidth + RightTotalWidth;
   if TotalWidth<Constraints.MinWidth then
     TotalWidth:= Constraints.MinWidth;
+  TotalWidth:= WidthFromDefaultToScreen(TotalWidth);
   if TotalWidth>Screen.Width then
     TotalWidth:= Screen.Width - 20;
   Width:= TotalWidth;
+  FormToScreenCenter(Sender as TForm);
 end;
 
 procedure TSQLite3DoubleTable.LeftTableSelect;

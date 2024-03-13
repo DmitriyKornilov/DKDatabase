@@ -205,11 +205,21 @@ begin
     QRollBack;
   end;
 
+
   MRowDel(FDataValues, DelIndex);
   VDel(FIDValues, DelIndex);
 
+  FEdit.CanUnselect:= True;
   FEdit.UnSelect(False);
+  if not VIsNil(FIDValues) then
+  begin
+    if DelIndex>0 then
+      FEdit.Select(DelIndex-1, 1)
+    else
+      FEdit.Select(DelIndex, 1);
+  end;
   FEdit.RowDelete(DelIndex);
+  FEdit.CanUnselect:= False;
 end;
 
 procedure TDBTable.ActionEdit(Sender: TObject);

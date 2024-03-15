@@ -6,9 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Buttons, VirtualTrees, ExtCtrls, SQLDB, Controls, Graphics,
+  SQLite3,
 
   DK_VSTTables, DK_Vector, DK_Matrix, DK_SQLUtils, DK_StrUtils, DK_Dialogs,
-  DK_DBUtils, DK_CtrlUtils, DK_PPI,
+  DK_DBUtils, DK_CtrlUtils,
 
   UDBImages;
 
@@ -30,6 +31,8 @@ type
     FTree: TVirtualStringTree;
     FDBImages: TDBImages;
     FEdit: TVSTEdit;
+
+    FLastErrorCode: Integer;
 
     FTableName, FIDFieldName, FReadSQL: String;
     FFieldNames, FColumnNames: TStrVector;
@@ -82,6 +85,7 @@ type
     procedure Update(const AMasterIDFieldValue: String = '');
     property OnSelect: TDBTableSelectEvent read FOnSelect write FOnSelect;
     property IDValue: String read GetIDValue;
+    property LastErrorCode: Integer read FLastErrorCode;
   end;
 
 implementation
@@ -107,6 +111,8 @@ constructor TDBTable.Create(const APanel: TPanel; const AQuery: TSQLQuery);
 
 begin
   FQuery:= AQuery;
+
+  FLastErrorCode:= SQLITE_OK;
 
   FDBImages:= TDBImages.Create(nil);
 
@@ -275,20 +281,32 @@ begin
   for i:= 0 to High(FFieldNames) do
   begin
     case FColumnTypes[i] of
-      ctInteger: QParamInt(FFieldNames[i], StrToInt(NewValues[i]));
-      ctString:  QParamStr(FFieldNames[i], NewValues[i]);
-      ctDate:    QParamDT(FFieldNames[i], StrToDate(NewValues[i]));
-      ctTime:    QParamDT(FFieldNames[i], StrToTime(NewValues[i]));
-      ctKeyPick: QParamInt(FFieldNames[i], StrToInt(NewValues[i]));
+      ctInteger: QParamIntFromStr(FFieldNames[i], NewValues[i]);
+      ctString:  QParamStrFromStr(FFieldNames[i], NewValues[i]);
+      ctDate:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
+      ctTime:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
+      ctKeyPick: QParamIntFromStr(FFieldNames[i], NewValues[i]);
       //ctFloat
     end;
+    //case FColumnTypes[i] of
+    //  ctInteger: QParamInt(FFieldNames[i], StrToInt(NewValues[i]));
+    //  ctString:  QParamStr(FFieldNames[i], NewValues[i]);
+    //  ctDate:    QParamDT(FFieldNames[i], StrToDate(NewValues[i]));
+    //  ctTime:    QParamDT(FFieldNames[i], StrToTime(NewValues[i]));
+    //  ctKeyPick: QParamInt(FFieldNames[i], StrToInt(NewValues[i]));
+    //  //ctFloat
+    //end;
   end;
 
   try
     QExec;
     QCommit;
   except
-    QRollBack;
+    on E:ESQLDatabaseError do
+    begin
+      FLastErrorCode:= E.ErrorCode;
+      QRollBack;
+    end;
   end;
 
   MRowSet(FDataValues, FEditingRowIndex, NewValues);

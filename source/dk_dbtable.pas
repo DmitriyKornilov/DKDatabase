@@ -500,7 +500,7 @@ procedure TDBTable.Settings(const AFont: TFont;
       FEdit.AutosizeColumnDisable
     else
       FEdit.AutosizeColumnEnable(AAutoSizeColumnNumber);
-    FEdit.AddColumnRowTitles('', 1);  //!!!
+    FEdit.AddColumnRowTitles('', 0);  //!!!
     FTree.Header.Columns[0].MinWidth:= 0; //!!!!
     for i:= 0 to High(FFieldNames) do
     begin

@@ -288,14 +288,6 @@ begin
       ctKeyPick: QParamIntFromStr(FFieldNames[i], NewValues[i]);
       //ctFloat
     end;
-    //case FColumnTypes[i] of
-    //  ctInteger: QParamInt(FFieldNames[i], StrToInt(NewValues[i]));
-    //  ctString:  QParamStr(FFieldNames[i], NewValues[i]);
-    //  ctDate:    QParamDT(FFieldNames[i], StrToDate(NewValues[i]));
-    //  ctTime:    QParamDT(FFieldNames[i], StrToTime(NewValues[i]));
-    //  ctKeyPick: QParamInt(FFieldNames[i], StrToInt(NewValues[i]));
-    //  //ctFloat
-    //end;
   end;
 
   try
@@ -345,7 +337,7 @@ procedure TDBTable.DataLoad;
 var
   i: Integer;
 begin
-FDataValues:= nil;
+  FDataValues:= nil;
   FIDValues:= nil;
   MDim(FDataValues, Length(FFieldNames));
 
@@ -437,18 +429,6 @@ procedure TDBTable.Settings(const AFont: TFont;
                        const APicks: TStrMatrix = nil;
                        const AMasterIDFieldName: String = '');
 
-  //procedure SetFormWidth;
-  //var
-  //  W: Integer;
-  //begin
-  //  W:= VSum(AColumnWidths) + 10;
-  //  if W<Constraints.MinWidth then
-  //    W:= Constraints.MinWidth;
-  //  if W>Screen.Width then
-  //    W:= Screen.Width - 20;
-  //  Width:= W;
-  //end;
-
   procedure SetColumnNames;
   var
     i: Integer;
@@ -483,8 +463,6 @@ procedure TDBTable.Settings(const AFont: TFont;
     end;
     if not SEmpty(S) then
       FReadSQL:= FReadSQL + 'WHERE' + S;
-    //if AIDNotZero then
-    //  FReadSQL:= FReadSQL + 'WHERE (' + SqlEsc(AIDFieldName) + ' > 0) ';
     if not VIsNil(AOrderFieldNames) then
       FReadSQL:= FReadSQL + 'ORDER BY' + SqlFieldsEnum(AOrderFieldNames);
   end;
@@ -500,8 +478,8 @@ procedure TDBTable.Settings(const AFont: TFont;
       FEdit.AutosizeColumnDisable
     else
       FEdit.AutosizeColumnEnable(AAutoSizeColumnNumber);
-    FEdit.AddColumnRowTitles('', 0);  //!!!
-    FTree.Header.Columns[0].MinWidth:= 0; //!!!!
+    FEdit.AddColumnRowTitles('', 0);
+    FTree.Header.Columns[0].MinWidth:= 0;
     for i:= 0 to High(FFieldNames) do
     begin
       case FColumnTypes[i] of
@@ -526,7 +504,6 @@ begin
   FPicks:= APicks;
   FMasterIDFieldName:= AMasterIDFieldName;
 
-  //SetFormWidth;
   SetColumnNames;
   SetReadSQL;
   SetColumns;
@@ -539,8 +516,6 @@ begin
   FMasterIDFieldValue:= AMasterIDFieldValue;
   ActionUpdate(nil);
 end;
-
-
 
 end.
 

@@ -114,16 +114,16 @@ type
 
 
 
-    procedure Delete(const ATableName, AIDFieldName: String;
-                     const AIDValue: Integer; const ACommit: Boolean = True);
-    procedure Delete(const ATableName, AIDFieldName: String;
-                     const AIDValue: Int64; const ACommit: Boolean = True);
-    procedure Delete(const ATableName, AIDFieldName: String;
-                     const AIDValue: TDateTime; const ACommit: Boolean = True);
-    procedure Delete(const ATableName, AIDFieldName: String;
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: Integer; const ACommit: Boolean = True): Boolean;
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: Int64; const ACommit: Boolean = True): Boolean;
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValue: TDateTime; const ACommit: Boolean = True): Boolean;
+    function Delete(const ATableName, AIDFieldName: String;
                      const AIDValue: String;
                      const ACaseSensitivity: Boolean = True;
-                     const ACommit: Boolean = True);
+                     const ACommit: Boolean = True): Boolean;
 
     procedure UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
                      const ANewValue: String; const ACommit: Boolean = True);
@@ -724,13 +724,14 @@ begin
   QClose;
 end;
 
-procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
                           const AIDValue: String;
                           const ACaseSensitivity: Boolean = True;
-                          const ACommit: Boolean = True);
+                          const ACommit: Boolean = True): Boolean;
 var
   WhereStr, Value: String;
 begin
+  Result:= False;
   QSetQuery(FQuery);
   try
     if ACaseSensitivity then
@@ -749,6 +750,7 @@ begin
     QParamStr('IDValue', Value);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
@@ -940,11 +942,12 @@ begin
     'WHERE' + SqlEsc(AIDFieldName) + '= :IDValue';
 end;
 
-procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
-                          const AIDValue: Integer; const ACommit: Boolean = True);
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                          const AIDValue: Integer; const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   PrepareDelete(ATableName, AIDFieldName, S);
   QSetQuery(FQuery);
   try
@@ -952,16 +955,19 @@ begin
     QParamInt('IDValue', AIDValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
-                          const AIDValue: Int64; const ACommit: Boolean = True);
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                          const AIDValue: Int64;
+                          const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   PrepareDelete(ATableName, AIDFieldName, S);
   QSetQuery(FQuery);
   try
@@ -969,16 +975,19 @@ begin
     QParamInt64('IDValue', AIDValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.Delete(const ATableName, AIDFieldName: String;
-                          const AIDValue: TDateTime; const ACommit: Boolean = True);
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                          const AIDValue: TDateTime;
+                          const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   PrepareDelete(ATableName, AIDFieldName, S);
   QSetQuery(FQuery);
   try
@@ -986,6 +995,7 @@ begin
     QParamDT('IDValue', AIDValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;

@@ -223,9 +223,11 @@ type
                           const AOrderFieldName: String = '');
 
 
-    procedure LoadIDsAndNames(AComboBox: TComboBox; out ANameIDs: TIntVector;
+    procedure KeyPickLoad(const AComboBox: TComboBox; out AKeys: TIntVector;
             const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
-            const AKeyValueNotZero: Boolean; const AZeroKeyPick: String = '');
+            const AKeyValueNotZero: Boolean;
+            const AZeroKeyPick: String = '';
+            const ASelectedKey: Integer = -1);
 
     procedure ValueFromCatalog(const AThisTableName, ACatalogTableName,
                                AThisTableIDFieldName, ASearchIDFieldName, ACatalogValueFieldName: String;
@@ -1401,28 +1403,37 @@ begin
   end;
 end;
 
-procedure TSQLite3.LoadIDsAndNames(AComboBox: TComboBox; out ANameIDs: TIntVector;
-   const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
-   const AKeyValueNotZero: Boolean; const AZeroKeyPick: String = '');
+procedure TSQLite3.KeyPickLoad(const AComboBox: TComboBox; out AKeys: TIntVector;
+            const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
+            const AKeyValueNotZero: Boolean;
+            const AZeroKeyPick: String = '';
+            const ASelectedKey: Integer = -1);
 
 var
-  MN: TStrVector;
+  Picks: TStrVector;
   Ind: Integer;
 begin
   AComboBox.Items.Clear;
   KeyPickList(ATableName, AKeyFieldName, APickFieldName,
-              ANameIDs, MN, AKeyValueNotZero, AOrderFieldName);
-  if VIsNil(ANameIDs) then Exit;
+              AKeys, Picks, AKeyValueNotZero, AOrderFieldName);
+  if VIsNil(AKeys) then Exit;
 
   if not AKeyValueNotZero then
   begin
-    Ind:= VIndexOf(ANameIDs, 0);
+    Ind:= VIndexOf(AKeys, 0);
     if Ind>=0 then
-      MN[Ind]:= AZeroKeyPick;
+      Picks[Ind]:= AZeroKeyPick;
   end;
 
-  VToStrings(MN, AComboBox.Items);
-  AComboBox.ItemIndex:= 0;
+  VToStrings(Picks, AComboBox.Items);
+
+  if ASelectedKey>=0 then
+  begin
+    Ind:= VIndexOf(AKeys, ASelectedKey);
+    if Ind>=0 then
+      AComboBox.ItemIndex:= Ind;
+  end else
+    AComboBox.ItemIndex:= 0;
 end;
 
 procedure TSQLite3.ValueFromCatalog(const AThisTableName, ACatalogTableName,

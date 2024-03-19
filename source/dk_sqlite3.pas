@@ -125,33 +125,33 @@ type
                      const ACaseSensitivity: Boolean = True;
                      const ACommit: Boolean = True): Boolean;
 
-    procedure UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
-                     const ANewValue: String; const ACommit: Boolean = True);
-    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
+                     const ANewValue: String; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
-                     const ANewValue: Integer; const ACommit: Boolean = True);
-    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
-                     const ANewValue: Int64; const ACommit: Boolean = True);
-    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
-                     const ANewValue: TDateTime; const ACommit: Boolean = True);
-    procedure UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
-                     const ANewValue: String; const ACommit: Boolean = True);
+                     const ANewValue: String; const ACommit: Boolean = True): Boolean;
 
-    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
-                     const ANewValue: Integer; const ACommit: Boolean = True);
-    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
-                     const ANewValue: Int64; const ACommit: Boolean = True);
-    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
-                     const ANewValue: TDateTime; const ACommit: Boolean = True);
-    procedure UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
-                     const ANewValue: String; const ACommit: Boolean = True);
+                     const ANewValue: String; const ACommit: Boolean = True): Boolean;
 
     function IsValueInTable(const ATableName, AFieldName: String;
                             const AValue: Integer): Boolean;
@@ -767,11 +767,12 @@ begin
     'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue'
 end;
 
-procedure TSQLite3.UpdateStrID(const ATableName, AFieldName, AIDFieldName,
-  AIDValue: String; const ANewValue: String; const ACommit: Boolean = True);
+function TSQLite3.UpdateStrID(const ATableName, AFieldName, AIDFieldName,
+  AIDValue: String; const ANewValue: String; const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -780,17 +781,19 @@ begin
     QParamStr('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValue: Integer; const ANewValue: Integer;
-  const ACommit: Boolean = True);
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -799,17 +802,19 @@ begin
     QParamInt('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValue: Integer; const ANewValue: Int64;
-  const ACommit: Boolean = True);
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -818,17 +823,19 @@ begin
     QParamInt64('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValue: Integer; const ANewValue: TDateTime;
-  const ACommit: Boolean = True);
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -837,16 +844,19 @@ begin
     QParamDT('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
-  AIDFieldName: String; const AIDValue: Integer; const ANewValue: String; const ACommit: Boolean = True);
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+  const AIDValue: Integer;
+  const ANewValue: String; const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -855,17 +865,19 @@ begin
     QParamStr('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
-  AIDFieldName: String; const AIDValue: Int64; const ANewValue: Integer;
-  const ACommit: Boolean = True);
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+  const AIDValue: Int64; const ANewValue: Integer;
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -874,17 +886,19 @@ begin
     QParamInt('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
-  AIDFieldName: String; const AIDValue: Int64; const ANewValue: Int64;
-  const ACommit: Boolean = True);
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+  const AIDValue: Int64; const ANewValue: Int64;
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -893,17 +907,19 @@ begin
     QParamInt64('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
-  AIDFieldName: String; const AIDValue: Int64; const ANewValue: TDateTime;
-  const ACommit: Boolean = True);
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+  const AIDValue: Int64; const ANewValue: TDateTime;
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -912,17 +928,19 @@ begin
     QParamDT('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;
 end;
 
-procedure TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
-  AIDFieldName: String; const AIDValue: Int64; const ANewValue: String;
-  const ACommit: Boolean = True);
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+  const AIDValue: Int64; const ANewValue: String;
+  const ACommit: Boolean = True): Boolean;
 var
   S: String;
 begin
+  Result:= False;
   try
     PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
     QSetQuery(FQuery);
@@ -931,6 +949,7 @@ begin
     QParamStr('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
+    Result:= True;
   except
     QRollback;
   end;

@@ -1449,8 +1449,8 @@ begin
   if ASelectedKey>=0 then
   begin
     Ind:= VIndexOf(AKeys, ASelectedKey);
-    if Ind>=0 then
-      AComboBox.ItemIndex:= Ind;
+    if Ind<0 then Ind:= 0;
+    AComboBox.ItemIndex:= Ind;
   end else
     AComboBox.ItemIndex:= 0;
 end;

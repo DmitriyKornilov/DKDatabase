@@ -118,6 +118,7 @@ begin
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
       AKeys, APicks);
+  LeftDBTable.Edit.HeaderFont.Style:= LeftDBTable.Edit.HeaderFont.Style + [fsBold];
 end;
 
 procedure TSQLite3DoubleTable.SetRightTable(const AFont: TFont;
@@ -139,6 +140,7 @@ begin
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
       AKeys, APicks, AMasterIDFieldName);
+  RightDBTable.Edit.HeaderFont.Style:= RightDBTable.Edit.HeaderFont.Style + [fsBold];
 end;
 
 end.

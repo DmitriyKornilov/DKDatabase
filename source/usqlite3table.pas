@@ -86,6 +86,7 @@ begin
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
       AKeys, APicks);
+  DBTable.Edit.HeaderFont.Style:= DBTable.Edit.HeaderFont.Style + [fsBold];
 end;
 
 end.

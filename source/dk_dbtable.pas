@@ -86,6 +86,7 @@ type
     property OnSelect: TDBTableSelectEvent read FOnSelect write FOnSelect;
     property IDValue: String read GetIDValue;
     property LastErrorCode: Integer read FLastErrorCode;
+    property Edit: TVSTEdit read FEdit;
   end;
 
 implementation

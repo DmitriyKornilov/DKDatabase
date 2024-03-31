@@ -287,6 +287,7 @@ begin
       ctDate:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
       ctTime:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
       ctKeyPick: QParamIntFromStr(FFieldNames[i], NewValues[i]);
+      ctColor:   QParamIntFromStr(FFieldNames[i], NewValues[i]);
       //ctFloat
     end;
   end;
@@ -363,6 +364,7 @@ begin
           ctDate:    VAppend(FDataValues[i], DateToStr(QFieldDT(FFieldNames[i])));
           ctTime:    VAppend(FDataValues[i], TimeToStr(QFieldDT(FFieldNames[i])));
           ctKeyPick: VAppend(FDataValues[i], IntToStr(QFieldInt(FFieldNames[i])));
+          ctColor:   VAppend(FDataValues[i], IntToStr(QFieldInt(FFieldNames[i])));
           //ctFloat
         end;
       end;
@@ -489,6 +491,7 @@ procedure TDBTable.Settings(const AFont: TFont;
         ctDate:    FEdit.AddColumnDate(FColumnNames[i], 'dd.mm.yyyy', FColumnWidths[i], taCenter, AColumnAlignments[i]);
         ctTime:    FEdit.AddColumnTime(FColumnNames[i], '00:00:00', FColumnWidths[i], taCenter, AColumnAlignments[i]);
         ctKeyPick: FEdit.AddColumnKeyPick(FColumnNames[i], FKeys[i], FPicks[i], FColumnWidths[i], taCenter, AColumnAlignments[i]);
+        ctColor:   FEdit.AddColumnColor(FColumnNames[i], FColumnWidths[i]);
         //ctFloat
       end;
     end;

@@ -87,6 +87,8 @@ type
 
     function ValueStrStrID(const ATableName, AValueFieldName,
                                  AIDFieldName, AIDValue: String): String;
+    function ValueIntStrID(const ATableName, AValueFieldName,
+                                 AIDFieldName, AIDValue: String): Integer;
     function ValueInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Integer): Integer;
     function ValueInt64Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
@@ -127,6 +129,8 @@ type
 
     function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
+    function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
+                     const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
     function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
@@ -513,6 +517,25 @@ begin
   QClose;
 end;
 
+function TSQLite3.ValueIntStrID(const ATableName, AValueFieldName,
+  AIDFieldName, AIDValue: String): Integer;
+var
+  S: String;
+begin
+  Result:= 0;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamStr('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    Result:= QFieldInt(AValueFieldName);
+  end;
+  QClose;
+end;
+
 function TSQLite3.ValueInt32Int32ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Integer): Integer;
 var
@@ -779,6 +802,26 @@ begin
     QSetSQL(S);
     QParamStr('IDValue', AIDValue);
     QParamStr('NewValue', ANewValue);
+    QExec;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateStrID(const ATableName, AFieldName, AIDFieldName,
+  AIDValue: String; const ANewValue: Integer; const ACommit: Boolean): Boolean;
+var
+  S: String;
+begin
+  Result:= False;
+  try
+    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+    QSetQuery(FQuery);
+    QSetSQL(S);
+    QParamStr('IDValue', AIDValue);
+    QParamInt('NewValue', ANewValue);
     QExec;
     if ACommit then QCommit;
     Result:= True;

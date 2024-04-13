@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, SQLDB, Forms, Graphics, ExtCtrls,
 
 
-  DK_VSTTables, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils;
+  DK_VSTTypes, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils;
 
 type
 

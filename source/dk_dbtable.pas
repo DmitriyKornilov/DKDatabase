@@ -8,8 +8,8 @@ uses
   Classes, SysUtils, Buttons, VirtualTrees, ExtCtrls, SQLDB, Controls, Graphics,
   SQLite3,
 
-  DK_VSTTables, DK_Vector, DK_Matrix, DK_SQLUtils, DK_StrUtils, DK_Dialogs,
-  DK_DBUtils, DK_CtrlUtils,
+  DK_Vector, DK_Matrix, DK_SQLUtils, DK_StrUtils, DK_Dialogs,
+  DK_DBUtils, DK_CtrlUtils, DK_VSTEdit, DK_VSTTypes,
 
   UDBImages;
 

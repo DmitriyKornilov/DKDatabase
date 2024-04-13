@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, SQLite3Conn, SQLDB, Controls, StdCtrls, VirtualTrees,
-  DK_SQLUtils, DK_Vector, DK_Matrix, DK_StrUtils, DK_DBUtils, DK_VSTTables;
+  DK_SQLUtils, DK_Vector, DK_Matrix, DK_StrUtils, DK_DBUtils, DK_VSTTypes;
 
 type
 

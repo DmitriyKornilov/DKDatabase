@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Buttons, VirtualTrees, ExtCtrls, SQLDB, Controls, Graphics,
-  SQLite3,
+  SQLite3, Forms,
 
   DK_Vector, DK_Matrix, DK_SQLUtils, DK_StrUtils, DK_Dialogs,
   DK_DBUtils, DK_CtrlUtils, DK_VSTEdit, DK_VSTTypes,
@@ -94,6 +94,8 @@ implementation
 { TDBTable }
 
 constructor TDBTable.Create(const APanel: TPanel; const AQuery: TSQLQuery);
+var
+  ImageWidth: Integer;
 
   procedure ButtonCreate(var AButton: TSpeedButton; const AIconIndex: Integer;
                          const AHint: String);
@@ -104,6 +106,7 @@ constructor TDBTable.Create(const APanel: TPanel; const AQuery: TSQLQuery);
     AButton.Align:= alLeft;
     AButton.Images:= FDBImages.ToolIcons;
     AButton.ImageIndex:= AIconIndex;
+    AButton.ImageWidth:= ImageWidth;
     AButton.AutoSize:= False;
     ControlWidth(AButton, TOOL_BUTTON_WIDTH_DEFAULT);
     AButton.Hint:= AHint;
@@ -134,6 +137,7 @@ begin
   FTree.Align:= alClient;
   FTree.AnchorClient(2);
 
+  ImageWidth:= Trunc(24*Screen.PixelsPerInch/96);
   ButtonCreate(FButtonUpdate, 5, 'Обновить');
   ButtonCreate(FButtonCancel, 4, 'Отмена');
   ButtonCreate(FButtonSave,   3, 'Сохранить');

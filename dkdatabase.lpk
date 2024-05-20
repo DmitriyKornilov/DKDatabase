@@ -50,6 +50,18 @@
         <Filename Value="source\icons_info.txt"/>
         <Type Value="Text"/>
       </Item>
+      <Item>
+        <Filename Value="source\udbimages.lfm"/>
+        <Type Value="LFM"/>
+      </Item>
+      <Item>
+        <Filename Value="source\usqlite3checklist.lfm"/>
+        <Type Value="LFM"/>
+      </Item>
+      <Item>
+        <Filename Value="source\usqlite3doubletable.lfm"/>
+        <Type Value="LFM"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

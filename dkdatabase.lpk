@@ -8,7 +8,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="source;source\icons"/>
+        <IncludeFiles Value="source;source\icons;source\png"/>
         <OtherUnitFiles Value="source"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
@@ -47,10 +47,6 @@
         <UnitName Value="UDBImages"/>
       </Item>
       <Item>
-        <Filename Value="source\icons_info.txt"/>
-        <Type Value="Text"/>
-      </Item>
-      <Item>
         <Filename Value="source\udbimages.lfm"/>
         <Type Value="LFM"/>
       </Item>
@@ -61,6 +57,34 @@
       <Item>
         <Filename Value="source\usqlite3doubletable.lfm"/>
         <Type Value="LFM"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\add.png"/>
+        <Type Value="Binary"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\cancel.png"/>
+        <Type Value="Binary"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\delete.png"/>
+        <Type Value="Binary"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\edit.png"/>
+        <Type Value="Binary"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\icons_info.txt"/>
+        <Type Value="Text"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\save.png"/>
+        <Type Value="Binary"/>
+      </Item>
+      <Item>
+        <Filename Value="source\png\update.png"/>
+        <Type Value="Binary"/>
       </Item>
     </Files>
     <RequiredPkgs>

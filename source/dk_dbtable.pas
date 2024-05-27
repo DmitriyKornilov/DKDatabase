@@ -95,7 +95,7 @@ implementation
 
 constructor TDBTable.Create(const APanel: TPanel; const AQuery: TSQLQuery);
 var
-  ImageWidth: Integer;
+  Images: TImageList;
 
   procedure ButtonCreate(var AButton: TSpeedButton; const AIconIndex: Integer;
                          const AHint: String);
@@ -104,9 +104,8 @@ var
     AButton.Parent:= FToolPanel;
     AButton.Cursor:= crHandPoint;
     AButton.Align:= alLeft;
-    AButton.Images:= FDBImages.ToolIcons;
+    AButton.Images:= Images;
     AButton.ImageIndex:= AIconIndex;
-    AButton.ImageWidth:= ImageWidth;
     AButton.AutoSize:= False;
     ControlWidth(AButton, TOOL_BUTTON_WIDTH_DEFAULT);
     AButton.Hint:= AHint;
@@ -119,6 +118,12 @@ begin
   FLastErrorCode:= SQLITE_OK;
 
   FDBImages:= TDBImages.Create(nil);
+  case Screen.PixelsPerInch of
+    96 : Images:= FDBImages.PX24;
+    120: Images:= FDBImages.PX30;
+    144: Images:= FDBImages.PX36;
+    168: Images:= FDBImages.PX42;
+  end;
 
   FToolPanel:= TPanel.Create(APanel);
   FToolPanel.Parent:= APanel;
@@ -137,7 +142,6 @@ begin
   FTree.Align:= alClient;
   FTree.AnchorClient(2);
 
-  ImageWidth:= Trunc(24*Screen.PixelsPerInch/96);
   ButtonCreate(FButtonUpdate, 5, 'Обновить');
   ButtonCreate(FButtonCancel, 4, 'Отмена');
   ButtonCreate(FButtonSave,   3, 'Сохранить');
@@ -164,7 +168,6 @@ begin
   FButtonCancel.Enabled:= False;
 
   FIsInserting:= False;
-
 end;
 
 destructor TDBTable.Destroy;
@@ -215,7 +218,6 @@ begin
   except
     QRollBack;
   end;
-
 
   MRowDel(FDataValues, DelIndex);
   VDel(FIDValues, DelIndex);
@@ -386,7 +388,6 @@ begin
   FEdit.ValuesClear;
   if (not MIsNil(FDataValues)) and (not VIsNil(FDataValues[0])) then
   begin
-    //V:= VIntToStr(VOrder(Length(FDataValues[0]));
     VDim(V{%H-}, Length(FDataValues[0]), EmptyStr);
     FEdit.SetColumnRowTitles(V, taLeftJustify);
     for i:= 0 to High(FFieldNames) do

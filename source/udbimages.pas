@@ -12,7 +12,10 @@ type
   { TDBImages }
 
   TDBImages = class(TDataModule)
-    ToolIcons: TImageList;
+    PX24: TImageList;
+    PX30: TImageList;
+    PX36: TImageList;
+    PX42: TImageList;
   private
 
   public

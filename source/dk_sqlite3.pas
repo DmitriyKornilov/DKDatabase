@@ -777,7 +777,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -806,7 +806,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -826,7 +826,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -847,7 +847,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -868,7 +868,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -889,7 +889,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -910,7 +910,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -931,7 +931,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -952,7 +952,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -973,7 +973,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -994,7 +994,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -1021,7 +1021,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -1041,7 +1041,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 
@@ -1061,7 +1061,7 @@ begin
     if ACommit then QCommit;
     Result:= True;
   except
-    QRollback;
+    if ACommit then QRollback;
   end;
 end;
 

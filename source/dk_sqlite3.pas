@@ -1485,6 +1485,11 @@ begin
     Ind:= VIndexOf(AKeys, 0);
     if Ind>=0 then
       Picks[Ind]:= AZeroKeyPick;
+  end
+  else if not SEmpty(AZeroKeyPick) then
+  begin
+    VIns(Picks, 0, AZeroKeyPick);
+    VIns(AKeys, 0, 0);
   end;
 
   VToStrings(Picks, AComboBox.Items);

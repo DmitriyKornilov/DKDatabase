@@ -1478,7 +1478,7 @@ begin
   AComboBox.Items.Clear;
   KeyPickList(ATableName, AKeyFieldName, APickFieldName,
               AKeys, Picks, AKeyValueNotZero, AOrderFieldName);
-  if VIsNil(AKeys) then Exit;
+  if VIsNil(AKeys) and SEmpty(AZeroKeyPick) then Exit;
 
   if not AKeyValueNotZero then
   begin

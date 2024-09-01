@@ -98,9 +98,6 @@
         <PackageName Value="virtualtreeview_package"/>
       </Item>
       <Item>
-        <PackageName Value="rxnew"/>
-      </Item>
-      <Item>
         <PackageName Value="DKUtils"/>
       </Item>
       <Item>

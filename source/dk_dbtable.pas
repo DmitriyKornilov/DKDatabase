@@ -118,12 +118,8 @@ begin
   FLastErrorCode:= SQLITE_OK;
 
   FDBImages:= TDBImages.Create(nil);
-  case Screen.PixelsPerInch of
-    96 : Images:= FDBImages.PX24;
-    120: Images:= FDBImages.PX30;
-    144: Images:= FDBImages.PX36;
-    168: Images:= FDBImages.PX42;
-  end;
+  Images:= ChooseImageListForScreenPPI(FDBImages.PX24, FDBImages.PX30,
+                                       FDBImages.PX36, FDBImages.PX42);
 
   FToolPanel:= TPanel.Create(APanel);
   FToolPanel.Parent:= APanel;

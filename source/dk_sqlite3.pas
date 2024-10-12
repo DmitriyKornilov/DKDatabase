@@ -30,7 +30,8 @@ type
 
     procedure Reconnect;
     procedure Connect(const AFileName: String);
-    procedure ExecuteScript(const AFileName: String);
+    procedure ExecuteScript(const AFileName: String; const ANeedCommit: Boolean = True);
+    procedure ExecuteScript(const ASQLScript: TStrVector; const ANeedCommit: Boolean = True);
 
     function EditList(const AFormCaption: String;
                    const ATableName, AIDFieldName, AFieldName: String;
@@ -299,7 +300,7 @@ begin
   FConnection.Open;
 end;
 
-procedure TSQLite3.ExecuteScript(const AFileName: String);
+procedure TSQLite3.ExecuteScript(const AFileName: String; const ANeedCommit: Boolean = True);
 var
   SQLScript: TSQLScript;
 begin
@@ -311,7 +312,29 @@ begin
     SQLScript.Script.LoadFromFile(AFileName);
     try
       SQLScript.Execute;
-      FTransaction.Commit;
+      if ANeedCommit then FTransaction.Commit;
+    except
+      FTransaction.Rollback;
+    end;
+
+  finally
+    FreeAndNil(SQLScript);
+  end;
+end;
+
+procedure TSQLite3.ExecuteScript(const ASQLScript: TStrVector; const ANeedCommit: Boolean = True);
+var
+  SQLScript: TSQLScript;
+begin
+  if VIsNil(ASQLScript) then Exit;
+  SQLScript:= TSQLScript.Create(nil);
+  try
+    SQLScript.DataBase:= FConnection;
+    SQLScript.Transaction:= FTransaction;
+    VTOStrings(ASQLScript, SQLScript.Script);
+    try
+      SQLScript.Execute;
+      if ANeedCommit then FTransaction.Commit;
     except
       FTransaction.Rollback;
     end;

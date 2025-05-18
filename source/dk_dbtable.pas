@@ -259,7 +259,7 @@ begin
         else
           S:= S + '№' + IntToStr(i+1);
       end;
-      ShowInfo(S + '!');
+      Inform(S + '!');
       FEdit.Select(FEditingRowIndex, i+1);
       FEdit.Select(FEditingRowIndex, i+1);
       Exit;

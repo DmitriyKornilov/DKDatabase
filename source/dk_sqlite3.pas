@@ -107,16 +107,13 @@ type
     function ValueStrInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
                              const AIDValue: Int64): String;
 
-
-
     function ValuesInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                 const AIDValue: Integer; const AUnique: Boolean = False): TIntVector;
 
     function ValuesInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                 const AIDValues: TIntVector; const AUnique: Boolean = False): TIntVector;
 
-
-
+    //single ID
     function Delete(const ATableName, AIDFieldName: String;
                      const AIDValue: Integer; const ACommit: Boolean = True): Boolean;
     function Delete(const ATableName, AIDFieldName: String;
@@ -127,11 +124,25 @@ type
                      const AIDValue: String;
                      const ACaseSensitivity: Boolean = True;
                      const ACommit: Boolean = True): Boolean;
+    //IDs array
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValues: TIntVector; const ACommit: Boolean = True): Boolean;
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValues: TInt64Vector; const ACommit: Boolean = True): Boolean;
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValues: TDateVector; const ACommit: Boolean = True): Boolean;
+    function Delete(const ATableName, AIDFieldName: String;
+                     const AIDValues: TStrVector;
+                     const ACaseSensitivity: Boolean = True;
+                     const ACommit: Boolean = True): Boolean;
 
+    //single String ID
     function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
     function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
+
+    //single Int32 ID
     function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
@@ -144,7 +155,20 @@ type
     function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
-
+    //Int32 IDs array
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TIntVector;
+                     const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TIntVector;
+                     const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TIntVector;
+                     const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
+    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TIntVector;
+                     const ANewValue: String; const ACommit: Boolean = True): Boolean;
+    //single Int64 ID
     function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
@@ -156,6 +180,20 @@ type
                      const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
     function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
+                     const ANewValue: String; const ACommit: Boolean = True): Boolean;
+
+    //Int64 IDs array
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TInt64Vector;
+                     const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TInt64Vector;
+                     const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TInt64Vector;
+                     const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
+    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+                     const AIDValues: TInt64Vector;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
 
     function IsValueInTable(const ATableName, AFieldName: String;
@@ -167,7 +205,6 @@ type
     function IsValueInTable(const ATableName, AFieldName: String;
                             const AValue: String;
                             const ACaseSensitivity: Boolean = True): Boolean;
-
 
     function IsValueInTableNotMatchInt32ID(const ATableName, AFieldName: String;
                             const AValue: Integer;
@@ -216,7 +253,6 @@ type
     function LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
     function LastWritedStringValue(const ATableName, AFieldName: String): String;
 
-
     procedure KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
                           out AKeyVector: TIntVector;
                           out APickVector: TStrVector;
@@ -226,7 +262,6 @@ type
                           out AKeyList, APickList: TStringList;
                           const AKeyValueNotZero: Boolean = False;
                           const AOrderFieldName: String = '');
-
 
     procedure KeyPickLoad(const AComboBox: TComboBox; out AKeys: TIntVector;
             const ATableName, AKeyFieldName, APickFieldName, AOrderFieldName: String;
@@ -249,8 +284,6 @@ type
     property Transaction: TSQLTransaction read FTransaction;
 
   end;
-
-
 
 implementation
 
@@ -772,38 +805,6 @@ begin
   QClose;
 end;
 
-function TSQLite3.Delete(const ATableName, AIDFieldName: String;
-                          const AIDValue: String;
-                          const ACaseSensitivity: Boolean = True;
-                          const ACommit: Boolean = True): Boolean;
-var
-  WhereStr, Value: String;
-begin
-  Result:= False;
-  QSetQuery(FQuery);
-  try
-    if ACaseSensitivity then
-    begin
-      WhereStr:= 'WHERE' + SqlEsc(AIDFieldName) + '= :IDValue';
-      Value:= AIDValue;
-    end
-    else begin
-      WhereStr:= 'WHERE UPPER(' + SqlEsc(AIDFieldName) + ') = :IDValue';
-      Value:= SUpper(AIDValue);
-    end;
-    QSetSQL(
-      'DELETE FROM' + SqlEsc(ATableName) +
-      WhereStr
-    );
-    QParamStr('IDValue', Value);
-    QExec;
-    if ACommit then QCommit;
-    Result:= True;
-  except
-    if ACommit then QRollback;
-  end;
-end;
-
 procedure PrepareUpdate(const ATableName, AFieldName, AIDFieldName: String;
                         out ASQL: String);
 begin
@@ -819,9 +820,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamStr('IDValue', AIDValue);
     QParamStr('NewValue', ANewValue);
@@ -839,9 +840,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamStr('IDValue', AIDValue);
     QParamInt('NewValue', ANewValue);
@@ -860,9 +861,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamInt('NewValue', ANewValue);
@@ -881,9 +882,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamInt64('NewValue', ANewValue);
@@ -902,9 +903,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamDT('NewValue', ANewValue);
@@ -923,13 +924,113 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt('IDValue', AIDValue);
     QParamStr('NewValue', ANewValue);
     QExec;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TIntVector; const ANewValue: Integer;
+  const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamInt('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TIntVector; const ANewValue: Int64;
+  const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamInt64('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TIntVector;
+  const ANewValue: TDateTime; const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamDT('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TIntVector; const ANewValue: String;
+  const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamStr('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt('IDValue', AIDValues[i]);
+      QExec;
+    end;
     if ACommit then QCommit;
     Result:= True;
   except
@@ -944,9 +1045,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamInt('NewValue', ANewValue);
@@ -965,9 +1066,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamInt64('NewValue', ANewValue);
@@ -986,9 +1087,9 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamDT('NewValue', ANewValue);
@@ -1007,13 +1108,113 @@ var
   S: String;
 begin
   Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
   try
-    PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
-    QSetQuery(FQuery);
     QSetSQL(S);
     QParamInt64('IDValue', AIDValue);
     QParamStr('NewValue', ANewValue);
     QExec;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TInt64Vector;
+  const ANewValue: Integer; const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamInt('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt64('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TInt64Vector; const ANewValue: Int64;
+  const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamInt64('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt64('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TInt64Vector;
+  const ANewValue: TDateTime; const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamDT('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt64('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+  AIDFieldName: String; const AIDValues: TInt64Vector; const ANewValue: String;
+  const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareUpdate(ATableName, AFieldName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    QParamStr('NewValue', ANewValue);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt64('IDValue', AIDValues[i]);
+      QExec;
+    end;
     if ACommit then QCommit;
     Result:= True;
   except
@@ -1027,6 +1228,17 @@ begin
   ASQL:=
     'DELETE FROM' + SqlEsc(ATableName) +
     'WHERE' + SqlEsc(AIDFieldName) + '= :IDValue';
+end;
+
+procedure StrPrepareDelete(const ATableName, AIDFieldName: String;
+                           const ACaseSensitivity: Boolean;
+                           out ASQL: String);
+begin
+  ASQL:= 'DELETE FROM' + SqlEsc(ATableName);
+  if ACaseSensitivity then
+    ASQL:= ASQL + 'WHERE' + SqlEsc(AIDFieldName) + '= :IDValue'
+  else
+    ASQL:= ASQL + 'WHERE UPPER(' + SqlEsc(AIDFieldName) + ') = :IDValue';
 end;
 
 function TSQLite3.Delete(const ATableName, AIDFieldName: String;
@@ -1081,6 +1293,127 @@ begin
     QSetSQL(S);
     QParamDT('IDValue', AIDValue);
     QExec;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                          const AIDValue: String;
+                          const ACaseSensitivity: Boolean = True;
+                          const ACommit: Boolean = True): Boolean;
+var
+  S: String;
+begin
+  Result:= False;
+  StrPrepareDelete(ATableName, AIDFieldName, ACaseSensitivity, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    if ACaseSensitivity then
+      QParamStr('IDValue', AIDValue)
+    else
+      QParamStr('IDValue', SUpper(AIDValue));
+    QExec;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                         const AIDValues: TIntVector; const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareDelete(ATableName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                         const AIDValues: TInt64Vector; const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareDelete(ATableName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamInt64('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                         const AIDValues: TDateVector; const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  PrepareDelete(ATableName, AIDFieldName, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    for i:= 0 to High(AIDValues) do
+    begin
+      QParamDT('IDValue', AIDValues[i]);
+      QExec;
+    end;
+    if ACommit then QCommit;
+    Result:= True;
+  except
+    if ACommit then QRollback;
+  end;
+end;
+
+function TSQLite3.Delete(const ATableName, AIDFieldName: String;
+                         const AIDValues: TStrVector;
+                         const ACaseSensitivity: Boolean;
+                         const ACommit: Boolean): Boolean;
+var
+  S: String;
+  i: Integer;
+begin
+  Result:= False;
+  StrPrepareDelete(ATableName, AIDFieldName, ACaseSensitivity, S);
+  QSetQuery(FQuery);
+  try
+    QSetSQL(S);
+    for i:= 0 to High(AIDValues) do
+    begin
+      if ACaseSensitivity then
+        QParamStr('IDValue', AIDValues[i])
+      else
+        QParamStr('IDValue', SUpper(AIDValues[i]));
+      QExec;
+    end;
     if ACommit then QCommit;
     Result:= True;
   except

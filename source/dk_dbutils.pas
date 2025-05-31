@@ -5,7 +5,8 @@ unit DK_DBUtils;
 interface
 
 uses
-  Classes, SysUtils, Controls, DbCtrls, Graphics, DB, SQLDB, DK_SQLUtils;
+  Classes, SysUtils, Controls, DbCtrls, Graphics, DB, SQLDB,
+  DK_SQLUtils, DK_Const, DK_StrUtils;
 
 procedure DataSetChangesSave(const ADataSet: TDataSet);
 
@@ -16,6 +17,8 @@ function LastWritedInt64ID(const AQuery: TSQLQuery; const ATableName: String): I
 
 function MaxInt32ID(const AQuery: TSQLQuery; const ATableName: String): Integer;
 function MaxInt64ID(const AQuery: TSQLQuery; const ATableName: String): Int64;
+
+function PrepareMatchStr(const AMatchStr: String): String;
 
 implementation
 
@@ -126,6 +129,28 @@ begin
   if not QIsEmpty then
     Result:= QFieldInt64('MaxID');
   QClose;
+end;
+
+function PrepareMatchStr(const AMatchStr: String): String;
+var
+  i: Integer;
+  S: String;
+const
+  ALLOWABLE_SYMBOLS = LETTERS_RUSSIAN_UPPER + LETTERS_ENGLISH_UPPER;
+begin
+  Result:= EmptyStr;
+  if SEmpty(AMatchStr) then Exit;
+
+  for i:= 1 to SLength(AMatchStr) do
+  begin
+    S:= SSymbol(AMatchStr, i);
+    if SFind(ALLOWABLE_SYMBOLS, SUpper(S)) then
+      Result:= Result + S
+    else
+      Result:= Result + SYMBOL_SPACE
+  end;
+
+  Result:= STrim(Result);
 end;
 
 end.

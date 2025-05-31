@@ -253,6 +253,14 @@ type
     function LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
     function LastWritedStringValue(const ATableName, AFieldName: String): String;
 
+
+    procedure KeyPickListMatch(const AMatchStr, ATableName,
+                                     AKeyFieldName, APickFieldName: String;
+                          out AKeyVector: TIntVector;
+                          out APickVector: TStrVector;
+                          const AKeyValueNotZero: Boolean = False;
+                          const AOrderFieldName: String = '');
+
     procedure KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;
                           out AKeyVector: TIntVector;
                           out APickVector: TStrVector;
@@ -1754,6 +1762,67 @@ begin
   QOpen;
   if not QIsEmpty then
     Result:= QFieldDT(AFieldName);
+  QClose;
+end;
+
+procedure TSQLite3.KeyPickListMatch(const AMatchStr, ATableName,
+                                     AKeyFieldName, APickFieldName: String;
+                          out AKeyVector: TIntVector;
+                          out APickVector: TStrVector;
+                          const AKeyValueNotZero: Boolean = False;
+                          const AOrderFieldName: String = '');
+var
+  MatchStr, QueryStr, TableName, KeyField, PickField, OrderField: String;
+begin
+  MatchStr:= PrepareMatchStr(AMatchStr);
+  if SEmpty(MatchStr) then
+  begin
+    KeyPickList(ATableName, AKeyFieldName, APickFieldName,
+                AKeyVector, APickVector, AKeyValueNotZero, AOrderFieldName);
+    Exit;
+  end;
+
+  AKeyVector:= nil;
+  APickVector:= nil;
+
+  KeyField:= SqlEsc(AKeyFieldName);
+  PickField:= SqlEsc(APickFieldName);
+  TableName:= SqlEsc(ATableName + '_FTS');
+
+  if SEmpty(AOrderFieldName) then
+    OrderField:=  PickField
+  else
+    OrderField:= SqlEsc(AOrderFieldName);
+
+  ExecuteScript([
+    'CREATE VIRTUAL TABLE IF NOT EXISTS ' + TableName +
+      ' USING FTS5(' + KeyField + ', ' + PickField + ');',
+    'DELETE FROM ' + TableName + ';',
+    'INSERT OR IGNORE INTO ' + TableName  +
+      ' SELECT ' + KeyField + ', ' + PickField + ' FROM ' + SqlEsc(ATableName) + ';'
+  ]);
+
+  QueryStr:= 'SELECT ' + KeyField + ', ' + PickField +
+    'FROM ' + TableName +
+    'WHERE (' + TableName + ' MATCH :MatchStr) ';
+  if AKeyValueNotZero then
+    QueryStr:= QueryStr + 'AND (' + KeyField + '>0) ';
+  QueryStr:= QueryStr + 'ORDER BY ' + OrderField;
+
+  QSetSQL(QueryStr);
+  QParamStr('MatchStr', MatchStr + '*');
+
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(AKeyVector, QFieldInt(AKeyFieldName));
+      VAppend(APickVector, QFieldStr(APickFieldName));
+      QNext;
+    end;
+  end;
   QClose;
 end;
 

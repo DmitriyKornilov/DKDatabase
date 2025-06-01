@@ -1797,7 +1797,6 @@ begin
   ExecuteScript([
     'CREATE VIRTUAL TABLE IF NOT EXISTS ' + TableName +
       ' USING FTS5(' + KeyField + ', ' + PickField + ');',
-    'DELETE FROM ' + TableName + ';',
     'INSERT OR IGNORE INTO ' + TableName  +
       ' SELECT ' + KeyField + ', ' + PickField + ' FROM ' + SqlEsc(ATableName) + ';'
   ]);
@@ -1824,6 +1823,10 @@ begin
     end;
   end;
   QClose;
+
+  ExecuteScript([
+    'DELETE FROM ' + TableName + ';'
+  ]);
 end;
 
 procedure TSQLite3.KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;

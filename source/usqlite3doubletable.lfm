@@ -3,17 +3,17 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
   Height = 626
   Top = 221
   Width = 820
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'SQLite3DoubleTable'
   ClientHeight = 626
   ClientWidth = 820
   Constraints.MinHeight = 200
   Constraints.MinWidth = 820
   DesignTimePPI = 120
+  Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '3.2.0.0'
   object LeftPanel: TPanel
     Left = 0
     Height = 626

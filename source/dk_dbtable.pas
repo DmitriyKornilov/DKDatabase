@@ -82,6 +82,7 @@ type
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
                        const AMasterIDFieldName: String = '');
+    procedure EditingCancel;
     procedure Update(const AMasterIDFieldValue: String = '');
     property OnSelect: TDBTableSelectEvent read FOnSelect write FOnSelect;
     property IDValue: String read GetIDValue;
@@ -187,6 +188,8 @@ begin
   if FEdit.IsSelected then
     InsIndex:= FEdit.SelectedRowIndex;
 
+  FEdit.UnSelect(False);
+
   MRowIns(FDataValues, InsIndex);
   FEdit.RowInsert(InsIndex);
 
@@ -199,9 +202,11 @@ var
   DelIndex: Integer;
 begin
   if not FEdit.IsSelected then Exit;
-  if not Confirm('Удалить выбранную запись?') then Exit;
 
   DelIndex:= FEdit.SelectedRowIndex;
+  FEdit.UnSelect(False);
+  if not Confirm('Удалить выбранную запись?') then Exit;
+
   QSetQuery(FQuery);
   QSetSQL(
     'DELETE FROM' + SqlEsc(FTableName) +
@@ -232,8 +237,13 @@ begin
 end;
 
 procedure TDBTable.ActionEdit(Sender: TObject);
+var
+  i, j: Integer;
 begin
-  FEdit.Select(FEdit.SelectedRowIndex, FEdit.SelectedColIndex);
+  i:= FEdit.SelectedRowIndex;
+  j:= FEdit.SelectedColIndex;
+  FEdit.UnSelect(False);
+  FEdit.Select(i, j);
 end;
 
 procedure TDBTable.ActionSave(Sender: TObject);
@@ -314,21 +324,8 @@ begin
 end;
 
 procedure TDBTable.ActionCancel(Sender: TObject);
-var
-  OldValues: TStrVector;
 begin
-  FEdit.IsOneRowEditing:= False;
-  FEdit.UnSelect(False);
-  if FIsInserting then
-  begin
-    FIsInserting:= False;
-    MRowDel(FDataValues, FEditingRowIndex);
-    FEdit.RowDelete(FEditingRowIndex);
-  end
-  else begin
-    OldValues:= MRowGet(FDataValues, FEditingRowIndex);
-    FEdit.RowValues[FEditingRowIndex]:= VAdd([EmptyStr], OldValues);
-  end;
+  EditingCancel;
 end;
 
 procedure TDBTable.ActionUpdate(Sender: TObject);
@@ -513,6 +510,24 @@ begin
   SetReadSQL;
   SetColumns;
   ActionUpdate(nil);
+end;
+
+procedure TDBTable.EditingCancel;
+var
+  OldValues: TStrVector;
+begin
+  FEdit.IsOneRowEditing:= False;
+  FEdit.UnSelect(False);
+  if FIsInserting then
+  begin
+    FIsInserting:= False;
+    MRowDel(FDataValues, FEditingRowIndex);
+    FEdit.RowDelete(FEditingRowIndex);
+  end
+  else begin
+    OldValues:= MRowGet(FDataValues, FEditingRowIndex);
+    FEdit.RowValues[FEditingRowIndex]:= VAdd([EmptyStr], OldValues);
+  end;
 end;
 
 procedure TDBTable.Update(const AMasterIDFieldValue: String);

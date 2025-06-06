@@ -29,6 +29,7 @@ type
     LeftTotalWidth: Integer;
     RightTotalWidth: Integer;
     procedure LeftTableSelect;
+    procedure RightTableSelect;
   public
     procedure SetLeftTable(const AFont: TFont;
                        const ATableName, AIDFieldName: String;
@@ -73,6 +74,7 @@ begin
   LeftDBTable.OnSelect:= @LeftTableSelect;
 
   RightDBTable:= TDBTable.Create(RightPanel, RightQuery);
+  RightDBTable.OnSelect:= @RightTableSelect;
 end;
 
 procedure TSQLite3DoubleTable.FormDestroy(Sender: TObject);
@@ -97,7 +99,15 @@ end;
 
 procedure TSQLite3DoubleTable.LeftTableSelect;
 begin
+  if RightDBTable.Edit.IsEditing then
+    RightDBTable.EditingCancel;
   RightDBTable.Update(LeftDBTable.IDValue);
+end;
+
+procedure TSQLite3DoubleTable.RightTableSelect;
+begin
+  if LeftDBTable.Edit.IsEditing then
+    LeftDBTable.EditingCancel;
 end;
 
 procedure TSQLite3DoubleTable.SetLeftTable(const AFont: TFont;

@@ -279,9 +279,14 @@ begin
   QSetQuery(FQuery);
   if FIsInserting then
   begin
-    QSetSQL(
-      SqlINSERT(FTableName, FFieldNames)
-    );
+    if not SEmpty(FMasterIDFieldName) then
+      QSetSQL(
+        SqlINSERT(FTableName, VAdd(FFieldNames, [FMasterIDFieldName]))
+      )
+    else
+      QSetSQL(
+        SqlINSERT(FTableName, FFieldNames)
+      );
   end
   else begin
     QSetSQL(
@@ -303,6 +308,8 @@ begin
       //ctDouble
     end;
   end;
+  if not SEmpty(FMasterIDFieldName) then
+    QParamIntFromStr(FMasterIDFieldName, FMasterIDFieldValue);
 
   try
     QExec;

@@ -290,6 +290,7 @@ type
 
     property Connection: TSQLite3Connection read FConnection;
     property Transaction: TSQLTransaction read FTransaction;
+    property Query: TSQLQuery read FQuery;
 
   end;
 

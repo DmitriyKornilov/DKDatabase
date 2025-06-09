@@ -141,6 +141,7 @@ begin
   FTree.AnchorToNeighbour(akLeft, 0, APanel);
   FTree.AnchorToNeighbour(akBottom, 0, APanel);
   FTree.AnchorToNeighbour(akRight, 0, APanel);
+  FTree.OnChangeBounds:= @ActionCancel;
 
   ButtonCreate(FButtonUpdate, 5, 'Обновить');
   ButtonCreate(FButtonCancel, 4, 'Отмена');
@@ -156,16 +157,16 @@ begin
   FButtonCancel.OnClick:= @ActionCancel;
   FButtonUpdate.OnClick:= @ActionUpdate;
 
+  FButtonDelete.Enabled:= False;
+  FButtonEdit.Enabled:= False;
+  FButtonSave.Enabled:= False;
+  FButtonCancel.Enabled:= False;
+
   FEdit:= TVSTEdit.Create(FTree);
   FEdit.CanUnselect:= False;
   FEdit.IsBeginEditOnKeyPress:= False;
   FEdit.OnSelect:= @CellSelect;
   FEdit.OnEdititingBegin:= @EditingBegin;
-
-  FButtonDelete.Enabled:= False;
-  FButtonEdit.Enabled:= False;
-  FButtonSave.Enabled:= False;
-  FButtonCancel.Enabled:= False;
 
   FIsInserting:= False;
 end;

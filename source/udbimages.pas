@@ -5,7 +5,7 @@ unit UDBImages;
 interface
 
 uses
-  Classes, SysUtils, Controls;
+  Classes, SysUtils, Controls, Buttons, DK_CtrlUtils;
 
 type
 
@@ -19,7 +19,7 @@ type
   private
 
   public
-
+    procedure ToButtons(const AButtons: array of TSpeedButton);
   end;
 
 var
@@ -28,6 +28,18 @@ var
 implementation
 
 {$R *.lfm}
+
+{ TDBImages }
+
+procedure TDBImages.ToButtons(const AButtons: array of TSpeedButton);
+var
+  i: Integer;
+  L: TImageList;
+begin
+  L:= ChooseImageListForScreenPPI(PX24, PX30, PX36, PX42);
+  for i:= 0 to High(AButtons) do
+    AButtons[i].Images:= L;
+end;
 
 end.
 

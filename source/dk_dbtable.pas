@@ -130,14 +130,17 @@ begin
   FToolPanel.BevelInner:= bvNone;
   FToolPanel.BevelOuter:= bvNone;
   FToolPanel.BorderStyle:= bsSingle;
-  FToolPanel.AnchorToNeighbour(akLeft, 2, APanel);
-  FToolPanel.AnchorToNeighbour(akTop, 2, APanel);
-  FToolPanel.AnchorToNeighbour(akRight, 2, APanel);
+  FToolPanel.AnchorToNeighbour(akLeft, 0, APanel);
+  FToolPanel.AnchorToNeighbour(akTop, 0, APanel);
+  FToolPanel.AnchorToNeighbour(akRight, 0, APanel);
 
   FTree:= TVirtualStringTree.Create(APanel);
   FTree.Parent:= APanel;
   FTree.Align:= alClient;
-  FTree.AnchorClient(2);
+  FTree.AnchorToCompanion(akTop, 2, FToolPanel, True);
+  FTree.AnchorToNeighbour(akLeft, 0, APanel);
+  FTree.AnchorToNeighbour(akBottom, 0, APanel);
+  FTree.AnchorToNeighbour(akRight, 0, APanel);
 
   ButtonCreate(FButtonUpdate, 5, 'Обновить');
   ButtonCreate(FButtonCancel, 4, 'Отмена');

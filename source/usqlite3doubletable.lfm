@@ -15,27 +15,33 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
   OnDestroy = FormDestroy
   OnShow = FormShow
   object LeftPanel: TPanel
-    Left = 0
-    Height = 626
-    Top = 0
+    Left = 2
+    Height = 622
+    Top = 2
     Width = 300
     Align = alLeft
+    BorderSpacing.Left = 2
+    BorderSpacing.Top = 2
+    BorderSpacing.Bottom = 2
     BevelOuter = bvNone
     TabOrder = 0
   end
   object Splitter1: TSplitter
-    Left = 300
+    Left = 302
     Height = 626
     Top = 0
     Width = 6
     ResizeStyle = rsLine
   end
   object RightPanel: TPanel
-    Left = 306
-    Height = 626
-    Top = 0
-    Width = 514
+    Left = 308
+    Height = 622
+    Top = 2
+    Width = 510
     Align = alClient
+    BorderSpacing.Top = 2
+    BorderSpacing.Right = 2
+    BorderSpacing.Bottom = 2
     BevelOuter = bvNone
     TabOrder = 2
   end

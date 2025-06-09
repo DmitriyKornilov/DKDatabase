@@ -6,7 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Buttons,
-  VirtualTrees, DK_VSTTables, DK_Vector, SQLDB, DividerBevel;
+  VirtualTrees, SQLDB,
+  DK_VSTTables, DK_Vector, DK_CtrlUtils,
+  UDBImages;
 
 type
 
@@ -14,25 +16,24 @@ type
 
   TSQLite3CheckList = class(TForm)
     ButtonPanel: TPanel;
+    ButtonPanelBevel: TBevel;
     CancelButton: TSpeedButton;
-    DividerBevel1: TDividerBevel;
-    ImageList1: TImageList;
-    ListCheckButton: TSpeedButton;
+    AllCheckButton: TSpeedButton;
     ListQuery: TSQLQuery;
-    ListUncheckButton: TSpeedButton;
-    Panel1: TPanel;
+    AllUncheckButton: TSpeedButton;
+    ToolPanel: TPanel;
     SaveButton: TSpeedButton;
     VT1: TVirtualStringTree;
     procedure CancelButtonClick(Sender: TObject);
-    procedure ListCheckButtonClick(Sender: TObject);
+    procedure AllCheckButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
-    procedure ListUncheckButtonClick(Sender: TObject);
+    procedure AllUncheckButtonClick(Sender: TObject);
   private
     VST: TVSTCheckTable;
-
+    DBImages: TDBImages;
 
   public
     KeyValues, OutKeyValues: TIntVector;
@@ -51,6 +52,11 @@ implementation
 
 procedure TSQLite3CheckList.FormCreate(Sender: TObject);
 begin
+  SetToolPanels([ToolPanel]);
+
+  DBImages:= TDBImages.Create(nil);
+  DBImages.ToButtons([AllCheckButton, AllUncheckButton, SaveButton, CancelButton]);
+
   VST:= TVSTCheckTable.Create(VT1);
   VST.SelectedBGColor:= VT1.Color;
   VST.HeaderFont.Style:= [fsBold];
@@ -61,25 +67,28 @@ begin
   ModalResult:= mrCancel;
 end;
 
-procedure TSQLite3CheckList.ListCheckButtonClick(Sender: TObject);
+procedure TSQLite3CheckList.AllCheckButtonClick(Sender: TObject);
 begin
   VST.CheckAll(True);
 end;
 
-procedure TSQLite3CheckList.ListUncheckButtonClick(Sender: TObject);
+procedure TSQLite3CheckList.AllUncheckButtonClick(Sender: TObject);
 begin
   VST.CheckAll(False);
 end;
 
 procedure TSQLite3CheckList.FormDestroy(Sender: TObject);
 begin
-  if Assigned(VST) then FreeAndNil(VST);
+  FreeAndNil(VST);
+  FreeAndNil(DBImages);
 end;
 
 procedure TSQLite3CheckList.FormShow(Sender: TObject);
 var
   i, n: Integer;
 begin
+  SetEventButtons([SaveButton, CancelButton]);
+
   VST.AddColumn(Caption, 150);
   VST.SetColumn(Caption, PickValues, taLeftJustify);
   VST.Draw;
@@ -88,8 +97,8 @@ begin
     n:= VIndexOf(KeyValues, OutKeyValues[i]);
     if n>=0 then VST.Checked[n]:= True;
   end;
-  ListCheckButton.Enabled:= not VIsNil(KeyValues);
-  ListUncheckButton.Enabled:= ListCheckButton.Enabled;
+  AllCheckButton.Enabled:= not VIsNil(KeyValues);
+  AllUncheckButton.Enabled:= AllCheckButton.Enabled;
 end;
 
 procedure TSQLite3CheckList.SaveButtonClick(Sender: TObject);

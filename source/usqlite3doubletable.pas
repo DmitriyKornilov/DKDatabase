@@ -43,7 +43,10 @@ type
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1);
     procedure SetRightTable(const ASQLite3: TSQLite3;
                        const AFont: TFont;
                        const ATableName, AIDFieldName: String;
@@ -57,7 +60,10 @@ type
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
-                       const AMasterIDFieldName: String = '');
+                       const AMasterIDFieldName: String = '';
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1);
 
   end;
 
@@ -115,11 +121,14 @@ procedure TSQLite3DoubleTable.SetLeftTable(const ASQLite3: TSQLite3;
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1);
 begin
   if not Assigned(LeftDBTable) then
   begin
-    LeftDBTable:= TDBTable.Create(LeftPanel, ASQLite3);
+    LeftDBTable:= TDBTable.Create(LeftPanel, ASQLite3, ANeedFilter, AFilterCaption, AFilterDelayMS);
     LeftDBTable.OnSelect:= @LeftTableSelect;
     LeftDBTable.Edit.HeaderFont.Style:= LeftDBTable.Edit.HeaderFont.Style + [fsBold];
   end;
@@ -144,11 +153,14 @@ procedure TSQLite3DoubleTable.SetRightTable(const ASQLite3: TSQLite3;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
-                       const AMasterIDFieldName: String = '');
+                       const AMasterIDFieldName: String = '';
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1);
 begin
   if not Assigned(RightDBTable) then
   begin
-    RightDBTable:= TDBTable.Create(RightPanel, ASQLite3);
+    RightDBTable:= TDBTable.Create(RightPanel, ASQLite3, ANeedFilter, AFilterCaption, AFilterDelayMS);
     RightDBTable.OnSelect:= @RightTableSelect;
     RightDBTable.Edit.HeaderFont.Style:= RightDBTable.Edit.HeaderFont.Style + [fsBold];
   end;

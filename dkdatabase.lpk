@@ -89,6 +89,9 @@
     </Files>
     <RequiredPkgs>
       <Item>
+        <PackageName Value="DKUIUtils"/>
+      </Item>
+      <Item>
         <PackageName Value="SQLDBLaz"/>
       </Item>
       <Item>

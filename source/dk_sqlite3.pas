@@ -38,7 +38,10 @@ type
                    const AOrderByName: Boolean = False;
                    const AIDNotZero: Boolean = False;
                    const AColumnWidth: Integer = 400;
-                   const AFont: TFont = nil): Boolean;
+                   const AFont: TFont = nil;
+                   const ANeedFilter: Boolean = False;
+                   const AFilterCaption: String = '';
+                   const AFilterDelayMS: Integer = 1): Boolean;
     function EditCheckList(var AKeyValues: TIntVector;
                    var APickValues: TStrVector;  out AIsAllChecked: Boolean;
                    const ACaption, ATableName, AKeyFieldName, APickFieldName: String;
@@ -253,6 +256,12 @@ type
     function LastWritedDateTimeValue(const ATableName, AFieldName: String): TDateTime;
     function LastWritedStringValue(const ATableName, AFieldName: String): String;
 
+    procedure TableMatch(const AMatchStr, ATableName: String;
+                        const AUsedFieldNames, AOrderFieldNames: TStrVector;
+                        out AValues: TStrMatrix;
+                        const ANotZeroIDFieldName: String = '';
+                        const AMasterIDFieldName: String = '';
+                        const AMasterIDValue: Int64 = -1);
 
     procedure KeyPickListMatch(const AMatchStr, ATableName,
                                      AKeyFieldName, APickFieldName: String;
@@ -391,7 +400,10 @@ function TSQLite3.EditList(const AFormCaption: String;
                            const AOrderByName: Boolean;
                            const AIDNotZero: Boolean;
                            const AColumnWidth: Integer = 400;
-                           const AFont: TFont = nil): Boolean;
+                           const AFont: TFont = nil;
+                           const ANeedFilter: Boolean = False;
+                           const AFilterCaption: String = '';
+                           const AFilterDelayMS: Integer = 1): Boolean;
 var
   Frm: TSQLite3Table;
   OrderFieldNames: TStrVector;
@@ -402,16 +414,15 @@ begin
   Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
-    Frm.Query.DataBase:= FConnection;
-    Frm.Query.Transaction:= FTransaction;
-    Frm.SetTable(AFont, ATableName, AIDFieldName,
+    Frm.SetTable(Self, AFont, ATableName, AIDFieldName,
                  [AFieldName],
                  nil,
                  [ctString],
                  [True],
                  [AColumnWidth],
                  [taLeftJustify],
-                 AIDNotZero, False, OrderFieldNames);
+                 AIDNotZero, False, OrderFieldNames, 1, nil, nil,
+                 ANeedFilter, AFilterCaption, AFilterDelayMS);
     Frm.ShowModal;
     Result:= True;
   finally
@@ -485,9 +496,7 @@ begin
   Frm:= TSQLite3Table.Create(nil);
   try
     Frm.Caption:= AFormCaption;
-    Frm.Query.DataBase:= FConnection;
-    Frm.Query.Transaction:= FTransaction;
-    Frm.SetTable(AFont, ATableName, AIDFieldName, AFieldNames,
+    Frm.SetTable(Self, AFont, ATableName, AIDFieldName, AFieldNames,
                  AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
                  AIDNotZero, not VIsNil(AColumnNames), AOrderFieldNames, AAutoSizeColumnNumber, AKeys, APicks);
     Frm.ShowModal;
@@ -536,11 +545,11 @@ begin
     Frm.LeftQuery.Transaction:= FTransaction;
     Frm.RightQuery.DataBase:= FConnection;
     Frm.RightQuery.Transaction:= FTransaction;
-    Frm.SetRightTable(AFont, ARightTableName, ARightIDFieldName, ARightFieldNames,
+    Frm.SetRightTable(Self, AFont, ARightTableName, ARightIDFieldName, ARightFieldNames,
                  ARightColumnNames, ARightColumnTypes, ARightColumnNeedValues, ARightColumnWidths, ARightColumnAlignments,
                  ARightIDNotZero, not VIsNil(ARightColumnNames), ARightOrderFieldNames,
                  ARightAutoSizeColumnNumber, ARightKeys, ARightPicks, AMasterIDFieldName);
-    Frm.SetLeftTable(AFont, ALeftTableName, ALeftIDFieldName, ALeftFieldNames,
+    Frm.SetLeftTable(Self, AFont, ALeftTableName, ALeftIDFieldName, ALeftFieldNames,
                  ALeftColumnNames, ALeftColumnTypes, ALeftColumnNeedValues, ALeftColumnWidths, ALeftColumnAlignments,
                  ALeftIDNotZero, not VIsNil(ALeftColumnNames), ALeftOrderFieldNames,
                  ALeftAutoSizeColumnNumber, ALeftKeys, ALeftPicks);
@@ -1766,6 +1775,84 @@ begin
   QClose;
 end;
 
+procedure TSQLite3.TableMatch(const AMatchStr, ATableName: String;
+                        const AUsedFieldNames, AOrderFieldNames: TStrVector;
+                        out AValues: TStrMatrix;
+                        const ANotZeroIDFieldName: String = '';
+                        const AMasterIDFieldName: String = '';
+                        const AMasterIDValue: Int64 = -1);
+var
+  i: Integer;
+  TableName, MatchStr, QueryStr, OrderStr, FieldStr, WhereStr: String;
+begin
+  AValues:= nil;
+  if VIsNil(AUsedFieldNames) then Exit;
+  MDim(AValues, Length(AUsedFieldNames));
+
+  MatchStr:= PrepareMatchStr(AMatchStr);
+  if not SEmpty(MatchStr) then
+    TableName:= SqlEsc(ATableName + '_FTS')
+  else
+    TableName:= SqlEsc(ATableName);
+
+  FieldStr:= VVectorToStr(AUsedFieldNames , ', ', ' [', '] ');
+  OrderStr:= VVectorToStr(AOrderFieldNames, ', ', ' [', '] ');
+
+  if not SEmpty(MatchStr) then
+    ExecuteScript([
+      'CREATE VIRTUAL TABLE IF NOT EXISTS ' + TableName +
+        ' USING FTS5(' + FieldStr + ');',
+      'INSERT OR IGNORE INTO ' + TableName  +
+        ' SELECT ' + FieldStr + ' FROM ' + SqlEsc(ATableName) + ';'
+    ]);
+
+  QueryStr:= 'SELECT ' + FieldStr + 'FROM ' + TableName;
+
+  WhereStr:= EmptyStr;
+  if not SEmpty(MatchStr) then
+    WhereStr:= 'WHERE (' + TableName + ' MATCH :MatchStr) ';
+  if not SEmpty(ANotZeroIDFieldName) then
+  begin
+    if SEmpty(WhereStr) then
+      WhereStr:= 'WHERE (' + SqlEsc(ANotZeroIDFieldName) + '>0) '
+    else
+      WhereStr:= WhereStr + 'AND (' + SqlEsc(ANotZeroIDFieldName) + '>0) ';
+  end;
+  if not SEmpty(AMasterIDFieldName) then
+  begin
+    if SEmpty(WhereStr) then
+      WhereStr:= 'WHERE (' + SqlEsc(AMasterIDFieldName) + '= :MasterIDValue) '
+    else
+      WhereStr:= WhereStr + 'AND (' + SqlEsc(AMasterIDFieldName) + '= :MasterIDValue) ';
+  end;
+  QueryStr:= QueryStr + WhereStr;
+
+  if not SEmpty(OrderStr) then
+    QueryStr:= QueryStr + 'ORDER BY ' + OrderStr;
+
+  QSetQuery(FQuery);
+  QSetSQL(QueryStr);
+  QParamStr('MatchStr', MatchStr + '*');
+  QParamInt64('MasterIDValue', AMasterIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      for i:= 0 to High(AUsedFieldNames) do
+        VAppend(AValues[i], QFieldStr(AUsedFieldNames[i]));
+      QNext;
+    end;
+  end;
+  QClose;
+
+  if not SEmpty(MatchStr) then
+    ExecuteScript([
+      'DROP TABLE IF EXISTS ' + TableName + ';'
+    ]);
+end;
+
 procedure TSQLite3.KeyPickListMatch(const AMatchStr, ATableName,
                                      AKeyFieldName, APickFieldName: String;
                           out AKeyVector: TIntVector;
@@ -1773,61 +1860,22 @@ procedure TSQLite3.KeyPickListMatch(const AMatchStr, ATableName,
                           const AKeyValueNotZero: Boolean = False;
                           const AOrderFieldName: String = '');
 var
-  MatchStr, QueryStr, TableName, KeyField, PickField, OrderField: String;
+  M: TStrMatrix;
+  V: TStrVector;
+  S: String;
 begin
-  MatchStr:= PrepareMatchStr(AMatchStr);
-  if SEmpty(MatchStr) then
-  begin
-    KeyPickList(ATableName, AKeyFieldName, APickFieldName,
-                AKeyVector, APickVector, AKeyValueNotZero, AOrderFieldName);
-    Exit;
-  end;
+  V:= nil;
+  if not SEmpty(AOrderFieldName) then
+    V:= VCreateStr([AOrderFieldName]);
 
-  AKeyVector:= nil;
-  APickVector:= nil;
-
-  KeyField:= SqlEsc(AKeyFieldName);
-  PickField:= SqlEsc(APickFieldName);
-  TableName:= SqlEsc(ATableName + '_FTS');
-
-  if SEmpty(AOrderFieldName) then
-    OrderField:=  PickField
-  else
-    OrderField:= SqlEsc(AOrderFieldName);
-
-  ExecuteScript([
-    'CREATE VIRTUAL TABLE IF NOT EXISTS ' + TableName +
-      ' USING FTS5(' + KeyField + ', ' + PickField + ');',
-    'INSERT OR IGNORE INTO ' + TableName  +
-      ' SELECT ' + KeyField + ', ' + PickField + ' FROM ' + SqlEsc(ATableName) + ';'
-  ]);
-
-  QueryStr:= 'SELECT ' + KeyField + ', ' + PickField +
-    'FROM ' + TableName +
-    'WHERE (' + TableName + ' MATCH :MatchStr) ';
+  S:= EmptyStr;
   if AKeyValueNotZero then
-    QueryStr:= QueryStr + 'AND (' + KeyField + '>0) ';
-  QueryStr:= QueryStr + 'ORDER BY ' + OrderField;
+    S:= AKeyFieldName;
 
-  QSetSQL(QueryStr);
-  QParamStr('MatchStr', MatchStr + '*');
+  TableMatch(AMatchStr, ATableName, [AKeyFieldName, APickFieldName], V, M, S);
 
-  QOpen;
-  if not QIsEmpty then
-  begin
-    QFirst;
-    while not QEOF do
-    begin
-      VAppend(AKeyVector, QFieldInt(AKeyFieldName));
-      VAppend(APickVector, QFieldStr(APickFieldName));
-      QNext;
-    end;
-  end;
-  QClose;
-
-  ExecuteScript([
-    'DELETE FROM ' + TableName + ';'
-  ]);
+  AKeyVector:= VStrToInt(M[0]);
+  APickVector:= VCut(M[1]);
 end;
 
 procedure TSQLite3.KeyPickList(const ATableName, AKeyFieldName, APickFieldName: String;

@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, SQLDB, Forms, Graphics, ExtCtrls,
 
 
-  DK_VSTTypes, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils;
+  DK_VSTTypes, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils,
+  DK_SQLite3;
 
 type
 
@@ -20,7 +21,6 @@ type
     RightQuery: TSQLQuery;
     RightPanel: TPanel;
     Splitter1: TSplitter;
-    procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -31,7 +31,8 @@ type
     procedure LeftTableSelect;
     procedure RightTableSelect;
   public
-    procedure SetLeftTable(const AFont: TFont;
+    procedure SetLeftTable(const ASQLite3: TSQLite3;
+                       const AFont: TFont;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
@@ -43,7 +44,8 @@ type
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil);
-    procedure SetRightTable(const AFont: TFont;
+    procedure SetRightTable(const ASQLite3: TSQLite3;
+                       const AFont: TFont;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
@@ -68,19 +70,10 @@ implementation
 
 { TSQLite3DoubleTable }
 
-procedure TSQLite3DoubleTable.FormCreate(Sender: TObject);
-begin
-  LeftDBTable:= TDBTable.Create(LeftPanel, LeftQuery);
-  LeftDBTable.OnSelect:= @LeftTableSelect;
-
-  RightDBTable:= TDBTable.Create(RightPanel, RightQuery);
-  RightDBTable.OnSelect:= @RightTableSelect;
-end;
-
 procedure TSQLite3DoubleTable.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(RightDBTable);
-  FreeAndNil(LeftDBTable);
+  if Assigned(RightDBTable) then FreeAndNil(RightDBTable);
+  if Assigned(LeftDBTable) then FreeAndNil(LeftDBTable);
 end;
 
 procedure TSQLite3DoubleTable.FormShow(Sender: TObject);
@@ -101,7 +94,7 @@ procedure TSQLite3DoubleTable.LeftTableSelect;
 begin
   if RightDBTable.Edit.IsEditing then
     RightDBTable.EditingCancel;
-  RightDBTable.Update(LeftDBTable.IDValue);
+  RightDBTable.MasterIDUpdate(LeftDBTable.IDValue);
 end;
 
 procedure TSQLite3DoubleTable.RightTableSelect;
@@ -110,7 +103,8 @@ begin
     LeftDBTable.EditingCancel;
 end;
 
-procedure TSQLite3DoubleTable.SetLeftTable(const AFont: TFont;
+procedure TSQLite3DoubleTable.SetLeftTable(const ASQLite3: TSQLite3;
+                       const AFont: TFont;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
@@ -123,15 +117,22 @@ procedure TSQLite3DoubleTable.SetLeftTable(const AFont: TFont;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil);
 begin
+  if not Assigned(LeftDBTable) then
+  begin
+    LeftDBTable:= TDBTable.Create(LeftPanel, ASQLite3);
+    LeftDBTable.OnSelect:= @LeftTableSelect;
+    LeftDBTable.Edit.HeaderFont.Style:= LeftDBTable.Edit.HeaderFont.Style + [fsBold];
+  end;
+
   LeftTotalWidth:= VSum(AColumnWidths) + 10;
   LeftDBTable.Settings(AFont, ATableName, AIDFieldName, AFieldNames,
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
       AKeys, APicks);
-  LeftDBTable.Edit.HeaderFont.Style:= LeftDBTable.Edit.HeaderFont.Style + [fsBold];
 end;
 
-procedure TSQLite3DoubleTable.SetRightTable(const AFont: TFont;
+procedure TSQLite3DoubleTable.SetRightTable(const ASQLite3: TSQLite3;
+                       const AFont: TFont;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
@@ -145,12 +146,18 @@ procedure TSQLite3DoubleTable.SetRightTable(const AFont: TFont;
                        const APicks: TStrMatrix = nil;
                        const AMasterIDFieldName: String = '');
 begin
+  if not Assigned(RightDBTable) then
+  begin
+    RightDBTable:= TDBTable.Create(RightPanel, ASQLite3);
+    RightDBTable.OnSelect:= @RightTableSelect;
+    RightDBTable.Edit.HeaderFont.Style:= RightDBTable.Edit.HeaderFont.Style + [fsBold];
+  end;
+
   RightTotalWidth:= VSum(AColumnWidths) + 10;
   RightDBTable.Settings(AFont, ATableName, AIDFieldName, AFieldNames,
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
       AKeys, APicks, AMasterIDFieldName);
-  RightDBTable.Edit.HeaderFont.Style:= RightDBTable.Edit.HeaderFont.Style + [fsBold];
 end;
 
 end.

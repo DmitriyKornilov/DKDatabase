@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, SQLDB, Forms, Graphics, ExtCtrls,
 
 
-  DK_VSTTypes, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils;
+  DK_VSTTypes, DK_Vector, DK_Matrix, DK_DBTable, DK_PPI, DK_CtrlUtils,
+  DK_SQLite3;
 
 type
 
@@ -16,15 +17,14 @@ type
 
   TSQLite3Table = class(TForm)
     MainPanel: TPanel;
-    Query: TSQLQuery;
-    procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
     DBTable: TDBTable;
     TotalWidth: Integer;
   public
-    procedure SetTable(const AFont: TFont;
+    procedure SetTable(const ASQLite3: TSQLite3;
+                       const AFont: TFont;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
@@ -35,7 +35,10 @@ type
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1);
   end;
 
 var
@@ -47,14 +50,9 @@ implementation
 
 { TSQLite3Table }
 
-procedure TSQLite3Table.FormCreate(Sender: TObject);
-begin
-  DBTable:= TDBTable.Create(MainPanel, Query);
-end;
-
 procedure TSQLite3Table.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(DBTable);
+  if Assigned(DBTable) then FreeAndNil(DBTable);
 end;
 
 procedure TSQLite3Table.FormShow(Sender: TObject);
@@ -68,7 +66,8 @@ begin
   FormToScreenCenter(Sender as TForm);
 end;
 
-procedure TSQLite3Table.SetTable(const AFont: TFont;
+procedure TSQLite3Table.SetTable(const ASQLite3: TSQLite3;
+                       const AFont: TFont;
                        const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
@@ -79,14 +78,24 @@ procedure TSQLite3Table.SetTable(const AFont: TFont;
                        const AOrderFieldNames: TStrVector = nil;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
-                       const APicks: TStrMatrix = nil);
+                       const APicks: TStrMatrix = nil;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1);
 begin
+  if not Assigned (DBTable) then
+  begin
+    DBTable:= TDBTable.Create(MainPanel, ASQLite3, ANeedFilter, AFilterCaption, AFilterDelayMS);
+    DBTable.Edit.HeaderFont.Style:= DBTable.Edit.HeaderFont.Style + [fsBold];
+  end;
+
   TotalWidth:= VSum(AColumnWidths) + 10;
+  if ANeedFilter then
+    TotalWidth:= Round(1.5*TotalWidth);
   DBTable.Settings(AFont, ATableName, AIDFieldName, AFieldNames,
       AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
       AIDNotZero, AHeaderVisible, AOrderFieldNames, AAutoSizeColumnNumber,
       AKeys, APicks);
-  DBTable.Edit.HeaderFont.Style:= DBTable.Edit.HeaderFont.Style + [fsBold];
 end;
 
 end.

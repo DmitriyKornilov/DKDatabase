@@ -11,7 +11,7 @@ object SQLite3DoubleTable: TSQLite3DoubleTable
   Constraints.MinWidth = 820
   DesignTimePPI = 120
   Position = poScreenCenter
-  OnCreate = FormCreate
+  LCLVersion = '4.0.0.4'
   OnDestroy = FormDestroy
   OnShow = FormShow
   object LeftPanel: TPanel

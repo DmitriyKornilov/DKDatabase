@@ -3,6 +3,7 @@ object SQLite3Table: TSQLite3Table
   Height = 626
   Top = 220
   Width = 400
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'SQLite3Table'
   ClientHeight = 626
   ClientWidth = 400
@@ -10,7 +11,6 @@ object SQLite3Table: TSQLite3Table
   Constraints.MinWidth = 400
   DesignTimePPI = 120
   Position = poScreenCenter
-  OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   object MainPanel: TPanel
@@ -22,16 +22,5 @@ object SQLite3Table: TSQLite3Table
     BorderSpacing.Around = 2
     BevelOuter = bvNone
     TabOrder = 0
-  end
-  object Query: TSQLQuery
-    PacketRecords = -1
-    FieldDefs = <>
-    SQL.Strings = (
-      ''
-    )
-    Params = <>
-    Macros = <>
-    Left = 30
-    Top = 20
   end
 end

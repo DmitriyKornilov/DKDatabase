@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Buttons, VirtualTrees, ExtCtrls, SQLDB, Controls, Graphics,
-  SQLite3, Forms,
+  SQLite3, Forms, DividerBevel, ComCtrls,
 
   DK_Vector, DK_Matrix, DK_SQLUtils, DK_StrUtils, DK_Dialogs,
-  DK_DBUtils, DK_CtrlUtils, DK_VSTEdit, DK_VSTTypes,
+  DK_DBUtils, DK_CtrlUtils, DK_VSTEdit, DK_VSTTypes, DK_Filter, DK_SQLite3,
 
   UDBImages;
 
@@ -26,16 +26,18 @@ type
     FButtonSave: TSpeedButton;
     FButtonCancel: TSpeedButton;
     FButtonUpdate: TSpeedButton;
-    FQuery: TSQLQuery;
+    FSQLite3: TSQLite3;
     FToolPanel: TPanel;
     FTree: TVirtualStringTree;
     FDBImages: TDBImages;
     FEdit: TVSTEdit;
+    FBevel: TDividerBevel;
+    FFilterPanel: TPanel;
 
     FLastErrorCode: Integer;
 
-    FTableName, FIDFieldName, FReadSQL: String;
-    FFieldNames, FColumnNames: TStrVector;
+    FTableName, FIDFieldName, FNotZeroIDFieldName: String;
+    FFieldNames, FColumnNames, FOrderFieldNames: TStrVector;
     FColumnWidths: TIntVector;
     FColumnTypes: TVSTColumnTypes;
     FColumnNeedValues: TBoolVector;
@@ -48,7 +50,9 @@ type
     FIsInserting: Boolean;
 
     FMasterIDFieldName: String;
-    FMasterIDFieldValue: String;
+    FMasterIDValue: String;
+    FFilterFieldName: String;
+    FFilterValue: String;
 
     FOnSelect: TDBTableSelectEvent;
 
@@ -59,6 +63,7 @@ type
     procedure ActionCancel(Sender: TObject);
     procedure ActionUpdate(Sender: TObject);
 
+    procedure DataFilter(const AFilterValue: String);
     procedure DataLoad;
     procedure DataShow;
 
@@ -67,7 +72,11 @@ type
     function GetIDValue: String;
 
   public
-    constructor Create(const APanel: TPanel; const AQuery: TSQLQuery);
+    constructor Create(const APanel: TPanel;
+                       const ASQLite3: TSQLite3;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = DELAY_MILLISECONDS_DEFAULT);
     destructor Destroy; override;
     procedure Settings(const AFont: TFont;
                        const ATableName, AIDFieldName: String;
@@ -81,9 +90,11 @@ type
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
-                       const AMasterIDFieldName: String = '');
+                       const AMasterIDFieldName: String = '';
+                       const AMasterIDValue: String = '';
+                       const AFilterFieldName: String = '');
     procedure EditingCancel;
-    procedure Update(const AMasterIDFieldValue: String = '');
+    procedure MasterIDUpdate(const AMasterIDValue: String = '');
     property OnSelect: TDBTableSelectEvent read FOnSelect write FOnSelect;
     property IDValue: String read GetIDValue;
     property LastErrorCode: Integer read FLastErrorCode;
@@ -94,7 +105,11 @@ implementation
 
 { TDBTable }
 
-constructor TDBTable.Create(const APanel: TPanel; const AQuery: TSQLQuery);
+constructor TDBTable.Create(const APanel: TPanel;
+                           const ASQLite3: TSQLite3;
+                           const ANeedFilter: Boolean = False;
+                           const AFilterCaption: String = '';
+                           const AFilterDelayMS: Integer = DELAY_MILLISECONDS_DEFAULT);
 var
   Images: TImageList;
 
@@ -114,9 +129,10 @@ var
   end;
 
 begin
-  FQuery:= AQuery;
+  FSQLite3:= ASQLite3;
 
   FLastErrorCode:= SQLITE_OK;
+  FMasterIDValue:= EmptyStr;
 
   FDBImages:= TDBImages.Create(nil);
   Images:= ChooseImageListForScreenPPI(FDBImages.PX24, FDBImages.PX30,
@@ -142,6 +158,17 @@ begin
   FTree.AnchorToNeighbour(akBottom, 0, APanel);
   FTree.AnchorToNeighbour(akRight, 0, APanel);
   FTree.OnChangeBounds:= @ActionCancel;
+
+  if ANeedFilter then
+  begin
+    FBevel:= TDividerBevel.Create(APanel);
+    FBevel.BevelStyle:= bsLowered;
+    FBevel.BevelWidth:= 2;
+    FBevel.Orientation:= trVertical;
+    FBevel.Style:= gsSimple;
+    FBevel.Parent:= FToolPanel;
+    FBevel.Align:= alLeft;
+  end;
 
   ButtonCreate(FButtonUpdate, 5, 'Обновить');
   ButtonCreate(FButtonCancel, 4, 'Отмена');
@@ -169,6 +196,17 @@ begin
   FEdit.OnEdititingBegin:= @EditingBegin;
 
   FIsInserting:= False;
+
+  if not ANeedFilter then Exit;
+
+  FFilterPanel:= TPanel.Create(APanel);
+  FFilterPanel.Parent:= FToolPanel;
+  FFilterPanel.Align:= alClient;
+  FFilterPanel.BevelInner:= bvNone;
+  FFilterPanel.BevelOuter:= bvNone;
+  FFilterPanel.BorderStyle:= bsNone;
+
+  CreateFilterControls(AFilterCaption, FFilterPanel, @DataFilter, AFilterDelayMS);
 end;
 
 destructor TDBTable.Destroy;
@@ -211,7 +249,7 @@ begin
   FEdit.UnSelect(False);
   if not Confirm('Удалить выбранную запись?') then Exit;
 
-  QSetQuery(FQuery);
+  QSetQuery(FSQLite3.Query);
   QSetSQL(
     'DELETE FROM' + SqlEsc(FTableName) +
     'WHERE' + SqlEsc(FIDFieldName) + '= :IDValue'
@@ -252,68 +290,80 @@ end;
 
 procedure TDBTable.ActionSave(Sender: TObject);
 var
-  i: Integer;
-  S: String;
   NewValues: TStrVector;
+
+  procedure ValuesVerify;
+  var
+    i: Integer;
+    S: String;
+  begin
+    for i:= 0 to High(FFieldNames) do
+    begin
+      if FColumnNeedValues[i] and SEmpty(NewValues[i]) then
+      begin
+        S:= 'Не указано значение';
+        if Length(FFieldNames)>1 then
+        begin
+          S:= S + ' для столбца ';
+          if FEdit.HeaderVisible then
+            S:= S + '"' + FColumnNames[i] + '"'
+          else
+            S:= S + '№' + IntToStr(i+1);
+        end;
+        Inform(S + '!');
+        FEdit.Select(FEditingRowIndex, i+1);
+        FEdit.Select(FEditingRowIndex, i+1);
+        Exit;
+      end;
+    end;
+  end;
+
+  procedure QueryTune;
+  var
+    i: Integer;
+    S: String;
+  begin
+    QSetQuery(FSQLite3.Query);
+    if FIsInserting then
+    begin
+      if not SEmpty(FMasterIDFieldName) then
+        S:= SqlINSERT(FTableName, VAdd(FFieldNames, [FMasterIDFieldName]))
+      else
+        S:= SqlINSERT(FTableName, FFieldNames);
+      QSetSQL(S);
+    end
+    else begin
+      QSetSQL(
+        SqlUPDATE(FTableName, FFieldNames) +
+        'WHERE' + SqlEsc(FIDFieldName) + '= :IDValue'
+      );
+      QParamInt64('IDValue', FIDValues[FEditingRowIndex]);
+    end;
+
+    for i:= 0 to High(FFieldNames) do
+    begin
+      case FColumnTypes[i] of
+        ctInteger: QParamIntFromStr(FFieldNames[i], NewValues[i]);
+        ctString:  QParamStrFromStr(FFieldNames[i], NewValues[i]);
+        ctDate:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
+        ctTime:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
+        ctKeyPick: QParamIntFromStr(FFieldNames[i], NewValues[i]);
+        ctColor:   QParamIntFromStr(FFieldNames[i], NewValues[i]);
+        //ctDouble
+      end;
+    end;
+
+    if not SEmpty(FMasterIDFieldName) then
+      QParamIntFromStr(FMasterIDFieldName, FMasterIDValue);
+  end;
+
 begin
   FEdit.IsOneRowEditing:= False;
   FEdit.UnSelect(True);
   NewValues:= VCut(FEdit.RowValues[FEditingRowIndex], 1);
 
-  for i:= 0 to High(FFieldNames) do
-  begin
-    if FColumnNeedValues[i] and SEmpty(NewValues[i]) then
-    begin
-      S:= 'Не указано значение';
-      if Length(FFieldNames)>1 then
-      begin
-        S:= S + ' для столбца ';
-        if FEdit.HeaderVisible then
-          S:= S + '"' + FColumnNames[i] + '"'
-        else
-          S:= S + '№' + IntToStr(i+1);
-      end;
-      Inform(S + '!');
-      FEdit.Select(FEditingRowIndex, i+1);
-      FEdit.Select(FEditingRowIndex, i+1);
-      Exit;
-    end;
-  end;
-
-  QSetQuery(FQuery);
-  if FIsInserting then
-  begin
-    if not SEmpty(FMasterIDFieldName) then
-      QSetSQL(
-        SqlINSERT(FTableName, VAdd(FFieldNames, [FMasterIDFieldName]))
-      )
-    else
-      QSetSQL(
-        SqlINSERT(FTableName, FFieldNames)
-      );
-  end
-  else begin
-    QSetSQL(
-      SqlUPDATE(FTableName, FFieldNames) +
-      'WHERE' + SqlEsc(FIDFieldName) + '= :IDValue'
-    );
-    QParamInt64('IDValue', FIDValues[FEditingRowIndex]);
-  end;
-
-  for i:= 0 to High(FFieldNames) do
-  begin
-    case FColumnTypes[i] of
-      ctInteger: QParamIntFromStr(FFieldNames[i], NewValues[i]);
-      ctString:  QParamStrFromStr(FFieldNames[i], NewValues[i]);
-      ctDate:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
-      ctTime:    QParamDTFromStr(FFieldNames[i], NewValues[i]);
-      ctKeyPick: QParamIntFromStr(FFieldNames[i], NewValues[i]);
-      ctColor:   QParamIntFromStr(FFieldNames[i], NewValues[i]);
-      //ctDouble
-    end;
-  end;
-  if not SEmpty(FMasterIDFieldName) then
-    QParamIntFromStr(FMasterIDFieldName, FMasterIDFieldValue);
+  ValuesVerify;
+  QueryTune;
 
   try
     QExec;
@@ -330,7 +380,7 @@ begin
   if FIsInserting then
   begin
     FIsInserting:= False;
-    VIns(FIDValues, FEditingRowIndex, LastWritedInt64ID(FQuery, FTableName));
+    VIns(FIDValues, FEditingRowIndex, LastWritedInt64ID(FSQLite3.Query, FTableName));
   end;
 end;
 
@@ -341,47 +391,36 @@ end;
 
 procedure TDBTable.ActionUpdate(Sender: TObject);
 begin
+  DataFilter(FFilterValue);
+end;
+
+procedure TDBTable.DataFilter(const AFilterValue: String);
+begin
+  FFilterValue:= AFilterValue;
   DataLoad;
   DataShow;
 end;
 
 procedure TDBTable.DataLoad;
 var
-  i: Integer;
+  MasterIDValue: Int64;
+  FieldNames: TStrVector;
+  Values: TStrMatrix;
 begin
   FDataValues:= nil;
   FIDValues:= nil;
-  MDim(FDataValues, Length(FFieldNames));
 
-  if (not SEmpty(FMasterIDFieldName)) and SEmpty(FMasterIDFieldValue) then Exit;
+  FieldNames:= VCreateStr([FIDFieldName]);
+  FieldNames:= VAdd(FieldNames, FFieldNames);
 
-  QSetQuery(FQuery);
-  QSetSQL(FReadSQL);
-  if not SEmpty(FMasterIDFieldName) then
-    QParamInt64('MasterIDValue', StrToInt64(FMasterIDFieldValue));
-  QOpen;
-  if not QIsEmpty then
-  begin
-    QFirst;
-    while not QEOF do
-    begin
-      VAppend(FIDValues, QFieldInt64(FIDFieldName));
-      for i:= 0 to High(FFieldNames) do
-      begin
-        case FColumnTypes[i] of
-          ctInteger: VAppend(FDataValues[i], IntToStr(QFieldInt(FFieldNames[i])));
-          ctString:  VAppend(FDataValues[i], QFieldStr(FFieldNames[i]));
-          ctDate:    VAppend(FDataValues[i], DateToStr(QFieldDT(FFieldNames[i])));
-          ctTime:    VAppend(FDataValues[i], TimeToStr(QFieldDT(FFieldNames[i])));
-          ctKeyPick: VAppend(FDataValues[i], IntToStr(QFieldInt(FFieldNames[i])));
-          ctColor:   VAppend(FDataValues[i], IntToStr(QFieldInt(FFieldNames[i])));
-          //ctDouble
-        end;
-      end;
-      QNext;
-    end;
-  end;
-  QClose;
+  if not TryStrToInt64(FMasterIDValue, MasterIDValue) then
+    MasterIDValue:= -1;
+
+  FSQLite3.TableMatch(FFilterValue, FTableName, FieldNames, FOrderFieldNames, Values,
+                      FNotZeroIDFieldName, FMasterIDFieldName, MasterIDValue);
+
+  FIDValues:= VStrToInt64(Values[0]);
+  FDataValues:= MCut(Values, 1, High(Values));
 end;
 
 procedure TDBTable.DataShow;
@@ -439,7 +478,9 @@ procedure TDBTable.Settings(const AFont: TFont;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
-                       const AMasterIDFieldName: String = '');
+                       const AMasterIDFieldName: String = '';
+                       const AMasterIDValue: String = '';
+                       const AFilterFieldName: String = '');
 
   procedure SetColumnNames;
   var
@@ -454,37 +495,10 @@ procedure TDBTable.Settings(const AFont: TFont;
     end;
   end;
 
-  procedure SetReadSQL;
-  var
-    S: String;
-  begin
-    if not SEmpty(AMasterIDFieldName) then
-      FReadSQL:= SqlFieldsEnum(VAdd(AFieldNames, [AIDFieldName, AMasterIDFieldName]))
-    else
-      FReadSQL:= SqlFieldsEnum(VAdd(AFieldNames, [AIDFieldName]));
-
-    FReadSQL:= 'SELECT ' +  SqlFieldsEnum(VAdd(AFieldNames, [AIDFieldName]))  + ' FROM' + SqlEsc(ATableName);
-    S:= EmptyStr;
-    if AIDNotZero then
-      S:= ' (' + SqlEsc(AIDFieldName) + ' > 0) ';
-    if not SEmpty(AMasterIDFieldName) then
-    begin
-      if not SEmpty(S) then
-        S:= S + 'AND';
-      S:= ' (' + SqlEsc(AMasterIDFieldName) + ' = :MasterIDValue) ';
-    end;
-    if not SEmpty(S) then
-      FReadSQL:= FReadSQL + 'WHERE' + S;
-    if not VIsNil(AOrderFieldNames) then
-      FReadSQL:= FReadSQL + 'ORDER BY' + SqlFieldsEnum(AOrderFieldNames);
-  end;
-
   procedure SetColumns;
   var
     i: Integer;
   begin
-    if Assigned(AFont) then
-      FEdit.SetSingleFont(AFont);
     FEdit.HeaderVisible:= AHeaderVisible;
     if AAutoSizeColumnNumber<=0 then
       FEdit.AutosizeColumnDisable
@@ -513,14 +527,19 @@ begin
   FColumnTypes:= AColumnTypes;
   FColumnNeedValues:= AColumnNeedValues;
   FColumnWidths:= AColumnWidths;
+  FOrderFieldNames:= AOrderFieldNames;
   FKeys:= AKeys;
   FPicks:= APicks;
   FMasterIDFieldName:= AMasterIDFieldName;
+  FFilterFieldName:= AFilterFieldName;
+  FNotZeroIDFieldName:= EmptyStr;
+  if AIDNotZero then
+    FNotZeroIDFieldName:= FIDFieldName;
+  if Assigned(AFont) then FEdit.SetSingleFont(AFont);
 
   SetColumnNames;
-  SetReadSQL;
   SetColumns;
-  ActionUpdate(nil);
+  MasterIDUpdate(AMasterIDValue);
 end;
 
 procedure TDBTable.EditingCancel;
@@ -541,10 +560,10 @@ begin
   end;
 end;
 
-procedure TDBTable.Update(const AMasterIDFieldValue: String);
+procedure TDBTable.MasterIDUpdate(const AMasterIDValue: String);
 begin
-  if SSame(FMasterIDFieldValue, AMasterIDFieldValue) and (not MIsNil(FDataValues)) then Exit;
-  FMasterIDFieldValue:= AMasterIDFieldValue;
+  if SSame(FMasterIDValue, AMasterIDValue) and (not MIsNil(FDataValues)) then Exit;
+  FMasterIDValue:= AMasterIDValue;
   ActionUpdate(nil);
 end;
 

@@ -60,7 +60,10 @@ type
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
-                       const AFont: TFont = nil): Boolean;
+                       const AFont: TFont = nil;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1): Boolean;
     function EditDoubleTable(const AFormCaption: String;
                        const ALeftTableName, ALeftIDFieldName: String;
                        const ALeftFieldNames, ALeftColumnNames: TStrVector;
@@ -73,6 +76,9 @@ type
                        const ALeftAutoSizeColumnNumber: Integer;
                        const ALeftKeys: TIntMatrix;
                        const ALeftPicks: TStrMatrix;
+                       const ANeedLeftFilter: Boolean;
+                       const ALeftFilterCaption: String;
+                       const ALeftFilterDelayMS: Integer;
 
                        const ARightTableName, ARightIDFieldName: String;
                        const ARightFieldNames, ARightColumnNames: TStrVector;
@@ -86,6 +92,9 @@ type
                        const ARightKeys: TIntMatrix;
                        const ARightPicks: TStrMatrix;
                        const AMasterIDFieldName: String;
+                       const ANeedRightFilter: Boolean;
+                       const ARightFilterCaption: String;
+                       const ARightFilterDelayMS: Integer;
 
                        const AFont: TFont = nil): Boolean;
 
@@ -305,7 +314,7 @@ type
 
 implementation
 
-uses USQLite3CheckList, USQLite3Table, USQLite3DoubleTable;
+uses USQLite3CheckList, UDBTableSingle, UDBTableDouble;
 
 { TSQLite3Connection }
 
@@ -405,28 +414,26 @@ function TSQLite3.EditList(const AFormCaption: String;
                            const AFilterCaption: String = '';
                            const AFilterDelayMS: Integer = 1): Boolean;
 var
-  Frm: TSQLite3Table;
   OrderFieldNames: TStrVector;
+  DBTable: TDBTableSingle;
 begin
   Result:= False;
   OrderFieldNames:= nil;
   if AOrderByName then VAppend(OrderFieldNames, AFieldName);
-  Frm:= TSQLite3Table.Create(nil);
+
+  DBTable:= TDBTableSingle.Create(Self, AFont, ANeedFilter, AFilterCaption, AFilterDelayMS);
   try
-    Frm.Caption:= AFormCaption;
-    Frm.SetTable(Self, AFont, ATableName, AIDFieldName,
+    DBTable.Show(AFormCaption, ATableName, AIDFieldName,
                  [AFieldName],
                  nil,
                  [ctString],
                  [True],
                  [AColumnWidth],
                  [taLeftJustify],
-                 AIDNotZero, False, OrderFieldNames, 1, nil, nil,
-                 ANeedFilter, AFilterCaption, AFilterDelayMS);
-    Frm.ShowModal;
+                 AIDNotZero, OrderFieldNames);
     Result:= True;
   finally
-    FreeAndNil(Frm);
+    FreeandNil(DBTable);
   end;
 end;
 
@@ -487,22 +494,24 @@ function TSQLite3.EditTable(const AFormCaption: String;
                        const AAutoSizeColumnNumber: Integer = 1;
                        const AKeys: TIntMatrix = nil;
                        const APicks: TStrMatrix = nil;
-                       const AFont: TFont = nil): Boolean;
+                       const AFont: TFont = nil;
+                       const ANeedFilter: Boolean = False;
+                       const AFilterCaption: String = '';
+                       const AFilterDelayMS: Integer = 1): Boolean;
 var
-  Frm: TSQLite3Table;
+  DBTable: TDBTableSingle;
 begin
   Result:= False;
 
-  Frm:= TSQLite3Table.Create(nil);
+  DBTable:= TDBTableSingle.Create(Self, AFont, ANeedFilter, AFilterCaption, AFilterDelayMS);
   try
-    Frm.Caption:= AFormCaption;
-    Frm.SetTable(Self, AFont, ATableName, AIDFieldName, AFieldNames,
-                 AColumnNames, AColumnTypes, AColumnNeedValues, AColumnWidths, AColumnAlignments,
-                 AIDNotZero, not VIsNil(AColumnNames), AOrderFieldNames, AAutoSizeColumnNumber, AKeys, APicks);
-    Frm.ShowModal;
+    DBTable.Show(AFormCaption, ATableName, AIDFieldName, AFieldNames,
+                 AColumnNames, AColumnTypes, AColumnNeedValues,
+                 AColumnWidths, AColumnAlignments,
+                 AIDNotZero, AOrderFieldNames, AAutoSizeColumnNumber, AKeys, APicks);
     Result:= True;
   finally
-    FreeAndNil(Frm);
+    FreeandNil(DBTable);
   end;
 end;
 
@@ -518,6 +527,9 @@ function TSQLite3.EditDoubleTable(const AFormCaption: String;
                        const ALeftAutoSizeColumnNumber: Integer;
                        const ALeftKeys: TIntMatrix;
                        const ALeftPicks: TStrMatrix;
+                       const ANeedLeftFilter: Boolean;
+                       const ALeftFilterCaption: String;
+                       const ALeftFilterDelayMS: Integer;
 
                        const ARightTableName, ARightIDFieldName: String;
                        const ARightFieldNames, ARightColumnNames: TStrVector;
@@ -531,33 +543,37 @@ function TSQLite3.EditDoubleTable(const AFormCaption: String;
                        const ARightKeys: TIntMatrix;
                        const ARightPicks: TStrMatrix;
                        const AMasterIDFieldName: String;
+                       const ANeedRightFilter: Boolean;
+                       const ARightFilterCaption: String;
+                       const ARightFilterDelayMS: Integer;
 
                        const AFont: TFont = nil): Boolean;
 var
-  Frm: TSQLite3DoubleTable;
+  DBTable: TDBTableDouble;
 begin
   Result:= False;
 
-  Frm:= TSQLite3DoubleTable.Create(nil);
+  DBTable:= TDBTableDouble.Create(Self, AFont,
+                                  ANeedLeftFilter, ALeftFilterCaption, ALeftFilterDelayMS,
+                                  ANeedRightFilter, ARightFilterCaption, ARightFilterDelayMS);
   try
-    Frm.Caption:= AFormCaption;
-    Frm.LeftQuery.DataBase:= FConnection;
-    Frm.LeftQuery.Transaction:= FTransaction;
-    Frm.RightQuery.DataBase:= FConnection;
-    Frm.RightQuery.Transaction:= FTransaction;
-    Frm.SetRightTable(Self, AFont, ARightTableName, ARightIDFieldName, ARightFieldNames,
-                 ARightColumnNames, ARightColumnTypes, ARightColumnNeedValues, ARightColumnWidths, ARightColumnAlignments,
+    DBTable.Show(AFormCaption,
+
+                 ALeftTableName, ALeftIDFieldName,
+                 ALeftFieldNames, ALeftColumnNames, ALeftColumnTypes,
+                 ALeftColumnNeedValues, ALeftColumnWidths, ALeftColumnAlignments,
+                 ALeftIDNotZero, not VIsNil(ALeftColumnNames), ALeftOrderFieldNames,
+                 ALeftAutoSizeColumnNumber, ALeftKeys, ALeftPicks,
+
+                 ARightTableName, ARightIDFieldName,
+                 ARightFieldNames, ARightColumnNames, ARightColumnTypes,
+                 ARightColumnNeedValues, ARightColumnWidths, ARightColumnAlignments,
                  ARightIDNotZero, not VIsNil(ARightColumnNames), ARightOrderFieldNames,
                  ARightAutoSizeColumnNumber, ARightKeys, ARightPicks, AMasterIDFieldName);
-    Frm.SetLeftTable(Self, AFont, ALeftTableName, ALeftIDFieldName, ALeftFieldNames,
-                 ALeftColumnNames, ALeftColumnTypes, ALeftColumnNeedValues, ALeftColumnWidths, ALeftColumnAlignments,
-                 ALeftIDNotZero, not VIsNil(ALeftColumnNames), ALeftOrderFieldNames,
-                 ALeftAutoSizeColumnNumber, ALeftKeys, ALeftPicks);
 
-    Frm.ShowModal;
     Result:= True;
   finally
-    FreeAndNil(Frm);
+    FreeAndNil(DBTable);
   end;
 end;
 
@@ -1796,13 +1812,18 @@ begin
     TableName:= SqlEsc(ATableName);
 
   FieldStr:= VVectorToStr(AUsedFieldNames , ', ', ' [', '] ');
+  if not SEmpty(AMasterIDFieldName) then
+  begin
+    if VIndexOf(AUsedFieldNames, AMasterIDFieldName)<0 then
+      FieldStr:= FieldStr + ', ' + SqlEsc(AMasterIDFieldName);
+  end;
   OrderStr:= VVectorToStr(AOrderFieldNames, ', ', ' [', '] ');
 
   if not SEmpty(MatchStr) then
     ExecuteScript([
-      'CREATE VIRTUAL TABLE IF NOT EXISTS ' + TableName +
-        ' USING FTS5(' + FieldStr + ');',
-      'INSERT OR IGNORE INTO ' + TableName  +
+      'DROP TABLE IF EXISTS ' + TableName + ';',
+      'CREATE VIRTUAL TABLE ' + TableName + ' USING FTS5(' + FieldStr + ');',
+      'INSERT INTO ' + TableName  +
         ' SELECT ' + FieldStr + ' FROM ' + SqlEsc(ATableName) + ';'
     ]);
 

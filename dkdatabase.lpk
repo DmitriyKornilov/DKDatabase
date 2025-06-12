@@ -27,18 +27,6 @@
         <UnitName Value="USQLite3CheckList"/>
       </Item>
       <Item>
-        <Filename Value="source\usqlite3table.lfm"/>
-        <Type Value="LFM"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3table.pas"/>
-        <UnitName Value="USQLite3Table"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3doubletable.pas"/>
-        <UnitName Value="USQLite3DoubleTable"/>
-      </Item>
-      <Item>
         <Filename Value="source\dk_dbtable.pas"/>
         <UnitName Value="DK_DBTable"/>
       </Item>
@@ -52,10 +40,6 @@
       </Item>
       <Item>
         <Filename Value="source\usqlite3checklist.lfm"/>
-        <Type Value="LFM"/>
-      </Item>
-      <Item>
-        <Filename Value="source\usqlite3doubletable.lfm"/>
         <Type Value="LFM"/>
       </Item>
       <Item>
@@ -85,6 +69,14 @@
       <Item>
         <Filename Value="source\png\update.png"/>
         <Type Value="Binary"/>
+      </Item>
+      <Item>
+        <Filename Value="source\udbtablesingle.pas"/>
+        <UnitName Value="UDBTableSingle"/>
+      </Item>
+      <Item>
+        <Filename Value="source\udbtabledouble.pas"/>
+        <UnitName Value="UDBTableDouble"/>
       </Item>
     </Files>
     <RequiredPkgs>

@@ -72,14 +72,14 @@ type
     function GetIDValue: String;
 
   public
-    constructor Create(const APanel: TPanel;
+    constructor Create(const AFont: TFont;
+                       const APanel: TPanel;
                        const ASQLite3: TSQLite3;
                        const ANeedFilter: Boolean = False;
                        const AFilterCaption: String = '';
                        const AFilterDelayMS: Integer = DELAY_MILLISECONDS_DEFAULT);
     destructor Destroy; override;
-    procedure Settings(const AFont: TFont;
-                       const ATableName, AIDFieldName: String;
+    procedure Settings(const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
                        const AColumnNeedValues: TBoolVector;
@@ -105,7 +105,8 @@ implementation
 
 { TDBTable }
 
-constructor TDBTable.Create(const APanel: TPanel;
+constructor TDBTable.Create(const AFont: TFont;
+                           const APanel: TPanel;
                            const ASQLite3: TSQLite3;
                            const ANeedFilter: Boolean = False;
                            const AFilterCaption: String = '';
@@ -138,7 +139,7 @@ begin
   Images:= ChooseImageListForScreenPPI(FDBImages.PX24, FDBImages.PX30,
                                        FDBImages.PX36, FDBImages.PX42);
 
-  FToolPanel:= TPanel.Create(APanel);
+  FToolPanel:= TPanel.Create(nil);
   FToolPanel.Parent:= APanel;
   FToolPanel.Align:= alTop;
   FToolPanel.AutoSize:= False;
@@ -150,7 +151,7 @@ begin
   FToolPanel.AnchorToNeighbour(akTop, 0, APanel);
   FToolPanel.AnchorToNeighbour(akRight, 0, APanel);
 
-  FTree:= TVirtualStringTree.Create(APanel);
+  FTree:= TVirtualStringTree.Create(nil);
   FTree.Parent:= APanel;
   FTree.Align:= alClient;
   FTree.AnchorToCompanion(akTop, 2, FToolPanel, True);
@@ -161,7 +162,7 @@ begin
 
   if ANeedFilter then
   begin
-    FBevel:= TDividerBevel.Create(APanel);
+    FBevel:= TDividerBevel.Create(FToolPanel);
     FBevel.BevelStyle:= bsLowered;
     FBevel.BevelWidth:= 2;
     FBevel.Orientation:= trVertical;
@@ -194,12 +195,13 @@ begin
   FEdit.IsBeginEditOnKeyPress:= False;
   FEdit.OnSelect:= @CellSelect;
   FEdit.OnEdititingBegin:= @EditingBegin;
+  if Assigned(AFont) then FEdit.SetSingleFont(AFont);
 
   FIsInserting:= False;
 
   if not ANeedFilter then Exit;
 
-  FFilterPanel:= TPanel.Create(APanel);
+  FFilterPanel:= TPanel.Create(FToolPanel);
   FFilterPanel.Parent:= FToolPanel;
   FFilterPanel.Align:= alClient;
   FFilterPanel.BevelInner:= bvNone;
@@ -406,12 +408,20 @@ var
   MasterIDValue: Int64;
   FieldNames: TStrVector;
   Values: TStrMatrix;
+  IDFieldIndex: Integer;
 begin
   FDataValues:= nil;
   FIDValues:= nil;
 
-  FieldNames:= VCreateStr([FIDFieldName]);
-  FieldNames:= VAdd(FieldNames, FFieldNames);
+  if VIsNil(FFieldNames) or SEmpty(FIDFieldName) then Exit;
+
+  FieldNames:= VCut(FFieldNames);
+  IDFieldIndex:= VindexOf(FFieldNames, FIDFieldName);
+  if IDFieldIndex<0 then
+  begin
+    VIns(FieldNames, 0, FIDFieldName);
+    IDFieldIndex:= 0;
+  end;
 
   if not TryStrToInt64(FMasterIDValue, MasterIDValue) then
     MasterIDValue:= -1;
@@ -419,8 +429,10 @@ begin
   FSQLite3.TableMatch(FFilterValue, FTableName, FieldNames, FOrderFieldNames, Values,
                       FNotZeroIDFieldName, FMasterIDFieldName, MasterIDValue);
 
-  FIDValues:= VStrToInt64(Values[0]);
-  FDataValues:= MCut(Values, 1, High(Values));
+  FIDValues:= VStrToInt64(Values[IDFieldIndex]);
+  FDataValues:= MCut(Values);
+  if Length(FDataValues)>Length(FFieldNames) then
+    MDel(FDataValues, IDFieldIndex);
 end;
 
 procedure TDBTable.DataShow;
@@ -466,8 +478,7 @@ begin
   Result:= IntToStr(FIDValues[FEdit.SelectedRowIndex]);
 end;
 
-procedure TDBTable.Settings(const AFont: TFont;
-                       const ATableName, AIDFieldName: String;
+procedure TDBTable.Settings(const ATableName, AIDFieldName: String;
                        const AFieldNames, AColumnNames: TStrVector;
                        const AColumnTypes: TVSTColumnTypes;
                        const AColumnNeedValues: TBoolVector;
@@ -535,7 +546,6 @@ begin
   FNotZeroIDFieldName:= EmptyStr;
   if AIDNotZero then
     FNotZeroIDFieldName:= FIDFieldName;
-  if Assigned(AFont) then FEdit.SetSingleFont(AFont);
 
   SetColumnNames;
   SetColumns;

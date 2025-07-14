@@ -161,62 +161,62 @@ type
                      const ACommit: Boolean = True): Boolean;
 
     //single String ID
-    function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
+    function UpdateByStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
-    function UpdateStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
+    function UpdateByStrID(const ATableName, AFieldName, AIDFieldName, AIDValue: String;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
 
     //single Int32 ID
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Integer;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
     //Int32 IDs array
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TIntVector;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TIntVector;
                      const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TIntVector;
                      const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
-    function UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TIntVector;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
     //single Int64 ID
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
                      const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
                      const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValue: Int64;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
 
     //Int64 IDs array
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TInt64Vector;
                      const ANewValue: Integer; const ACommit: Boolean = True): Boolean;
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TInt64Vector;
                      const ANewValue: Int64; const ACommit: Boolean = True): Boolean;
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TInt64Vector;
                      const ANewValue: TDateTime; const ACommit: Boolean = True): Boolean;
-    function UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+    function UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
                      const AIDValues: TInt64Vector;
                      const ANewValue: String; const ACommit: Boolean = True): Boolean;
 
@@ -1006,7 +1006,7 @@ begin
     'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue'
 end;
 
-function TSQLite3.UpdateStrID(const ATableName, AFieldName, AIDFieldName,
+function TSQLite3.UpdateByStrID(const ATableName, AFieldName, AIDFieldName,
   AIDValue: String; const ANewValue: String; const ACommit: Boolean = True): Boolean;
 var
   S: String;
@@ -1026,7 +1026,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateStrID(const ATableName, AFieldName, AIDFieldName,
+function TSQLite3.UpdateByStrID(const ATableName, AFieldName, AIDFieldName,
   AIDValue: String; const ANewValue: Integer; const ACommit: Boolean): Boolean;
 var
   S: String;
@@ -1046,7 +1046,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValue: Integer; const ANewValue: Integer;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1067,7 +1067,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValue: Integer; const ANewValue: Int64;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1088,7 +1088,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValue: Integer; const ANewValue: TDateTime;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1109,7 +1109,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName, AIDFieldName: String;
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName, AIDFieldName: String;
   const AIDValue: Integer;
   const ANewValue: String; const ACommit: Boolean = True): Boolean;
 var
@@ -1130,7 +1130,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TIntVector; const ANewValue: Integer;
   const ACommit: Boolean): Boolean;
 var
@@ -1155,7 +1155,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TIntVector; const ANewValue: Int64;
   const ACommit: Boolean): Boolean;
 var
@@ -1180,7 +1180,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TIntVector;
   const ANewValue: TDateTime; const ACommit: Boolean): Boolean;
 var
@@ -1205,7 +1205,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt32ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt32ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TIntVector; const ANewValue: String;
   const ACommit: Boolean): Boolean;
 var
@@ -1230,7 +1230,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
   const AIDValue: Int64; const ANewValue: Integer;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1251,7 +1251,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
   const AIDValue: Int64; const ANewValue: Int64;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1272,7 +1272,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
   const AIDValue: Int64; const ANewValue: TDateTime;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1293,7 +1293,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName, AIDFieldName: String;
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName, AIDFieldName: String;
   const AIDValue: Int64; const ANewValue: String;
   const ACommit: Boolean = True): Boolean;
 var
@@ -1314,7 +1314,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TInt64Vector;
   const ANewValue: Integer; const ACommit: Boolean): Boolean;
 var
@@ -1339,7 +1339,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TInt64Vector; const ANewValue: Int64;
   const ACommit: Boolean): Boolean;
 var
@@ -1364,7 +1364,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TInt64Vector;
   const ANewValue: TDateTime; const ACommit: Boolean): Boolean;
 var
@@ -1389,7 +1389,7 @@ begin
   end;
 end;
 
-function TSQLite3.UpdateInt64ID(const ATableName, AFieldName,
+function TSQLite3.UpdateByInt64ID(const ATableName, AFieldName,
   AIDFieldName: String; const AIDValues: TInt64Vector; const ANewValue: String;
   const ACommit: Boolean): Boolean;
 var

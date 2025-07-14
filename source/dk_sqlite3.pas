@@ -98,32 +98,44 @@ type
 
                        const AFont: TFont = nil): Boolean;
 
-    function ValueStrStrID(const ATableName, AValueFieldName,
+    function ValueStrByStrID(const ATableName, AValueFieldName,
                                  AIDFieldName, AIDValue: String): String;
-    function ValueIntStrID(const ATableName, AValueFieldName,
+    function ValueIntByStrID(const ATableName, AValueFieldName,
                                  AIDFieldName, AIDValue: String): Integer;
-    function ValueInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueInt32ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Integer): Integer;
-    function ValueInt64Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueInt64ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Integer): Int64;
-    function ValueDTInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueDTByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                             const AIDValue: Integer): TDateTime;
-    function ValueStrInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueStrByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                              const AIDValue: Integer): String;
-    function ValueInt32Int64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueInt32ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Int64): Integer;
-    function ValueInt64Int64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueInt64ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                const AIDValue: Int64): Int64;
-    function ValueDTInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueDTByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
                             const AIDValue: Int64): TDateTime;
-    function ValueStrInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValueStrByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
                              const AIDValue: Int64): String;
 
-    function ValuesInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValuesInt32ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                 const AIDValue: Integer; const AUnique: Boolean = False): TIntVector;
+    function ValuesInt32ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValue: Int64; const AUnique: Boolean = False): TIntVector;
+    function ValuesInt64ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValue: Integer; const AUnique: Boolean = False): TInt64Vector;
+    function ValuesInt64ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValue: Int64; const AUnique: Boolean = False): TInt64Vector;
 
-    function ValuesInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+    function ValuesInt32ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                 const AIDValues: TIntVector; const AUnique: Boolean = False): TIntVector;
+    function ValuesInt32ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValues: TInt64Vector; const AUnique: Boolean = False): TIntVector;
+    function ValuesInt64ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValues: TIntVector; const AUnique: Boolean = False): TInt64Vector;
+    function ValuesInt64ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValues: TInt64Vector; const AUnique: Boolean = False): TInt64Vector;
 
     //single ID
     function Delete(const ATableName, AIDFieldName: String;
@@ -588,7 +600,7 @@ begin
          'WHERE'  + SqlEsc(AIDFieldName) + '= :IDValue';
 end;
 
-function TSQLite3.ValueStrStrID(const ATableName, AValueFieldName,
+function TSQLite3.ValueStrByStrID(const ATableName, AValueFieldName,
   AIDFieldName, AIDValue: String): String;
 var
   S: String;
@@ -607,7 +619,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueIntStrID(const ATableName, AValueFieldName,
+function TSQLite3.ValueIntByStrID(const ATableName, AValueFieldName,
   AIDFieldName, AIDValue: String): Integer;
 var
   S: String;
@@ -626,7 +638,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueInt32Int32ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueInt32ByInt32ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Integer): Integer;
 var
   S: String;
@@ -645,7 +657,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueInt64Int32ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueInt64ByInt32ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Integer): Int64;
 var
   S: String;
@@ -664,7 +676,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueDTInt32ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueDTByInt32ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Integer): TDateTime;
 var
   S: String;
@@ -683,7 +695,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueStrInt32ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueStrByInt32ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Integer): String;
 var
   S: String;
@@ -702,7 +714,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueInt32Int64ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueInt32ByInt64ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Int64): Integer;
 var
   S: String;
@@ -721,7 +733,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueInt64Int64ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueInt64ByInt64ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Int64): Int64;
 var
   S: String;
@@ -740,7 +752,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueDTInt64ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueDTByInt64ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Int64): TDateTime;
 var
   S: String;
@@ -759,7 +771,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValueStrInt64ID(const ATableName, AValueFieldName,
+function TSQLite3.ValueStrByInt64ID(const ATableName, AValueFieldName,
   AIDFieldName: String; const AIDValue: Int64): String;
 var
   S: String;
@@ -778,7 +790,7 @@ begin
   QClose;
 end;
 
-function TSQLite3.ValuesInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+function TSQLite3.ValuesInt32ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                      const AIDValue: Integer;
                                      const AUnique: Boolean = False): TIntVector;
 var
@@ -802,6 +814,78 @@ begin
   QClose;
 end;
 
+function TSQLite3.ValuesInt32ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValue: Int64;
+                                const AUnique: Boolean = False): TIntVector;
+var
+  S: String;
+begin
+  Result:= nil;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S, AUnique);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(Result, QFieldInt(AValueFieldName));
+      QNext;
+    end;
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValuesInt64ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValue: Integer;
+                                const AUnique: Boolean = False): TInt64Vector;
+var
+  S: String;
+begin
+  Result:= nil;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S, AUnique);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(Result, QFieldInt64(AValueFieldName));
+      QNext;
+    end;
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValuesInt64ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValue: Int64;
+                                const AUnique: Boolean = False): TInt64Vector;
+var
+  S: String;
+begin
+  Result:= nil;
+  PrepareValue(ATableName, AValueFieldName, AIDFieldName, S, AUnique);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamInt64('IDValue', AIDValue);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(Result, QFieldInt64(AValueFieldName));
+      QNext;
+    end;
+  end;
+  QClose;
+end;
+
 procedure PrepareValues(const ATableName, AValueFieldName, AIDFieldName: String;
                         const AIDValuesCount: Integer;
                         out ASQL: String; const AUnique: Boolean = False);
@@ -815,7 +899,7 @@ begin
 end;
 
 
-function TSQLite3.ValuesInt32Int32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+function TSQLite3.ValuesInt32ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
                                 const AIDValues: TIntVector; const AUnique: Boolean = False): TIntVector;
 var
   S: String;
@@ -833,6 +917,80 @@ begin
     while not QEOF do
     begin
       VAppend(Result, QFieldInt(AValueFieldName));
+      QNext;
+    end;
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValuesInt32ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValues: TInt64Vector;
+                                const AUnique: Boolean = False): TIntVector;
+var
+  S: String;
+begin
+  Result:= nil;
+  if VIsNil(AIDValues) then Exit;
+  PrepareValues(ATableName, AValueFieldName, AIDFieldName, Length(AIDValues), S, AUnique);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamsInt64(AIDValues);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(Result, QFieldInt(AValueFieldName));
+      QNext;
+    end;
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValuesInt64ByInt32ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValues: TIntVector;
+                                const AUnique: Boolean = False): TInt64Vector;
+var
+  S: String;
+begin
+  Result:= nil;
+  if VIsNil(AIDValues) then Exit;
+  PrepareValues(ATableName, AValueFieldName, AIDFieldName, Length(AIDValues), S, AUnique);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamsInt(AIDValues);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(Result, QFieldInt64(AValueFieldName));
+      QNext;
+    end;
+  end;
+  QClose;
+end;
+
+function TSQLite3.ValuesInt64ByInt64ID(const ATableName, AValueFieldName, AIDFieldName: String;
+                                const AIDValues: TInt64Vector; const AUnique: Boolean = False): TInt64Vector;
+var
+  S: String;
+begin
+  Result:= nil;
+  if VIsNil(AIDValues) then Exit;
+  PrepareValues(ATableName, AValueFieldName, AIDFieldName, Length(AIDValues), S, AUnique);
+  QSetQuery(FQuery);
+  QSetSQL(S);
+  QParamsInt64(AIDValues);
+  QOpen;
+  if not QIsEmpty then
+  begin
+    QFirst;
+    while not QEOF do
+    begin
+      VAppend(Result, QFieldInt64(AValueFieldName));
       QNext;
     end;
   end;

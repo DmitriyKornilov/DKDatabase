@@ -208,7 +208,7 @@ begin
   FFilterPanel.BevelOuter:= bvNone;
   FFilterPanel.BorderStyle:= bsNone;
 
-  CreateFilterControls(AFilterCaption, FFilterPanel, @DataFilter, AFilterDelayMS);
+  DKFilterCreate(AFilterCaption, FFilterPanel, @DataFilter, AFilterDelayMS);
 end;
 
 destructor TDBTable.Destroy;

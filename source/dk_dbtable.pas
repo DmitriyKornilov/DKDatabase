@@ -532,6 +532,8 @@ procedure TDBTable.Settings(const ATableName, AIDFieldName: String;
   end;
 
 begin
+  FEdit.Clear;
+
   FTableName:= ATableName;
   FIDFieldName:= AIDFieldName;
   FFieldNames:= AFieldNames;

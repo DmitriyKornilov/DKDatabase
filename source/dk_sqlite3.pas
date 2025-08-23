@@ -32,6 +32,7 @@ type
     procedure Connect(const AFileName: String);
     procedure ExecuteScript(const AFileName: String; const ANeedCommit: Boolean = True);
     procedure ExecuteScript(const ASQLScript: TStrVector; const ANeedCommit: Boolean = True);
+    procedure ExecuteScript(const ASQLScript: TSQLScript; const ANeedCommit: Boolean = True);
 
     function EditList(const AFormCaption: String;
                    const ATableName, AIDFieldName, AFieldName: String;
@@ -413,6 +414,19 @@ begin
 
   finally
     FreeAndNil(SQLScript);
+  end;
+end;
+
+procedure TSQLite3.ExecuteScript(const ASQLScript: TSQLScript; const ANeedCommit: Boolean = True);
+begin
+  if not Assigned(ASQLScript) then Exit;
+  ASQLScript.DataBase:= FConnection;
+  ASQLScript.Transaction:= FTransaction;
+  try
+    ASQLScript.Execute;
+    if ANeedCommit then FTransaction.Commit;
+  except
+    FTransaction.Rollback;
   end;
 end;
 

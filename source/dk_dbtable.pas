@@ -124,7 +124,7 @@ var
     AButton.Images:= Images;
     AButton.ImageIndex:= AIconIndex;
     AButton.AutoSize:= False;
-    ControlWidth(AButton, TOOL_BUTTON_WIDTH_DEFAULT);
+    SetControlWidthScaleToForm(AButton, TOOL_BUTTON_WIDTH_DEFAULT);
     AButton.Hint:= AHint;
     AButton.ShowHint:= True;
   end;
@@ -143,7 +143,7 @@ begin
   FToolPanel.Parent:= APanel;
   FToolPanel.Align:= alTop;
   FToolPanel.AutoSize:= False;
-  ControlHeight(FToolPanel, TOOL_PANEL_HEIGHT_DEFAULT);
+  SetControlHeightScaleToForm(FToolPanel, TOOL_PANEL_HEIGHT_DEFAULT);
   FToolPanel.BevelInner:= bvNone;
   FToolPanel.BevelOuter:= bvNone;
   FToolPanel.BorderStyle:= bsSingle;
